@@ -15,5 +15,5 @@ class Customer(models.Model):
         return f"{self.firstName} {self.lastName}"
 
     class Meta:
-        name = "Cliente"
+        verbose_name = "Cliente"
         verbose_name_plural = "Clientes"
