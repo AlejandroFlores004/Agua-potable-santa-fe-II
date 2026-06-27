@@ -123,6 +123,9 @@ STATIC_URL = 'static/'
 
 # Tailwind CSS configuration
 TAILWIND_APP_NAME = 'theme'
+if DEBUG:
+    INSTALLED_APPS += ["django_browser_reload"]
+    MIDDLEWARE += ["django_browser_reload.middleware.BrowserReloadMiddleware"]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
