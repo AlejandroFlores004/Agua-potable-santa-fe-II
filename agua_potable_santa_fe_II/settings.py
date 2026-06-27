@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'customer',
     'connection',
     'billing',
+    'shell',
 ]
 
 MIDDLEWARE = [
