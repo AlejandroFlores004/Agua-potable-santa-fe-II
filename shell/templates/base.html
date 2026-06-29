@@ -1,0 +1,55 @@
+{% load tailwind_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Agua Potable Santa Fe{% endblock %}</title>
+  {% tailwind_css %}
+   <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-base-200 flex flex-col">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar bg-base-100 shadow-md px-6">
+    <div class="flex-1">
+      <a href="/" class="text-xl font-bold">{% block brand %}Agua Potable Santa Fe{% endblock %}</a>
+    </div>
+    <div class="flex-none gap-2 items-center">
+      {% block nav_actions %}
+      <span class="text-sm text-gray-500">Hello, {{ request.user.username }}</span>
+      <a href="{% url 'logout' %}" class="btn btn-ghost btn-sm">Logout</a>
+      {% endblock %}
+    </div>
+  </nav>
+
+  <!-- ===== FLASH MESSAGES ===== -->
+  {% if messages %}
+  <div class="container mx-auto px-6 pt-4 space-y-2">
+    {% for message in messages %}
+    <div role="alert" class="alert
+      {% if message.tags == 'success' %}alert-success
+      {% elif message.tags == 'error' %}alert-error
+      {% elif message.tags == 'warning' %}alert-warning
+      {% else %}alert-info{% endif %}">
+      <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="flex-1 container mx-auto px-6 py-12">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer footer-center bg-base-100 border-t border-base-300 p-4 text-sm text-gray-500">
+    <p>© {% now "Y" %} Agua Potable Santa Fe</p>
+  </footer>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
