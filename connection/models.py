@@ -31,3 +31,5 @@ class Line(models.Model):
             super().save(update_fields=['code'])  # Guardar solo el campo 'code'
         else:
             super().save(*args, **kwargs)
+
+# Create your models here.

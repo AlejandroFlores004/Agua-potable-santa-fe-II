@@ -58,3 +58,5 @@ class InvoiceLine(models.Model):
             super().save(*args, **kwargs)  # Save the instance to get an ID
             self.code = self.code_generator()
         super().save(*args, **kwargs)  # Save again to update the code
+
+# Create your models here.

@@ -25,3 +25,4 @@ class InvoiceLineAdmin(admin.ModelAdmin):
 
 admin.site.register(InvoiceLine, InvoiceLineAdmin)
     
+# Register your models here.

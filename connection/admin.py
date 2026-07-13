@@ -11,3 +11,5 @@ class LineAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at', 'code')
 
 admin.site.register(Line, LineAdmin)
+
+# Register your models here.
