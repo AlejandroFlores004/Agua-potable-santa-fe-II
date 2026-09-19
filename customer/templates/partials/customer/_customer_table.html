@@ -1,0 +1,67 @@
+{% if customers %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>Cliente</th>
+      <th>DUI</th>
+      <th>Contacto</th>
+      <th>Líneas</th>
+      <th class="text-right">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for customer in customers %}
+    <tr>
+      <td>
+        <div class="font-semibold">{{ customer.firstName }} {{ customer.lastName }}</div>
+        <div class="text-xs text-gray-500">Creado {{ customer.created_at|date:"d/m/Y" }} por {{ customer.created_by }}</div>
+      </td>
+      <td>{{ customer.dui|default:"—" }}</td>
+      <td>
+        <div class="text-sm">{{ customer.email|default:"—" }}</div>
+        <div class="text-sm text-gray-500">{{ customer.number }}</div>
+      </td>
+      <td>
+        <div class="flex flex-wrap gap-1 max-w-xs">
+          {% for line in customer.lines.all %}
+          <span class="badge badge-outline" title="{{ line.location|default:'Sin ubicación' }} — {{ line.description|default:'' }}">
+            {{ line.code|default:"pendiente" }}
+          </span>
+          {% empty %}
+          <span class="text-sm text-gray-400">Sin líneas</span>
+          {% endfor %}
+        </div>
+      </td>
+      <td class="text-right">
+        <div class="flex justify-end gap-2">
+          <button
+            class="btn btn-ghost btn-sm"
+            hx-get="{% url 'customer_edit' customer.pk %}"
+            hx-target="#modal-container"
+            hx-swap="innerHTML"
+          >
+            Editar
+          </button>
+          <button
+            class="btn btn-ghost btn-sm text-error"
+            hx-post="{% url 'customer_delete' customer.pk %}"
+            hx-swap="none"
+            hx-confirm="¿Eliminar a {{ customer.firstName }} {{ customer.lastName }} y todas sus líneas?"
+          >
+            Eliminar
+          </button>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="text-center py-12 text-gray-500">
+  {% if query %}
+    No se encontraron clientes para "{{ query }}".
+  {% else %}
+    Todavía no hay clientes registrados.
+  {% endif %}
+</div>
+{% endif %}

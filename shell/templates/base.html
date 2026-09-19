@@ -15,7 +15,9 @@
 
   {% include "partials/base/_navbar.html" %}
   {% include "partials/base/_navbar_mobile.html" %}
-  {% include "partials/base/_messages.html" %}
+  <div id="messages-container">
+    {% include "partials/base/_messages.html" %}
+  </div>
 
   <main class="flex-1 container mx-auto px-6 py-8 pb-24 md:pb-8">
     {% block content %}{% endblock %}
