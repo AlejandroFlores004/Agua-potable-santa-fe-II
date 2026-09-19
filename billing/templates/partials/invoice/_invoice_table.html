@@ -1,0 +1,74 @@
+{% if invoices %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>Cuota</th>
+      <th>Periodo</th>
+      <th>Vencimiento</th>
+      <th>Líneas asignadas</th>
+      <th class="text-right">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for invoice in invoices %}
+    <tr>
+      <td>
+        <div class="font-semibold">{{ invoice.fee.name }}</div>
+        <div class="text-xs text-gray-500">Creada {{ invoice.created_at|date:"d/m/Y" }} por {{ invoice.created_by }}</div>
+      </td>
+      <td>
+        <div class="text-sm">{{ invoice.start_date|date:"d/m/Y" }} — {{ invoice.end_date|date:"d/m/Y" }}</div>
+      </td>
+      <td>{{ invoice.due_date|date:"d/m/Y" }}</td>
+      <td>
+        <button
+          class="badge badge-outline hover:badge-primary cursor-pointer"
+          hx-get="{% url 'invoice_lines' invoice.pk %}"
+          hx-target="#modal-container"
+          hx-swap="innerHTML"
+          title="Ver líneas asignadas"
+        >
+          {{ invoice.paid_count }}/{{ invoice.lines_count }} pagadas
+        </button>
+      </td>
+      <td class="text-right">
+        <div class="flex justify-end gap-2">
+          <button
+            class="btn btn-ghost btn-sm"
+            hx-get="{% url 'invoice_assign_lines_confirm' invoice.pk %}"
+            hx-target="#modal-container"
+            hx-swap="innerHTML"
+          >
+            Asignar líneas
+          </button>
+          <button
+            class="btn btn-ghost btn-sm"
+            hx-get="{% url 'invoice_edit' invoice.pk %}"
+            hx-target="#modal-container"
+            hx-swap="innerHTML"
+          >
+            Editar
+          </button>
+          <button
+            class="btn btn-ghost btn-sm text-error"
+            hx-post="{% url 'invoice_delete' invoice.pk %}"
+            hx-swap="none"
+            hx-confirm="¿Eliminar la factura de {{ invoice.fee.name }} y todas sus líneas asignadas?"
+          >
+            Eliminar
+          </button>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="text-center py-12 text-gray-500">
+  {% if query %}
+    No se encontraron facturas para "{{ query }}".
+  {% else %}
+    Todavía no hay facturas registradas.
+  {% endif %}
+</div>
+{% endif %}

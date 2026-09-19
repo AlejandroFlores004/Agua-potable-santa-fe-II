@@ -11,7 +11,7 @@
   <script src="{% static 'js/htmx.min.js' %}"></script>
   {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-screen bg-base-200 flex flex-col">
+<body class="min-h-screen bg-base-200 flex flex-col" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
   {% include "partials/base/_navbar.html" %}
   {% include "partials/base/_navbar_mobile.html" %}

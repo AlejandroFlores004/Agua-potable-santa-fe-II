@@ -1,0 +1,43 @@
+{% if fees %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Monto</th>
+      <th>Creada</th>
+      <th class="text-right">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for fee in fees %}
+    <tr>
+      <td class="font-semibold">{{ fee.name }}</td>
+      <td>${{ fee.amount }}</td>
+      <td>
+        <div class="text-xs text-gray-500">{{ fee.created_at|date:"d/m/Y" }} por {{ fee.created_by }}</div>
+      </td>
+      <td class="text-right">
+        <div class="flex justify-end gap-2">
+          <button
+            class="btn btn-ghost btn-sm text-error"
+            hx-post="{% url 'fee_delete' fee.pk %}"
+            hx-swap="none"
+            hx-confirm="¿Eliminar la cuota &quot;{{ fee.name }}&quot;? Esto también eliminará las facturas asociadas y sus líneas asignadas."
+          >
+            Eliminar
+          </button>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="text-center py-12 text-gray-500">
+  {% if query %}
+    No se encontraron cuotas para "{{ query }}".
+  {% else %}
+    Todavía no hay cuotas registradas.
+  {% endif %}
+</div>
+{% endif %}

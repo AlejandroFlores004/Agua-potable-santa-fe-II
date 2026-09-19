@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}Facturación{% endblock %}
+{% block title %}Cuotas{% endblock %}
 
 {% block content %}
 <div class="flex flex-col gap-6">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold">Facturación</h1>
-      <p class="text-sm text-gray-500">Administra las facturas y asígnalas a las líneas de conexión.</p>
+      <h1 class="text-2xl font-bold">Cuotas</h1>
+      <p class="text-sm text-gray-500">Administra las cuotas que se usan para generar facturas. Una vez creada, una cuota no se puede editar.</p>
     </div>
     <button
       class="btn btn-primary gap-2"
-      hx-get="{% url 'invoice_create' %}"
+      hx-get="{% url 'fee_create' %}"
       hx-target="#modal-container"
       hx-swap="innerHTML"
     >
@@ -20,7 +20,7 @@
         <line x1="12" y1="5" x2="12" y2="19"/>
         <line x1="5" y1="12" x2="19" y2="12"/>
       </svg>
-      Nueva factura
+      Nueva cuota
     </button>
   </div>
 
@@ -30,22 +30,22 @@
         type="text"
         name="q"
         value="{{ query }}"
-        placeholder="Buscar por cuota..."
+        placeholder="Buscar por nombre..."
         class="input input-bordered w-full max-w-sm"
-        hx-get="{% url 'billing_home' %}"
+        hx-get="{% url 'fee_home' %}"
         hx-trigger="keyup changed delay:400ms, search"
-        hx-target="#invoice-table-wrapper"
+        hx-target="#fee-table-wrapper"
         hx-swap="innerHTML"
       />
 
-      <div id="invoice-table-wrapper"
+      <div id="fee-table-wrapper"
            class="overflow-x-auto"
-           hx-get="{% url 'billing_home' %}"
-           hx-trigger="invoiceSaved from:body"
+           hx-get="{% url 'fee_home' %}"
+           hx-trigger="feeSaved from:body"
            hx-target="this"
            hx-swap="innerHTML"
            hx-include="[name='q']">
-        {% include "partials/invoice/_invoice_table.html" %}
+        {% include "partials/fee/_fee_table.html" %}
       </div>
     </div>
   </div>
