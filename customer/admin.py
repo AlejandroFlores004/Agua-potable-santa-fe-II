@@ -6,7 +6,7 @@ from connection.models import Line
 class LineInline(admin.TabularInline):
     model = Line
     extra = 1
-    fields = ('description',)  # only ask for what's actually needed; code & created_by are handled automatically
+    fields = ('location', 'description')  # only ask for what's actually needed; code & created_by are handled automatically
     readonly_fields = ()
 
     def save_new_instance(self, form, formset):

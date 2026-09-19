@@ -2,10 +2,22 @@ from django.db import models
 from customer.models import Customer
 from django.contrib.auth.models import User
 
+class Location(models.Model):
+    name = models.CharField("Nombre", max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Ubicación"
+        verbose_name_plural = "Ubicaciones"
+        ordering = ['name']
+
 # Create your models here.
 class Line(models.Model):
     code = models.CharField("Código", max_length=100, unique=True, blank=True, null=True)
     description = models.TextField("Descripción", blank=True, null=True)
+    location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Ubicación", related_name='lines')
     created_at = models.DateTimeField("Fecha de creación", auto_now_add=True)
     updated_at = models.DateTimeField("Fecha de edición", auto_now=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Creado por")
