@@ -209,8 +209,9 @@ def invoice_print_receipts(request, pk):
         messages.error(request, "Ocurrió un error al generar los recibos en PDF.")
         return redirect("billing_home")
 
+    filename = f"recibos_{invoice.start_date:%d-%m-%Y}_al_{invoice.end_date:%d-%m-%Y}.pdf"
     response = HttpResponse(buffer.getvalue(), content_type="application/pdf")
-    response["Content-Disposition"] = f'inline; filename="recibos_factura_{invoice.pk}.pdf"'
+    response["Content-Disposition"] = f'inline; filename="{filename}"'
     return response
 
 
@@ -238,6 +239,7 @@ def invoice_print_receipts_landscape(request, pk):
         messages.error(request, "Ocurrió un error al generar los recibos en PDF.")
         return redirect("billing_home")
 
+    filename = f"recibos_{invoice.start_date:%d-%m-%Y}_al_{invoice.end_date:%d-%m-%Y}_horizontal.pdf"
     response = HttpResponse(buffer.getvalue(), content_type="application/pdf")
-    response["Content-Disposition"] = f'inline; filename="recibos_factura_{invoice.pk}_horizontal.pdf"'
+    response["Content-Disposition"] = f'inline; filename="{filename}"'
     return response
