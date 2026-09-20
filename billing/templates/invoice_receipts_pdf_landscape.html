@@ -80,9 +80,19 @@
   table.card td.field-col.left-col {
     border-right: 1px solid #dbe8f2;
   }
+  table.card td.field-col div {
+    margin: 0;
+    padding: 0;
+  }
   .label {
     color: #1c5d8c;
     font-weight: bold;
+  }
+  .client-name {
+    min-height: 22pt;
+    margin: 0;
+    padding: 0;
+    line-height: 11pt;
   }
   table.detail {
     width: 100%;
@@ -124,6 +134,36 @@
     font-size: 10pt;
     text-align: right;
   }
+  table.account-box {
+    width: 100%;
+    border: 1px solid #1c5d8c;
+    border-collapse: collapse;
+    margin-bottom: 5px;
+  }
+  table.account-box td {
+    padding: 3px 6px;
+    vertical-align: middle;
+  }
+  table.account-box td.account-instructions {
+    font-size: 6.5pt;
+    color: #1a1a1a;
+    width: 62%;
+    border-right: 1px solid #b7d3ea;
+  }
+  table.account-box td.account-number {
+    width: 38%;
+    text-align: center;
+    color: #1c5d8c;
+    font-size: 11pt;
+    font-weight: bold;
+  }
+  table.account-box td.account-number .account-number-caption {
+    display: block;
+    font-size: 5.5pt;
+    font-weight: normal;
+    color: #555555;
+    margin-bottom: 1px;
+  }
   .cut-line {
     border-top: 1px dashed #999999;
     margin: 6px 0 6px 0;
@@ -162,10 +202,11 @@
       <tr><td class="card-header" colspan="2">INFORMACIÓN DEL CLIENTE</td></tr>
       <tr>
         <td class="field-col left-col">
-          <span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}<br/>
-          <span class="label">Línea:</span> {{ invoice_line.line.code|default:"Sin asignar" }}<br/>
-          <span class="label">Ubicación:</span> {{ invoice_line.line.location.name|default:"Sin asignar" }}<br/>
-          <span class="label">Facturación:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}
+          <div class="client-name"><span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</div>
+          <div><span class="label">DUI:</span> {{ invoice_line.line.customer.dui|default:"Sin registrar" }}</div>
+          <div><span class="label">Línea:</span> {{ invoice_line.line.code|default:"Sin asignar" }}</div>
+          <div><span class="label">Ubicación:</span> {{ invoice_line.line.location.name|default:"Sin asignar" }}</div>
+          <div><span class="label">Facturación:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}</div>
         </td>
         <td class="field-col">
           <span class="label">Recibo:</span> {{ invoice_line.code|default:"pendiente" }}<br/>
@@ -182,7 +223,7 @@
         <th>Valor ($)</th>
       </tr>
       <tr>
-        <td>Paga por consumo fecha {{ invoice.due_date|date:"d/m/Y" }}</td>
+        <td>Paga por consumo del {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}</td>
         <td class="number">0</td>
         <td class="amount">${{ invoice.fee.amount }}</td>
       </tr>
@@ -192,6 +233,13 @@
       <tr>
         <td class="total-label">TOTAL A PAGAR</td>
         <td class="total-value">${{ invoice.fee.amount }}</td>
+      </tr>
+    </table>
+
+    <table class="account-box">
+      <tr>
+        <td class="account-instructions">El pago de este recibo debe ser ingresado a la cuenta indicada. Solo presentando este recibo se podrán hacer los depósitos.</td>
+        <td class="account-number"><span class="account-number-caption">N&uacute;mero de cuenta</span>{{ invoice.account.number }}</td>
       </tr>
     </table>
 
@@ -203,10 +251,11 @@
       <tr><td class="card-header" colspan="2">INFORMACIÓN DEL CLIENTE</td></tr>
       <tr>
         <td class="field-col left-col">
-          <span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}<br/>
-          <span class="label">Línea:</span> {{ invoice_line.line.code|default:"Sin asignar" }}<br/>
-          <span class="label">Ubicación:</span> {{ invoice_line.line.location.name|default:"Sin asignar" }}<br/>
-          <span class="label">Facturación:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}
+          <div class="client-name"><span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</div>
+          <div><span class="label">DUI:</span> {{ invoice_line.line.customer.dui|default:"Sin registrar" }}</div>
+          <div><span class="label">Línea:</span> {{ invoice_line.line.code|default:"Sin asignar" }}</div>
+          <div><span class="label">Ubicación:</span> {{ invoice_line.line.location.name|default:"Sin asignar" }}</div>
+          <div><span class="label">Facturación:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}</div>
         </td>
         <td class="field-col">
           <span class="label">Recibo:</span> {{ invoice_line.code|default:"pendiente" }}<br/>
@@ -223,7 +272,7 @@
         <th>Valor ($)</th>
       </tr>
       <tr>
-        <td>Paga por consumo fecha {{ invoice.due_date|date:"d/m/Y" }}</td>
+        <td>Paga por consumo del {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}</td>
         <td class="number">0</td>
         <td class="amount">${{ invoice.fee.amount }}</td>
       </tr>
@@ -233,6 +282,13 @@
       <tr>
         <td class="total-label">TOTAL A PAGAR</td>
         <td class="total-value">${{ invoice.fee.amount }}</td>
+      </tr>
+    </table>
+
+    <table class="account-box">
+      <tr>
+        <td class="account-instructions">El pago de este recibo debe ser ingresado a la cuenta indicada. Solo presentando este recibo se podrán hacer los depósitos.</td>
+        <td class="account-number"><span class="account-number-caption">N&uacute;mero de cuenta</span>{{ invoice.account.number }}</td>
       </tr>
     </table>
 

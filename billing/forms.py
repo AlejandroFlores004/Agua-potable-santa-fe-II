@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Fee, Invoice
+from .models import Account, Fee, Invoice
 
 INPUT_CLASSES = "input input-bordered w-full"
 SELECT_CLASSES = "select select-bordered w-full"
@@ -19,9 +19,10 @@ class FeeForm(forms.ModelForm):
 class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
-        fields = ["fee", "start_date", "end_date", "due_date"]
+        fields = ["fee", "account", "start_date", "end_date", "due_date"]
         widgets = {
             "fee": forms.Select(attrs={"class": SELECT_CLASSES}),
+            "account": forms.Select(attrs={"class": SELECT_CLASSES}),
             "start_date": forms.DateInput(attrs={"class": INPUT_CLASSES, "type": "date"}),
             "end_date": forms.DateInput(attrs={"class": INPUT_CLASSES, "type": "date"}),
             "due_date": forms.DateInput(attrs={"class": INPUT_CLASSES, "type": "date"}),

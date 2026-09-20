@@ -4,6 +4,20 @@ from connection.models import Line
 from datetime import datetime
 
 # Create your models here.
+class Account(models.Model):
+    name = models.CharField("Nombre de cuenta", max_length=100)
+    number = models.CharField("Número de cuenta", max_length=50, unique=True)
+
+    created_at = models.DateTimeField("Fecha de creación", auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Creado por")
+
+    def __str__(self):
+        return f"{self.name} - {self.number}"
+
+    class Meta:
+        verbose_name = "Cuenta"
+        verbose_name_plural = "Cuentas"
+
 class Fee(models.Model):
     name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -19,6 +33,7 @@ class Fee(models.Model):
 
 class Invoice(models.Model):
     fee = models.ForeignKey(Fee, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name="Cuenta")
     start_date = models.DateField()
     end_date = models.DateField()
     due_date = models.DateField()

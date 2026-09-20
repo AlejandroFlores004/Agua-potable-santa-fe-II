@@ -187,7 +187,7 @@ def invoice_lines(request, pk):
 
 @login_required(login_url="login")
 def invoice_print_receipts(request, pk):
-    invoice = get_object_or_404(Invoice, pk=pk)
+    invoice = get_object_or_404(Invoice.objects.select_related("fee", "account"), pk=pk)
     lines = (
         InvoiceLine.objects.filter(invoice=invoice)
         .select_related("line", "line__customer")
@@ -216,7 +216,7 @@ def invoice_print_receipts(request, pk):
 
 @login_required(login_url="login")
 def invoice_print_receipts_landscape(request, pk):
-    invoice = get_object_or_404(Invoice, pk=pk)
+    invoice = get_object_or_404(Invoice.objects.select_related("fee", "account"), pk=pk)
     lines = (
         InvoiceLine.objects.filter(invoice=invoice)
         .select_related("line", "line__customer", "line__location")

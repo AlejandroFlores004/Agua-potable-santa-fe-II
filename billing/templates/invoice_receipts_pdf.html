@@ -111,6 +111,36 @@
     font-size: 13pt;
     text-align: right;
   }
+  table.account-box {
+    width: 100%;
+    border: 1px solid #1c5d8c;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
+  table.account-box td {
+    padding: 6px 10px;
+    vertical-align: middle;
+  }
+  table.account-box td.account-instructions {
+    font-size: 8pt;
+    color: #1a1a1a;
+    width: 62%;
+    border-right: 1px solid #b7d3ea;
+  }
+  table.account-box td.account-number {
+    width: 38%;
+    text-align: center;
+    color: #1c5d8c;
+    font-size: 15pt;
+    font-weight: bold;
+  }
+  table.account-box td.account-number .account-number-caption {
+    display: block;
+    font-size: 6.5pt;
+    font-weight: normal;
+    color: #555555;
+    margin-bottom: 1px;
+  }
   .cut-line {
     border-top: 1px dashed #999999;
     margin: 10px 0 12px 0;
@@ -157,6 +187,7 @@
     <tr>
       <td class="field-col left-col">
         <span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}<br/>
+        <span class="label">DUI:</span> {{ invoice_line.line.customer.dui|default:"Sin registrar" }}<br/>
         <span class="label">Medidor:</span> Sin asignar<br/>
         <span class="label">Facturación:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}<br/>
         <span class="label">Zona:</span> Santa Fe II
@@ -176,7 +207,7 @@
       <th>Valor ($)</th>
     </tr>
     <tr>
-      <td>Paga por consumo fecha {{ invoice.due_date|date:"d/m/Y" }}</td>
+      <td>Paga por consumo del {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}</td>
       <td class="number">0</td>
       <td class="amount">${{ invoice.fee.amount }}</td>
     </tr>
@@ -186,6 +217,13 @@
     <tr>
       <td class="total-label">TOTAL A PAGAR</td>
       <td class="total-value">${{ invoice.fee.amount }}</td>
+    </tr>
+  </table>
+
+  <table class="account-box">
+    <tr>
+      <td class="account-instructions">El pago de este recibo debe ser ingresado a la cuenta indicada. Solo presentando este recibo se podrán hacer los depósitos.</td>
+      <td class="account-number"><span class="account-number-caption">N&uacute;mero de cuenta</span>{{ invoice.account.number }}</td>
     </tr>
   </table>
 
@@ -198,6 +236,7 @@
     <tr>
       <td class="field-col left-col">
         <span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}<br/>
+        <span class="label">DUI:</span> {{ invoice_line.line.customer.dui|default:"Sin registrar" }}<br/>
         <span class="label">Medidor:</span> Sin asignar<br/>
         <span class="label">Facturación:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}<br/>
         <span class="label">Zona:</span> Santa Fe II
@@ -217,7 +256,7 @@
       <th>Valor ($)</th>
     </tr>
     <tr>
-      <td>Paga por consumo fecha {{ invoice.due_date|date:"d/m/Y" }}</td>
+      <td>Paga por consumo del {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}</td>
       <td class="number">0</td>
       <td class="amount">${{ invoice.fee.amount }}</td>
     </tr>
@@ -227,6 +266,13 @@
     <tr>
       <td class="total-label">TOTAL A PAGAR</td>
       <td class="total-value">${{ invoice.fee.amount }}</td>
+    </tr>
+  </table>
+
+  <table class="account-box">
+    <tr>
+      <td class="account-instructions">El pago de este recibo debe ser ingresado a la cuenta indicada. Solo presentando este recibo se podrán hacer los depósitos.</td>
+      <td class="account-number"><span class="account-number-caption">N&uacute;mero de cuenta</span>{{ invoice.account.number }}</td>
     </tr>
   </table>
 

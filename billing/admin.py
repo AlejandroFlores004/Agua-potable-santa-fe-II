@@ -1,8 +1,15 @@
 from django.contrib import admin
 
-from billing.models import Fee, Invoice, InvoiceLine
+from billing.models import Account, Fee, Invoice, InvoiceLine
 
 # Register your models here.
+class AccountAdmin(admin.ModelAdmin):
+    list_display = ('name', 'number', 'created_at', 'created_by')
+    search_fields = ('name', 'number', 'created_by__username')
+    list_filter = ('created_at',)
+
+admin.site.register(Account, AccountAdmin)
+
 class FeeAdmin(admin.ModelAdmin):
     list_display = ('name', 'amount', 'created_at', 'created_by')
     search_fields = ('name', 'amount', 'created_by__username')
@@ -11,8 +18,8 @@ class FeeAdmin(admin.ModelAdmin):
 admin.site.register(Fee, FeeAdmin)
 
 class InvoiceAdmin(admin.ModelAdmin):
-    list_display = ('fee', 'start_date', 'end_date', 'due_date', 'created_at', 'created_by')
-    search_fields = ('fee__name', 'created_by__username')
+    list_display = ('fee', 'account', 'start_date', 'end_date', 'due_date', 'created_at', 'created_by')
+    search_fields = ('fee__name', 'account__name', 'account__number', 'created_by__username')
     list_filter = ('start_date', 'end_date', 'due_date', 'created_at')
 
 admin.site.register(Invoice, InvoiceAdmin)

@@ -34,6 +34,16 @@
           {% endif %}
         </div>
 
+        <div class="form-control">
+          <label class="label" for="{{ form.account.id_for_label }}">
+            <span class="label-text">Cuenta *</span>
+          </label>
+          {{ form.account }}
+          {% if form.account.errors %}
+          <span class="text-error text-xs mt-1">{{ form.account.errors|join:", " }}</span>
+          {% endif %}
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="form-control">
             <label class="label" for="{{ form.start_date.id_for_label }}">
