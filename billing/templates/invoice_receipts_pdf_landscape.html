@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Recibos - {{ invoice.fee.name }}</title>
+<style>
+  @page {
+    size: letter landscape;
+    margin: 1cm;
+  }
+  body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 8pt;
+    color: #1a1a1a;
+  }
+  table.page-row {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.page-row td.col {
+    width: 50%;
+    vertical-align: top;
+    padding: 0 8px;
+  }
+  table.page-row td.col.right {
+    border-left: 1px dashed #999999;
+  }
+  table.brand-bar {
+    width: 100%;
+    border-collapse: collapse;
+    border-bottom: 2px solid #1c5d8c;
+    margin-bottom: 6px;
+  }
+  table.brand-bar td {
+    text-align: center;
+    padding: 2px 6px 4px 6px;
+  }
+  .brand-title {
+    color: #1c5d8c;
+    font-size: 11pt;
+    font-weight: bold;
+  }
+  .brand-subtitle {
+    color: #555555;
+    font-size: 6.5pt;
+    font-style: italic;
+    margin-top: 1px;
+  }
+  .internal-title {
+    text-align: center;
+    color: #1c5d8c;
+    font-size: 8.5pt;
+    font-weight: bold;
+    padding: 3px 0;
+    margin-bottom: 5px;
+    border-top: 1px solid #b7d3ea;
+    border-bottom: 1px solid #b7d3ea;
+  }
+  table.card {
+    width: 100%;
+    border: 1px solid #b7d3ea;
+    border-collapse: collapse;
+    margin-bottom: 5px;
+  }
+  td.card-header {
+    color: #1c5d8c;
+    font-size: 7pt;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-bottom: 1px solid #b7d3ea;
+  }
+  table.card td.field-col {
+    vertical-align: top;
+    padding: 4px 6px;
+    width: 50%;
+    font-size: 7.5pt;
+    line-height: 11pt;
+  }
+  table.card td.field-col.left-col {
+    border-right: 1px solid #dbe8f2;
+  }
+  .label {
+    color: #1c5d8c;
+    font-weight: bold;
+  }
+  table.detail {
+    width: 100%;
+    border: 1px solid #b7d3ea;
+    border-collapse: collapse;
+    margin-bottom: 4px;
+  }
+  table.detail th, table.detail td {
+    border: 1px solid #dbe8f2;
+    padding: 3px 5px;
+    font-size: 7.5pt;
+  }
+  table.detail th {
+    color: #1c5d8c;
+    text-align: left;
+  }
+  table.detail td.number {
+    text-align: center;
+  }
+  table.detail td.amount {
+    text-align: right;
+  }
+  table.total-bar {
+    width: 100%;
+    border-collapse: collapse;
+    border-top: 2px solid #1c5d8c;
+    border-bottom: 2px solid #1c5d8c;
+    margin-bottom: 6px;
+  }
+  table.total-bar td {
+    color: #1c5d8c;
+    font-weight: bold;
+    padding: 4px 6px;
+  }
+  table.total-bar td.total-label {
+    font-size: 7.5pt;
+  }
+  table.total-bar td.total-value {
+    font-size: 10pt;
+    text-align: right;
+  }
+  .cut-line {
+    border-top: 1px dashed #999999;
+    margin: 6px 0 6px 0;
+  }
+  table.status-box {
+    width: 100%;
+    border: 1px solid #b7d3ea;
+    border-collapse: collapse;
+    margin-top: 3px;
+  }
+  table.status-box td {
+    border: 1px solid #dbe8f2;
+    padding: 3px 6px;
+    font-size: 7.5pt;
+  }
+  .page-break {
+    page-break-after: always;
+  }
+</style>
+</head>
+<body>
+{% for invoice_line in invoice_lines %}
+{% if forloop.counter0|divisibleby:2 %}<table class="page-row"><tr>{% endif %}
+  <td class="col{% if forloop.counter|divisibleby:2 %} right{% endif %}">
+
+    <table class="brand-bar">
+      <tr>
+        <td>
+          <div class="brand-title">RECIBO DE PAGO DE AGUA POTABLE</div>
+          <div class="brand-subtitle">Sistema de agua potable Santa Fe II</div>
+        </td>
+      </tr>
+    </table>
+
+    <table class="card">
+      <tr><td class="card-header" colspan="2">INFORMACIÓN DEL CLIENTE</td></tr>
+      <tr>
+        <td class="field-col left-col">
+          <span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}<br/>
+          <span class="label">Línea:</span> {{ invoice_line.line.code|default:"Sin asignar" }}<br/>
+          <span class="label">Ubicación:</span> {{ invoice_line.line.location.name|default:"Sin asignar" }}<br/>
+          <span class="label">Facturación:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}
+        </td>
+        <td class="field-col">
+          <span class="label">Recibo:</span> {{ invoice_line.code|default:"pendiente" }}<br/>
+          <span class="label">Fecha límite:</span> {{ invoice.due_date|date:"d/m/Y" }}
+          {% if invoice_line.line.description %}<br/><span class="label">Detalle línea:</span> {{ invoice_line.line.description }}{% endif %}
+        </td>
+      </tr>
+    </table>
+
+    <table class="detail">
+      <tr>
+        <th>Detalle</th>
+        <th>M<sup>3</sup></th>
+        <th>Valor ($)</th>
+      </tr>
+      <tr>
+        <td>Paga por consumo fecha {{ invoice.due_date|date:"d/m/Y" }}</td>
+        <td class="number">0</td>
+        <td class="amount">${{ invoice.fee.amount }}</td>
+      </tr>
+    </table>
+
+    <table class="total-bar">
+      <tr>
+        <td class="total-label">TOTAL A PAGAR</td>
+        <td class="total-value">${{ invoice.fee.amount }}</td>
+      </tr>
+    </table>
+
+    <div class="cut-line"></div>
+
+    <div class="internal-title">COMPROBANTE DE PAGO &mdash; CONTROL INTERNO</div>
+
+    <table class="card">
+      <tr><td class="card-header" colspan="2">INFORMACIÓN DEL CLIENTE</td></tr>
+      <tr>
+        <td class="field-col left-col">
+          <span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}<br/>
+          <span class="label">Línea:</span> {{ invoice_line.line.code|default:"Sin asignar" }}<br/>
+          <span class="label">Ubicación:</span> {{ invoice_line.line.location.name|default:"Sin asignar" }}<br/>
+          <span class="label">Facturación:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}
+        </td>
+        <td class="field-col">
+          <span class="label">Recibo:</span> {{ invoice_line.code|default:"pendiente" }}<br/>
+          <span class="label">Fecha límite:</span> {{ invoice.due_date|date:"d/m/Y" }}
+          {% if invoice_line.line.description %}<br/><span class="label">Detalle línea:</span> {{ invoice_line.line.description }}{% endif %}
+        </td>
+      </tr>
+    </table>
+
+    <table class="detail">
+      <tr>
+        <th>Detalle</th>
+        <th>M<sup>3</sup></th>
+        <th>Valor ($)</th>
+      </tr>
+      <tr>
+        <td>Paga por consumo fecha {{ invoice.due_date|date:"d/m/Y" }}</td>
+        <td class="number">0</td>
+        <td class="amount">${{ invoice.fee.amount }}</td>
+      </tr>
+    </table>
+
+    <table class="total-bar">
+      <tr>
+        <td class="total-label">TOTAL A PAGAR</td>
+        <td class="total-value">${{ invoice.fee.amount }}</td>
+      </tr>
+    </table>
+
+    <table class="status-box">
+      <tr>
+        <td style="width:30%;">Fecha de pago:</td>
+        <td style="width:70%;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td>Firma:</td>
+        <td>&nbsp;</td>
+      </tr>
+    </table>
+
+  </td>
+{% if forloop.counter|divisibleby:2 or forloop.last %}</tr></table>{% if not forloop.last %}<div class="page-break"></div>{% endif %}{% endif %}
+{% endfor %}
+</body>
+</html>

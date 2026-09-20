@@ -48,6 +48,13 @@
           >
             Imprimir
           </a>
+          <a
+            href="{% url 'invoice_print_receipts_landscape' invoice.pk %}"
+            target="_blank"
+            class="btn btn-ghost btn-sm"
+          >
+            Imprimir (horizontal)
+          </a>
           <button
             class="btn btn-ghost btn-sm"
             hx-get="{% url 'invoice_edit' invoice.pk %}"

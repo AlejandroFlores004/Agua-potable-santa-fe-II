@@ -6,60 +6,84 @@
 <style>
   @page {
     size: letter;
-    margin: 1.5cm;
+    margin: 1.3cm;
   }
   body {
     font-family: Helvetica, Arial, sans-serif;
     font-size: 10pt;
-    color: #111111;
+    color: #1a1a1a;
   }
-  .receipt-title {
-    text-align: center;
-    font-size: 16pt;
-    font-weight: bold;
-    margin-bottom: 2px;
-  }
-  .receipt-subtitle {
-    text-align: center;
-    font-size: 9pt;
-    font-style: italic;
+  table.brand-bar {
+    width: 100%;
+    border-collapse: collapse;
+    border-bottom: 2px solid #1c5d8c;
     margin-bottom: 10px;
+  }
+  table.brand-bar td {
+    text-align: center;
+    padding: 4px 10px 8px 10px;
+  }
+  .brand-title {
+    color: #1c5d8c;
+    font-size: 15pt;
+    font-weight: bold;
+  }
+  .brand-subtitle {
+    color: #555555;
+    font-size: 8.5pt;
+    font-style: italic;
+    margin-top: 1px;
   }
   .internal-title {
     text-align: center;
-    font-size: 14pt;
+    color: #1c5d8c;
+    font-size: 11pt;
     font-weight: bold;
-    margin-bottom: 10px;
+    padding: 4px 0;
+    margin-bottom: 8px;
+    border-top: 1px solid #b7d3ea;
+    border-bottom: 1px solid #b7d3ea;
   }
-  table.info-box {
+  table.card {
     width: 100%;
-    border: 1px solid #000000;
+    border: 1px solid #b7d3ea;
     border-collapse: collapse;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
-  table.info-box td {
+  td.card-header {
+    color: #1c5d8c;
+    font-size: 8.5pt;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-bottom: 1px solid #b7d3ea;
+  }
+  table.card td.field-col {
     vertical-align: top;
     padding: 6px 10px;
     width: 50%;
     font-size: 9.5pt;
     line-height: 15pt;
   }
-  table.info-box td.left-col {
-    border-right: 1px solid #000000;
+  table.card td.field-col.left-col {
+    border-right: 1px solid #dbe8f2;
+  }
+  .label {
+    color: #1c5d8c;
+    font-weight: bold;
   }
   table.detail {
     width: 100%;
-    border: 1px solid #000000;
+    border: 1px solid #b7d3ea;
     border-collapse: collapse;
     margin-bottom: 4px;
   }
   table.detail th, table.detail td {
-    border: 1px solid #000000;
+    border: 1px solid #dbe8f2;
     padding: 6px 8px;
     font-size: 9.5pt;
   }
   table.detail th {
-    background-color: #e5e5e5;
+    color: #1c5d8c;
     text-align: left;
   }
   table.detail td.number {
@@ -68,23 +92,37 @@
   table.detail td.amount {
     text-align: right;
   }
-  tr.total td {
+  table.total-bar {
+    width: 100%;
+    border-collapse: collapse;
+    border-top: 2px solid #1c5d8c;
+    border-bottom: 2px solid #1c5d8c;
+    margin-bottom: 10px;
+  }
+  table.total-bar td {
+    color: #1c5d8c;
     font-weight: bold;
+    padding: 7px 10px;
+  }
+  table.total-bar td.total-label {
+    font-size: 9.5pt;
+  }
+  table.total-bar td.total-value {
+    font-size: 13pt;
     text-align: right;
   }
-  hr.divider {
-    border: none;
+  .cut-line {
     border-top: 1px dashed #999999;
-    margin: 16px 0;
+    margin: 10px 0 12px 0;
   }
   table.status-box {
     width: 100%;
-    border: 1px solid #000000;
+    border: 1px solid #b7d3ea;
     border-collapse: collapse;
-    margin-top: 10px;
+    margin-top: 4px;
   }
   table.status-box td {
-    border: 1px solid #000000;
+    border: 1px solid #dbe8f2;
     padding: 6px 10px;
     font-size: 9.5pt;
   }
@@ -105,21 +143,28 @@
 {% for invoice_line in invoice_lines %}
 <div{% if not forloop.last %} class="page-break"{% endif %}>
 
-  <div class="receipt-title">RECIBO DE PAGO DE AGUA POTABLE</div>
-  <div class="receipt-subtitle">Sistema de agua potable Santa Fe II</div>
-
-  <table class="info-box">
+  <table class="brand-bar">
     <tr>
-      <td class="left-col">
-        Cliente: <strong>{{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</strong><br/>
-        Medidor: Sin asignar<br/>
-        Facturación del {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}<br/>
-        Zona: Santa Fe II
-      </td>
       <td>
-        Consumo: Sin medición<br/>
-        Recibo: {{ invoice_line.code|default:"pendiente" }}<br/>
-        Fecha límite: {{ invoice.due_date|date:"d/m/Y" }}
+        <div class="brand-title">RECIBO DE PAGO DE AGUA POTABLE</div>
+        <div class="brand-subtitle">Sistema de agua potable Santa Fe II</div>
+      </td>
+    </tr>
+  </table>
+
+  <table class="card">
+    <tr><td class="card-header" colspan="2">INFORMACIÓN DEL CLIENTE</td></tr>
+    <tr>
+      <td class="field-col left-col">
+        <span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}<br/>
+        <span class="label">Medidor:</span> Sin asignar<br/>
+        <span class="label">Facturación:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}<br/>
+        <span class="label">Zona:</span> Santa Fe II
+      </td>
+      <td class="field-col">
+        <span class="label">Consumo:</span> Sin medición<br/>
+        <span class="label">Recibo:</span> {{ invoice_line.code|default:"pendiente" }}<br/>
+        <span class="label">Fecha límite:</span> {{ invoice.due_date|date:"d/m/Y" }}
       </td>
     </tr>
   </table>
@@ -135,28 +180,32 @@
       <td class="number">0</td>
       <td class="amount">${{ invoice.fee.amount }}</td>
     </tr>
-    <tr class="total">
-      <td colspan="2">TOTAL A PAGAR</td>
-      <td class="amount">${{ invoice.fee.amount }}</td>
+  </table>
+
+  <table class="total-bar">
+    <tr>
+      <td class="total-label">TOTAL A PAGAR</td>
+      <td class="total-value">${{ invoice.fee.amount }}</td>
     </tr>
   </table>
 
-  <hr class="divider"/>
+  <div class="cut-line"></div>
 
-  <div class="internal-title">COMPROBANTE DE PAGO - CONTROL INTERNO</div>
+  <div class="internal-title">COMPROBANTE DE PAGO &mdash; CONTROL INTERNO</div>
 
-  <table class="info-box">
+  <table class="card">
+    <tr><td class="card-header" colspan="2">INFORMACIÓN DEL CLIENTE</td></tr>
     <tr>
-      <td class="left-col">
-        Cliente: <strong>{{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</strong><br/>
-        Medidor: Sin asignar<br/>
-        Facturación del {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}<br/>
-        Zona: Santa Fe II
+      <td class="field-col left-col">
+        <span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}<br/>
+        <span class="label">Medidor:</span> Sin asignar<br/>
+        <span class="label">Facturación:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}<br/>
+        <span class="label">Zona:</span> Santa Fe II
       </td>
-      <td>
-        Consumo: Sin medición<br/>
-        Recibo: {{ invoice_line.code|default:"pendiente" }}<br/>
-        Fecha límite: {{ invoice.due_date|date:"d/m/Y" }}
+      <td class="field-col">
+        <span class="label">Consumo:</span> Sin medición<br/>
+        <span class="label">Recibo:</span> {{ invoice_line.code|default:"pendiente" }}<br/>
+        <span class="label">Fecha límite:</span> {{ invoice.due_date|date:"d/m/Y" }}
       </td>
     </tr>
   </table>
@@ -172,9 +221,12 @@
       <td class="number">0</td>
       <td class="amount">${{ invoice.fee.amount }}</td>
     </tr>
-    <tr class="total">
-      <td colspan="2">TOTAL A PAGAR</td>
-      <td class="amount">${{ invoice.fee.amount }}</td>
+  </table>
+
+  <table class="total-bar">
+    <tr>
+      <td class="total-label">TOTAL A PAGAR</td>
+      <td class="total-value">${{ invoice.fee.amount }}</td>
     </tr>
   </table>
 

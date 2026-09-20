@@ -212,3 +212,32 @@ def invoice_print_receipts(request, pk):
     response = HttpResponse(buffer.getvalue(), content_type="application/pdf")
     response["Content-Disposition"] = f'inline; filename="recibos_factura_{invoice.pk}.pdf"'
     return response
+
+
+@login_required(login_url="login")
+def invoice_print_receipts_landscape(request, pk):
+    invoice = get_object_or_404(Invoice, pk=pk)
+    lines = (
+        InvoiceLine.objects.filter(invoice=invoice)
+        .select_related("line", "line__customer", "line__location")
+        .order_by("line__code")
+    )
+
+    if not lines:
+        messages.info(request, "Esta factura todavía no tiene líneas asignadas para imprimir.")
+        return redirect("billing_home")
+
+    html = render_to_string(
+        "invoice_receipts_pdf_landscape.html",
+        {"invoice": invoice, "invoice_lines": lines},
+    )
+
+    buffer = io.BytesIO()
+    pisa_status = pisa.CreatePDF(html, dest=buffer)
+    if pisa_status.err:
+        messages.error(request, "Ocurrió un error al generar los recibos en PDF.")
+        return redirect("billing_home")
+
+    response = HttpResponse(buffer.getvalue(), content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="recibos_factura_{invoice.pk}_horizontal.pdf"'
+    return response
