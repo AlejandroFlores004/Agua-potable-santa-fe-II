@@ -41,6 +41,13 @@
           >
             Asignar líneas
           </button>
+          <a
+            href="{% url 'invoice_print_receipts' invoice.pk %}"
+            target="_blank"
+            class="btn btn-ghost btn-sm"
+          >
+            Imprimir
+          </a>
           <button
             class="btn btn-ghost btn-sm"
             hx-get="{% url 'invoice_edit' invoice.pk %}"

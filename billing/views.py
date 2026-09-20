@@ -1,8 +1,13 @@
+import io
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
-from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
+from xhtml2pdf import pisa
 
 from connection.models import Line
 
@@ -178,3 +183,32 @@ def invoice_lines(request, pk):
         "partials/invoice/_invoice_lines_modal.html",
         {"invoice": invoice, "invoice_lines": lines},
     )
+
+
+@login_required(login_url="login")
+def invoice_print_receipts(request, pk):
+    invoice = get_object_or_404(Invoice, pk=pk)
+    lines = (
+        InvoiceLine.objects.filter(invoice=invoice)
+        .select_related("line", "line__customer")
+        .order_by("line__code")
+    )
+
+    if not lines:
+        messages.info(request, "Esta factura todavía no tiene líneas asignadas para imprimir.")
+        return redirect("billing_home")
+
+    html = render_to_string(
+        "invoice_receipts_pdf.html",
+        {"invoice": invoice, "invoice_lines": lines},
+    )
+
+    buffer = io.BytesIO()
+    pisa_status = pisa.CreatePDF(html, dest=buffer)
+    if pisa_status.err:
+        messages.error(request, "Ocurrió un error al generar los recibos en PDF.")
+        return redirect("billing_home")
+
+    response = HttpResponse(buffer.getvalue(), content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="recibos_factura_{invoice.pk}.pdf"'
+    return response

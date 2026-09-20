@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Recibos - {{ invoice.fee.name }}</title>
+<style>
+  @page {
+    size: letter;
+    margin: 1.5cm;
+  }
+  body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10pt;
+    color: #111111;
+  }
+  .receipt-title {
+    text-align: center;
+    font-size: 16pt;
+    font-weight: bold;
+    margin-bottom: 2px;
+  }
+  .receipt-subtitle {
+    text-align: center;
+    font-size: 9pt;
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+  .internal-title {
+    text-align: center;
+    font-size: 14pt;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  table.info-box {
+    width: 100%;
+    border: 1px solid #000000;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
+  table.info-box td {
+    vertical-align: top;
+    padding: 6px 10px;
+    width: 50%;
+    font-size: 9.5pt;
+    line-height: 15pt;
+  }
+  table.info-box td.left-col {
+    border-right: 1px solid #000000;
+  }
+  table.detail {
+    width: 100%;
+    border: 1px solid #000000;
+    border-collapse: collapse;
+    margin-bottom: 4px;
+  }
+  table.detail th, table.detail td {
+    border: 1px solid #000000;
+    padding: 6px 8px;
+    font-size: 9.5pt;
+  }
+  table.detail th {
+    background-color: #e5e5e5;
+    text-align: left;
+  }
+  table.detail td.number {
+    text-align: center;
+  }
+  table.detail td.amount {
+    text-align: right;
+  }
+  tr.total td {
+    font-weight: bold;
+    text-align: right;
+  }
+  hr.divider {
+    border: none;
+    border-top: 1px dashed #999999;
+    margin: 16px 0;
+  }
+  table.status-box {
+    width: 100%;
+    border: 1px solid #000000;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  table.status-box td {
+    border: 1px solid #000000;
+    padding: 6px 10px;
+    font-size: 9.5pt;
+  }
+  .paid {
+    color: #157347;
+    font-weight: bold;
+  }
+  .pending {
+    color: #b02a37;
+    font-weight: bold;
+  }
+  .page-break {
+    page-break-after: always;
+  }
+</style>
+</head>
+<body>
+{% for invoice_line in invoice_lines %}
+<div{% if not forloop.last %} class="page-break"{% endif %}>
+
+  <div class="receipt-title">RECIBO DE PAGO DE AGUA POTABLE</div>
+  <div class="receipt-subtitle">Sistema de agua potable Santa Fe II</div>
+
+  <table class="info-box">
+    <tr>
+      <td class="left-col">
+        Cliente: <strong>{{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</strong><br/>
+        Medidor: Sin asignar<br/>
+        Facturación del {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}<br/>
+        Zona: Santa Fe II
+      </td>
+      <td>
+        Consumo: Sin medición<br/>
+        Recibo: {{ invoice_line.code|default:"pendiente" }}<br/>
+        Fecha límite: {{ invoice.due_date|date:"d/m/Y" }}
+      </td>
+    </tr>
+  </table>
+
+  <table class="detail">
+    <tr>
+      <th>Detalle</th>
+      <th>M<sup>3</sup></th>
+      <th>Valor ($)</th>
+    </tr>
+    <tr>
+      <td>Paga por consumo fecha {{ invoice.due_date|date:"d/m/Y" }}</td>
+      <td class="number">0</td>
+      <td class="amount">${{ invoice.fee.amount }}</td>
+    </tr>
+    <tr class="total">
+      <td colspan="2">TOTAL A PAGAR</td>
+      <td class="amount">${{ invoice.fee.amount }}</td>
+    </tr>
+  </table>
+
+  <hr class="divider"/>
+
+  <div class="internal-title">COMPROBANTE DE PAGO - CONTROL INTERNO</div>
+
+  <table class="info-box">
+    <tr>
+      <td class="left-col">
+        Cliente: <strong>{{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</strong><br/>
+        Medidor: Sin asignar<br/>
+        Facturación del {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}<br/>
+        Zona: Santa Fe II
+      </td>
+      <td>
+        Consumo: Sin medición<br/>
+        Recibo: {{ invoice_line.code|default:"pendiente" }}<br/>
+        Fecha límite: {{ invoice.due_date|date:"d/m/Y" }}
+      </td>
+    </tr>
+  </table>
+
+  <table class="detail">
+    <tr>
+      <th>Detalle</th>
+      <th>M<sup>3</sup></th>
+      <th>Valor ($)</th>
+    </tr>
+    <tr>
+      <td>Paga por consumo fecha {{ invoice.due_date|date:"d/m/Y" }}</td>
+      <td class="number">0</td>
+      <td class="amount">${{ invoice.fee.amount }}</td>
+    </tr>
+    <tr class="total">
+      <td colspan="2">TOTAL A PAGAR</td>
+      <td class="amount">${{ invoice.fee.amount }}</td>
+    </tr>
+  </table>
+
+  <table class="status-box">
+    <tr>
+      <td style="width:30%;">Estado de pago:</td>
+      <td style="width:70%;" class="{% if invoice_line.isPaid %}paid{% else %}pending{% endif %}">
+        {% if invoice_line.isPaid %}Pagado{% else %}Pendiente{% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Fecha de pago:</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Firma:</td>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+
+</div>
+{% endfor %}
+</body>
+</html>
