@@ -22,7 +22,7 @@
     <span>Mechas</span>
   </a>
 
-  <a href="#"
+  <a href="{% url 'billing_home' %}"
      class="dock-item flex flex-col items-center gap-1 text-xs py-2 px-4 rounded-lg transition-colors
             {% if request.resolver_match.url_name == 'recibos' %}text-primary font-semibold{% else %}text-gray-500 hover:text-base-content{% endif %}">
     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
