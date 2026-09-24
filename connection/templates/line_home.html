@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Mechas{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold">Mechas</h1>
+      <p class="text-sm text-gray-500">Administra las líneas de conexión de los clientes.</p>
+    </div>
+    <button
+      class="btn btn-primary gap-2"
+      hx-get="{% url 'line_create' %}"
+      hx-target="#modal-container"
+      hx-swap="innerHTML"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Nueva línea
+    </button>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body gap-4">
+      <div class="flex flex-col sm:flex-row gap-2">
+        <input
+          type="text"
+          name="q"
+          value="{{ query }}"
+          placeholder="Buscar por código, cliente, ubicación o descripción..."
+          class="input input-bordered w-full max-w-sm"
+          hx-get="{% url 'line_home' %}"
+          hx-trigger="keyup changed delay:400ms, search"
+          hx-target="#line-table-wrapper"
+          hx-swap="innerHTML"
+          hx-include="[name='status']"
+        />
+        <select
+          name="status"
+          class="select select-bordered w-full sm:w-48"
+          hx-get="{% url 'line_home' %}"
+          hx-trigger="change"
+          hx-target="#line-table-wrapper"
+          hx-swap="innerHTML"
+          hx-include="[name='q']"
+        >
+          <option value="" {% if not status %}selected{% endif %}>Todos los estados</option>
+          <option value="active" {% if status == "active" %}selected{% endif %}>Activas</option>
+          <option value="inactive" {% if status == "inactive" %}selected{% endif %}>Inactivas</option>
+        </select>
+      </div>
+
+      <div id="line-table-wrapper"
+           class="overflow-x-auto"
+           hx-get="{% url 'line_home' %}"
+           hx-trigger="lineSaved from:body"
+           hx-target="this"
+           hx-swap="innerHTML"
+           hx-include="[name='q'], [name='status']">
+        {% include "partials/line/_line_table.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-container"></div>
+{% endblock %}

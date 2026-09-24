@@ -1,0 +1,64 @@
+{% if lines %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>Código</th>
+      <th>Estado</th>
+      <th>Cliente</th>
+      <th>Ubicación</th>
+      <th>Descripción</th>
+      <th class="text-right">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for line in lines %}
+    <tr class="{% if not line.isActive %}opacity-60{% endif %}">
+      <td>
+        <span class="badge badge-outline">{{ line.code|default:"pendiente" }}</span>
+      </td>
+      <td>
+        {% if line.isActive %}
+        <span class="badge badge-success badge-sm">Activa</span>
+        {% else %}
+        <span class="badge badge-ghost badge-sm">Inactiva</span>
+        {% endif %}
+      </td>
+      <td>
+        <div class="font-semibold">{{ line.customer.firstName }} {{ line.customer.lastName }}</div>
+        <div class="text-xs text-gray-500">Creada {{ line.created_at|date:"d/m/Y" }} por {{ line.created_by }}</div>
+      </td>
+      <td>{{ line.location|default:"—" }}</td>
+      <td class="max-w-xs text-sm">{{ line.description|default:"—"|truncatechars:80 }}</td>
+      <td class="text-right">
+        <div class="flex justify-end gap-2">
+          <button
+            class="btn btn-ghost btn-sm"
+            hx-get="{% url 'line_edit' line.pk %}"
+            hx-target="#modal-container"
+            hx-swap="innerHTML"
+          >
+            Editar
+          </button>
+          <button
+            class="btn btn-ghost btn-sm text-error"
+            hx-post="{% url 'line_delete' line.pk %}"
+            hx-swap="none"
+            hx-confirm="¿Eliminar la línea {{ line.code }} de {{ line.customer.firstName }} {{ line.customer.lastName }}?"
+          >
+            Eliminar
+          </button>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="text-center py-12 text-gray-500">
+  {% if query or status %}
+    No se encontraron líneas con los filtros aplicados.
+  {% else %}
+    Todavía no hay líneas registradas.
+  {% endif %}
+</div>
+{% endif %}

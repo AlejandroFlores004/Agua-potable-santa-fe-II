@@ -17,6 +17,7 @@ class Location(models.Model):
 class Line(models.Model):
     code = models.CharField("Código", max_length=100, unique=True, blank=True, null=True)
     description = models.TextField("Descripción", blank=True, null=True)
+    isActive = models.BooleanField("Activa", default=True)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Ubicación", related_name='lines')
     created_at = models.DateTimeField("Fecha de creación", auto_now_add=True)
     updated_at = models.DateTimeField("Fecha de edición", auto_now=True)
