@@ -1,0 +1,131 @@
+<div class="modal modal-open" onclick="document.getElementById('modal-container').innerHTML=''">
+  <div class="modal-box max-w-2xl relative" onclick="event.stopPropagation()">
+    <button
+      type="button"
+      class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+      onclick="document.getElementById('modal-container').innerHTML=''"
+    >
+      ✕
+    </button>
+
+    <h3 class="font-bold text-lg mb-1">Elegir recibos para imprimir</h3>
+    <p class="text-sm text-gray-500 mb-4">
+      {{ invoice.fee.name }} — {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}
+    </p>
+
+    {% if invoice_lines %}
+    <form id="print-select-form" method="get" action="{% url 'invoice_print_selected' invoice.pk %}" target="_blank">
+      <div class="flex flex-col gap-3">
+        <input
+          type="search"
+          placeholder="Buscar por código, cliente o ubicación..."
+          class="input input-bordered input-sm w-full"
+          oninput="printSelect.filter(this.value)"
+        />
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" class="btn btn-xs" onclick="printSelect.setVisible(true)">Seleccionar visibles</button>
+          <button type="button" class="btn btn-xs" onclick="printSelect.selectPending()">Solo pendientes</button>
+          <button type="button" class="btn btn-xs btn-ghost" onclick="printSelect.setVisible(false)">Quitar selección</button>
+          <span class="text-sm text-gray-500 ml-auto"><span id="print-select-count">0</span> seleccionado(s)</span>
+        </div>
+
+        <div class="overflow-y-auto max-h-80 border border-base-300 rounded-box">
+          <table class="table table-sm">
+            <tbody>
+              {% for invoice_line in invoice_lines %}
+              <tr
+                class="hover"
+                data-search="{{ invoice_line.code }} {{ invoice_line.line.code }} {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }} {{ invoice_line.line.location|default:'' }}"
+                data-paid="{{ invoice_line.isPaid|yesno:'1,0' }}"
+              >
+                <td class="w-8">
+                  <input
+                    type="checkbox"
+                    name="ids"
+                    value="{{ invoice_line.pk }}"
+                    id="print-line-{{ invoice_line.pk }}"
+                    class="checkbox checkbox-sm checkbox-primary"
+                    onchange="printSelect.updateCount()"
+                  />
+                </td>
+                <td>
+                  <label for="print-line-{{ invoice_line.pk }}" class="cursor-pointer flex flex-col">
+                    <span class="font-medium">
+                      {{ invoice_line.line.code }} — {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}
+                    </span>
+                    <span class="text-xs text-gray-500">{{ invoice_line.line.location|default:"Sin ubicación" }}</span>
+                  </label>
+                </td>
+                <td class="text-right">
+                  {% if invoice_line.isPaid %}
+                  <span class="badge badge-success badge-sm">Pagada</span>
+                  {% else %}
+                  <span class="badge badge-warning badge-outline badge-sm">Pendiente</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-action">
+        <button
+          type="button"
+          class="btn"
+          onclick="document.getElementById('modal-container').innerHTML=''"
+        >
+          Cancelar
+        </button>
+        <button type="submit" id="print-select-submit" class="btn btn-primary" disabled>Imprimir</button>
+      </div>
+    </form>
+
+    <script>
+      window.printSelect = {
+        rows() {
+          return Array.from(document.querySelectorAll("#print-select-form tbody tr"));
+        },
+        filter(value) {
+          const query = value.trim().toLowerCase();
+          this.rows().forEach((row) => {
+            row.hidden = query && !row.dataset.search.toLowerCase().includes(query);
+          });
+        },
+        setVisible(checked) {
+          this.rows().forEach((row) => {
+            if (!row.hidden) row.querySelector("input[name='ids']").checked = checked;
+          });
+          this.updateCount();
+        },
+        selectPending() {
+          this.rows().forEach((row) => {
+            row.querySelector("input[name='ids']").checked = row.dataset.paid === "0";
+          });
+          this.updateCount();
+        },
+        updateCount() {
+          const count = document.querySelectorAll("#print-select-form input[name='ids']:checked").length;
+          document.getElementById("print-select-count").textContent = count;
+          document.getElementById("print-select-submit").disabled = count === 0;
+        },
+      };
+    </script>
+    {% else %}
+    <div class="text-center py-8 text-gray-500">
+      Todavía no hay líneas asignadas a esta factura.
+    </div>
+    <div class="modal-action">
+      <button
+        type="button"
+        class="btn"
+        onclick="document.getElementById('modal-container').innerHTML=''"
+      >
+        Cerrar
+      </button>
+    </div>
+    {% endif %}
+  </div>
+</div>

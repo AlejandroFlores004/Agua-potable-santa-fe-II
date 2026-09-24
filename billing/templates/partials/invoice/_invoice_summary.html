@@ -13,8 +13,15 @@
     </div>
 
     <div class="flex flex-wrap gap-2">
-      <a href="{% url 'invoice_print_receipts' invoice.pk %}" target="_blank" class="btn btn-sm">Imprimir</a>
-      <a href="{% url 'invoice_print_receipts_landscape' invoice.pk %}" target="_blank" class="btn btn-sm">Imprimir (horizontal)</a>
+      <a href="{% url 'invoice_print_receipts_landscape' invoice.pk %}" target="_blank" class="btn btn-sm">Imprimir</a>
+      <button
+        class="btn btn-sm"
+        hx-get="{% url 'invoice_print_select' invoice.pk %}"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
+      >
+        Elegir recibos
+      </button>
       <button
         class="btn btn-sm"
         hx-get="{% url 'invoice_edit' invoice.pk %}"

@@ -100,3 +100,21 @@ class InvoiceDetailTests(TestCase):
         invoice_line = self._assign(self.active_1)
         response = self.client.get(reverse("invoice_line_print_receipt", args=[invoice_line.pk]))
         self.assertEqual(response["Content-Type"], "application/pdf")
+
+    def test_print_select_modal_lists_lines(self):
+        self._assign(self.active_1)
+        response = self.client.get(reverse("invoice_print_select", args=[self.invoice.pk]))
+        self.assertContains(response, self.active_1.code)
+
+    def test_print_selected_only_prints_chosen_lines(self):
+        chosen = self._assign(self.active_1)
+        self._assign(self.active_2)
+        response = self.client.get(
+            reverse("invoice_print_selected", args=[self.invoice.pk]), {"ids": [chosen.pk]}
+        )
+        self.assertEqual(response["Content-Type"], "application/pdf")
+
+    def test_print_selected_with_nothing_chosen_redirects(self):
+        self._assign(self.active_1)
+        response = self.client.get(reverse("invoice_print_selected", args=[self.invoice.pk]))
+        self.assertRedirects(response, reverse("invoice_detail", args=[self.invoice.pk]))

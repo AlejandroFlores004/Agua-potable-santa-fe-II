@@ -316,18 +316,6 @@ def _render_receipts_pdf(request, invoice, invoice_lines, template_name, filenam
 
 
 @login_required(login_url="login")
-def invoice_print_receipts(request, pk):
-    invoice = get_object_or_404(Invoice.objects.select_related("fee", "account"), pk=pk)
-    lines = (
-        InvoiceLine.objects.filter(invoice=invoice)
-        .select_related("line", "line__customer")
-        .order_by("line__code")
-    )
-    filename = f"recibos_{invoice.start_date:%d-%m-%Y}_al_{invoice.end_date:%d-%m-%Y}.pdf"
-    return _render_receipts_pdf(request, invoice, lines, "invoice_receipts_pdf.html", filename)
-
-
-@login_required(login_url="login")
 def invoice_print_receipts_landscape(request, pk):
     invoice = get_object_or_404(Invoice.objects.select_related("fee", "account"), pk=pk)
     lines = (
@@ -336,6 +324,33 @@ def invoice_print_receipts_landscape(request, pk):
         .order_by("line__code")
     )
     filename = f"recibos_{invoice.start_date:%d-%m-%Y}_al_{invoice.end_date:%d-%m-%Y}_horizontal.pdf"
+    return _render_receipts_pdf(request, invoice, lines, "invoice_receipts_pdf_landscape.html", filename)
+
+
+@login_required(login_url="login")
+def invoice_print_select(request, pk):
+    invoice = get_object_or_404(Invoice.objects.select_related("fee"), pk=pk)
+    invoice_lines = (
+        InvoiceLine.objects.filter(invoice=invoice)
+        .select_related("line", "line__customer", "line__location")
+        .order_by("line__code")
+    )
+    return render(
+        request,
+        "partials/invoice/_invoice_print_select_modal.html",
+        {"invoice": invoice, "invoice_lines": invoice_lines},
+    )
+
+
+@login_required(login_url="login")
+def invoice_print_selected(request, pk):
+    invoice = get_object_or_404(Invoice.objects.select_related("fee", "account"), pk=pk)
+    lines = (
+        InvoiceLine.objects.filter(invoice=invoice, pk__in=request.GET.getlist("ids"))
+        .select_related("line", "line__customer", "line__location")
+        .order_by("line__code")
+    )
+    filename = f"recibos_seleccionados_{invoice.start_date:%d-%m-%Y}_al_{invoice.end_date:%d-%m-%Y}.pdf"
     return _render_receipts_pdf(request, invoice, lines, "invoice_receipts_pdf_landscape.html", filename)
 
 
