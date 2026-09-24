@@ -24,8 +24,9 @@
       <td>
         <div class="flex flex-wrap gap-1 max-w-xs">
           {% for line in customer.lines.all %}
-          <span class="badge {% if line.isActive %}badge-outline{% else %}badge-ghost line-through{% endif %}" title="{{ line.location|default:'Sin ubicación' }} — {{ line.description|default:'' }}{% if not line.isActive %} (inactiva){% endif %}">
-            {{ line.code|default:"pendiente" }}
+          <span class="badge badge-outline gap-1" title="{{ line.location|default:'Sin ubicación' }} — {{ line.description|default:'' }} ({% if line.isActive %}activa{% else %}inactiva{% endif %})">
+            <span class="w-2 h-2 rounded-full {% if line.isActive %}bg-success{% else %}bg-base-300{% endif %}"></span>
+            <span class="{% if not line.isActive %}line-through text-gray-400{% endif %}">{{ line.code|default:"pendiente" }}</span>
           </span>
           {% empty %}
           <span class="text-sm text-gray-400">Sin líneas</span>

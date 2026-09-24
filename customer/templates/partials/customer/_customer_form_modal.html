@@ -99,6 +99,14 @@
               {{ line_form.description }}
             </div>
           </div>
+          {% if line_form.isActive %}
+          <div class="form-control mt-2">
+            <label class="label cursor-pointer justify-start gap-3" for="{{ line_form.isActive.id_for_label }}">
+              {{ line_form.isActive }}
+              <span class="label-text">Línea {{ line_form.instance.code }} activa</span>
+            </label>
+          </div>
+          {% endif %}
           {% if line_form.non_field_errors %}
           <span class="text-error text-xs mt-1">{{ line_form.non_field_errors|join:", " }}</span>
           {% endif %}
