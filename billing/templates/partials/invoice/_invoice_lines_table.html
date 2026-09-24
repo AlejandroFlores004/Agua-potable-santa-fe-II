@@ -1,0 +1,73 @@
+{% if invoice_lines %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>Recibo</th>
+      <th>Línea</th>
+      <th>Cliente</th>
+      <th>Ubicación</th>
+      <th>Estado</th>
+      <th class="text-right">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for invoice_line in invoice_lines %}
+    <tr>
+      <td class="text-sm">{{ invoice_line.code|default:"pendiente" }}</td>
+      <td>
+        <span class="badge badge-outline">{{ invoice_line.line.code }}</span>
+        {% if not invoice_line.line.isActive %}
+        <span class="badge badge-ghost badge-sm">Inactiva</span>
+        {% endif %}
+      </td>
+      <td>{{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</td>
+      <td>{{ invoice_line.line.location|default:"—" }}</td>
+      <td>
+        {% if invoice_line.isPaid %}
+        <span class="badge badge-success">Pagada</span>
+        {% else %}
+        <span class="badge badge-warning badge-outline">Pendiente</span>
+        {% endif %}
+      </td>
+      <td class="text-right">
+        <div class="flex justify-end gap-2">
+          <button
+            class="btn btn-sm {% if invoice_line.isPaid %}btn-ghost{% else %}btn-success btn-outline{% endif %}"
+            hx-post="{% url 'invoice_line_toggle_paid' invoice_line.pk %}"
+            hx-swap="none"
+            {% if invoice_line.isPaid %}hx-confirm="¿Marcar la línea {{ invoice_line.line.code }} como pendiente?"{% endif %}
+          >
+            {% if invoice_line.isPaid %}Marcar pendiente{% else %}Marcar pagada{% endif %}
+          </button>
+          <a
+            href="{% url 'invoice_line_print_receipt' invoice_line.pk %}"
+            target="_blank"
+            class="btn btn-ghost btn-sm"
+          >
+            Recibo
+          </a>
+          {% if not invoice_line.isPaid %}
+          <button
+            class="btn btn-ghost btn-sm text-error"
+            hx-post="{% url 'invoice_line_remove' invoice_line.pk %}"
+            hx-swap="none"
+            hx-confirm="¿Quitar la línea {{ invoice_line.line.code }} de esta factura?"
+          >
+            Quitar
+          </button>
+          {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="text-center py-12 text-gray-500">
+  {% if query or status %}
+    No se encontraron líneas con los filtros aplicados.
+  {% else %}
+    Todavía no hay líneas asignadas a esta factura.
+  {% endif %}
+</div>
+{% endif %}

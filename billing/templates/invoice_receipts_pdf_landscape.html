@@ -304,6 +304,7 @@
     </table>
 
   </td>
+{% if forloop.last and not forloop.counter|divisibleby:2 %}<td class="col right"></td>{% endif %}
 {% if forloop.counter|divisibleby:2 or forloop.last %}</tr></table>{% if not forloop.last %}<div class="page-break"></div>{% endif %}{% endif %}
 {% endfor %}
 </body>

@@ -1,0 +1,48 @@
+<div class="modal modal-open" onclick="document.getElementById('modal-container').innerHTML=''">
+  <div class="modal-box max-w-lg relative" onclick="event.stopPropagation()">
+    <button
+      type="button"
+      class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+      onclick="document.getElementById('modal-container').innerHTML=''"
+    >
+      ✕
+    </button>
+
+    <h3 class="font-bold text-lg mb-1">Asignar a una línea</h3>
+    <p class="text-sm text-gray-500 mb-4">
+      {{ invoice.fee.name }} — {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}
+    </p>
+
+    <form
+      hx-post="{% url 'invoice_assign_line' invoice.pk %}"
+      hx-target="#modal-container"
+      hx-swap="innerHTML"
+    >
+      {% csrf_token %}
+
+      <div class="form-control">
+        <label class="label" for="{{ form.line.id_for_label }}">
+          <span class="label-text">{{ form.line.label }} *</span>
+        </label>
+        {{ form.line }}
+        {% if form.line.errors %}
+        <span class="text-error text-xs mt-1">{{ form.line.errors|join:", " }}</span>
+        {% endif %}
+        {% if not form.fields.line.queryset.exists %}
+        <span class="text-xs text-gray-500 mt-1">Todas las líneas ya están asignadas a esta factura.</span>
+        {% endif %}
+      </div>
+
+      <div class="modal-action">
+        <button
+          type="button"
+          class="btn"
+          onclick="document.getElementById('modal-container').innerHTML=''"
+        >
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary">Asignar</button>
+      </div>
+    </form>
+  </div>
+</div>

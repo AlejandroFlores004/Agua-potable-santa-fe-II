@@ -3,75 +3,36 @@
   <thead>
     <tr>
       <th>Cuota</th>
+      <th>Cuenta</th>
       <th>Periodo</th>
       <th>Vencimiento</th>
-      <th>Líneas asignadas</th>
-      <th class="text-right">Acciones</th>
+      <th>Pagadas</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
     {% for invoice in invoices %}
-    <tr>
+    <tr class="hover cursor-pointer" onclick="window.location='{% url 'invoice_detail' invoice.pk %}'">
       <td>
-        <div class="font-semibold">{{ invoice.fee.name }}</div>
+        <a href="{% url 'invoice_detail' invoice.pk %}" class="font-semibold link link-hover">{{ invoice.fee.name }}</a>
         <div class="text-xs text-gray-500">Creada {{ invoice.created_at|date:"d/m/Y" }} por {{ invoice.created_by }}</div>
       </td>
+      <td class="text-sm">{{ invoice.account.name }}</td>
       <td>
         <div class="text-sm">{{ invoice.start_date|date:"d/m/Y" }} — {{ invoice.end_date|date:"d/m/Y" }}</div>
       </td>
       <td>{{ invoice.due_date|date:"d/m/Y" }}</td>
       <td>
-        <button
-          class="badge badge-outline hover:badge-primary cursor-pointer"
-          hx-get="{% url 'invoice_lines' invoice.pk %}"
-          hx-target="#modal-container"
-          hx-swap="innerHTML"
-          title="Ver líneas asignadas"
-        >
-          {{ invoice.paid_count }}/{{ invoice.lines_count }} pagadas
-        </button>
+        <div class="flex items-center gap-2">
+          <progress class="progress progress-success w-20" value="{{ invoice.paid_count }}" max="{{ invoice.lines_count|default:1 }}"></progress>
+          <span class="text-sm whitespace-nowrap">{{ invoice.paid_count }}/{{ invoice.lines_count }}</span>
+        </div>
       </td>
       <td class="text-right">
-        <div class="flex justify-end gap-2">
-          <button
-            class="btn btn-ghost btn-sm"
-            hx-get="{% url 'invoice_assign_lines_confirm' invoice.pk %}"
-            hx-target="#modal-container"
-            hx-swap="innerHTML"
-          >
-            Asignar líneas
-          </button>
-          <a
-            href="{% url 'invoice_print_receipts' invoice.pk %}"
-            target="_blank"
-            class="btn btn-ghost btn-sm"
-          >
-            Imprimir
-          </a>
-          <a
-            href="{% url 'invoice_print_receipts_landscape' invoice.pk %}"
-            target="_blank"
-            class="btn btn-ghost btn-sm"
-          >
-            Imprimir (horizontal)
-          </a>
-          <button
-            class="btn btn-ghost btn-sm"
-            hx-get="{% url 'invoice_edit' invoice.pk %}"
-            hx-target="#modal-container"
-            hx-swap="innerHTML"
-          >
-            Editar
-          </button>
-          <button
-            class="btn btn-ghost btn-sm text-error"
-            hx-post="{% url 'invoice_delete' invoice.pk %}"
-            hx-swap="none"
-            hx-confirm="¿Eliminar la factura de {{ invoice.fee.name }} y todas sus líneas asignadas?"
-          >
-            Eliminar
-          </button>
-        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline text-gray-400" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
       </td>
     </tr>
     {% endfor %}

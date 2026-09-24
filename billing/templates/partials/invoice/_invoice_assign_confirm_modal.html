@@ -8,7 +8,7 @@
       ✕
     </button>
 
-    <h3 class="font-bold text-lg mb-1">Asignar líneas de conexión</h3>
+    <h3 class="font-bold text-lg mb-1">Asignar a todas las líneas activas</h3>
     <p class="text-sm text-gray-500 mb-4">
       {{ invoice.fee.name }} — {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}
     </p>
@@ -16,10 +16,10 @@
     {% if pending_count %}
     <p>
       Se {{ pending_count|pluralize:"va,van" }} a asignar
-      <strong>{{ pending_count }}</strong> línea{{ pending_count|pluralize }} de conexión a esta factura.
+      <strong>{{ pending_count }}</strong> línea{{ pending_count|pluralize }} activa{{ pending_count|pluralize }} a esta factura.
     </p>
     {% else %}
-    <p>Todas las líneas de conexión ya están asignadas a esta factura.</p>
+    <p>Todas las líneas activas ya están asignadas a esta factura.</p>
     {% endif %}
 
     <div class="modal-action">

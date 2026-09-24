@@ -1,6 +1,8 @@
 from django import forms
 
-from .models import Account, Fee, Invoice
+from connection.models import Line
+
+from .models import Account, Fee, Invoice, InvoiceLine
 
 INPUT_CLASSES = "input input-bordered w-full"
 SELECT_CLASSES = "select select-bordered w-full"
@@ -40,3 +42,31 @@ class InvoiceForm(forms.ModelForm):
             self.add_error("due_date", "La fecha de vencimiento no puede ser anterior a la fecha de fin.")
 
         return cleaned_data
+
+
+class InvoiceLineAssignForm(forms.Form):
+    line = forms.ModelChoiceField(
+        label="Línea",
+        queryset=Line.objects.none(),
+        widget=forms.Select(attrs={"class": SELECT_CLASSES}),
+        empty_label="Selecciona una línea",
+    )
+
+    def __init__(self, *args, invoice, **kwargs):
+        super().__init__(*args, **kwargs)
+        assigned_line_ids = InvoiceLine.objects.filter(invoice=invoice).values_list("line_id", flat=True)
+        self.fields["line"].queryset = (
+            Line.objects.exclude(id__in=assigned_line_ids)
+            .select_related("customer", "location")
+            .order_by("-isActive", "code")
+        )
+        self.fields["line"].label_from_instance = self._line_label
+
+    @staticmethod
+    def _line_label(line):
+        label = f"{line.code} — {line.customer.firstName} {line.customer.lastName}"
+        if line.location:
+            label += f" ({line.location})"
+        if not line.isActive:
+            label += " [inactiva]"
+        return label

@@ -1,0 +1,81 @@
+<div class="flex flex-col gap-6">
+  <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold">{{ invoice.fee.name }}</h1>
+      <p class="text-sm text-gray-500">
+        {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}
+        · Vence {{ invoice.due_date|date:"d/m/Y" }}
+        · Cuenta {{ invoice.account }}
+      </p>
+      <p class="text-xs text-gray-500 mt-1">
+        Cuota de ${{ invoice.fee.amount }} por línea · Creada {{ invoice.created_at|date:"d/m/Y" }} por {{ invoice.created_by }}
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <a href="{% url 'invoice_print_receipts' invoice.pk %}" target="_blank" class="btn btn-sm">Imprimir</a>
+      <a href="{% url 'invoice_print_receipts_landscape' invoice.pk %}" target="_blank" class="btn btn-sm">Imprimir (horizontal)</a>
+      <button
+        class="btn btn-sm"
+        hx-get="{% url 'invoice_edit' invoice.pk %}"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
+      >
+        Editar
+      </button>
+      <button
+        class="btn btn-sm btn-outline btn-error"
+        hx-post="{% url 'invoice_delete' invoice.pk %}"
+        hx-swap="none"
+        hx-confirm="¿Eliminar la factura de {{ invoice.fee.name }} y todas sus líneas asignadas?"
+      >
+        Eliminar
+      </button>
+    </div>
+  </div>
+
+  <div class="stats stats-vertical sm:stats-horizontal shadow bg-base-100">
+    <div class="stat">
+      <div class="stat-title">Líneas asignadas</div>
+      <div class="stat-value">{{ lines_count }}</div>
+      <div class="stat-desc">
+        {% if unassigned_active_count %}{{ unassigned_active_count }} activa{{ unassigned_active_count|pluralize }} sin asignar{% else %}Todas las activas asignadas{% endif %}
+      </div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Pagadas</div>
+      <div class="stat-value text-success">{{ paid_count }}</div>
+      <div class="stat-desc">{{ paid_percent }}% del total</div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Pendientes</div>
+      <div class="stat-value text-warning">{{ pending_count }}</div>
+      <div class="stat-desc">&nbsp;</div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Recaudado</div>
+      <div class="stat-value text-2xl">${{ collected_amount }}</div>
+      <div class="stat-desc">de ${{ expected_amount }} esperados</div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-2">
+    <button
+      class="btn btn-primary"
+      hx-get="{% url 'invoice_assign_lines_confirm' invoice.pk %}"
+      hx-target="#modal-container"
+      hx-swap="innerHTML"
+      {% if not unassigned_active_count %}disabled{% endif %}
+    >
+      Asignar a todas las líneas activas
+    </button>
+    <button
+      class="btn btn-outline btn-primary"
+      hx-get="{% url 'invoice_assign_line' invoice.pk %}"
+      hx-target="#modal-container"
+      hx-swap="innerHTML"
+    >
+      Asignar a una línea
+    </button>
+  </div>
+</div>
