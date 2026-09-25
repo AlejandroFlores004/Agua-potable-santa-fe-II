@@ -9,7 +9,10 @@ from .models import Line
 
 
 def _get_lines(request):
-    lines = Line.objects.select_related("customer", "location", "created_by").order_by("-created_at")
+    lines = (
+        Line.objects.select_related("customer", "location", "created_by")
+        .order_by("-created_at")
+    )
     query = request.GET.get("q", "").strip()
     if query:
         lines = lines.filter(
@@ -19,21 +22,16 @@ def _get_lines(request):
             | Q(customer__firstName__icontains=query)
             | Q(customer__lastName__icontains=query)
         )
-    status = request.GET.get("status", "")
-    if status == "active":
-        lines = lines.filter(isActive=True)
-    elif status == "inactive":
-        lines = lines.filter(isActive=False)
-    return lines, query, status
+    return lines, query
 
 
 @login_required(login_url="login")
 def line_home(request):
-    lines, query, status = _get_lines(request)
-    context = {"lines": lines, "query": query, "status": status}
+    lines, query = _get_lines(request)
+    context = {"lines": lines, "query": query}
     if request.htmx:
         return render(request, "partials/line/_line_table.html", context)
-    return render(request, "line_home.html", context)
+    return render(request, "mechas_home.html", context)
 
 
 @login_required(login_url="login")
@@ -43,6 +41,7 @@ def line_form(request, pk=None):
 
     if request.method == "POST":
         form = LineForm(request.POST, instance=line)
+
         if form.is_valid():
             line = form.save(commit=False)
             if is_new:

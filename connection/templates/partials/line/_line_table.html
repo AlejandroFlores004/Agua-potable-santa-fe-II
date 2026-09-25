@@ -3,7 +3,6 @@
   <thead>
     <tr>
       <th>Código</th>
-      <th>Estado</th>
       <th>Cliente</th>
       <th>Ubicación</th>
       <th>Descripción</th>
@@ -12,23 +11,14 @@
   </thead>
   <tbody>
     {% for line in lines %}
-    <tr class="{% if not line.isActive %}opacity-60{% endif %}">
+    <tr>
       <td>
-        <span class="badge badge-outline">{{ line.code|default:"pendiente" }}</span>
-      </td>
-      <td>
-        {% if line.isActive %}
-        <span class="badge badge-success badge-sm">Activa</span>
-        {% else %}
-        <span class="badge badge-ghost badge-sm">Inactiva</span>
-        {% endif %}
-      </td>
-      <td>
-        <div class="font-semibold">{{ line.customer.firstName }} {{ line.customer.lastName }}</div>
+        <div class="font-semibold">{{ line.code|default:"pendiente" }}</div>
         <div class="text-xs text-gray-500">Creada {{ line.created_at|date:"d/m/Y" }} por {{ line.created_by }}</div>
       </td>
+      <td>{{ line.customer }}</td>
       <td>{{ line.location|default:"—" }}</td>
-      <td class="max-w-xs text-sm">{{ line.description|default:"—"|truncatechars:80 }}</td>
+      <td class="max-w-xs truncate">{{ line.description|default:"—" }}</td>
       <td class="text-right">
         <div class="flex justify-end gap-2">
           <button
@@ -43,7 +33,7 @@
             class="btn btn-ghost btn-sm text-error"
             hx-post="{% url 'line_delete' line.pk %}"
             hx-swap="none"
-            hx-confirm="¿Eliminar la línea {{ line.code }} de {{ line.customer.firstName }} {{ line.customer.lastName }}?"
+            hx-confirm="¿Eliminar la mecha {{ line.code|default:'pendiente' }}?"
           >
             Eliminar
           </button>
@@ -55,10 +45,10 @@
 </table>
 {% else %}
 <div class="text-center py-12 text-gray-500">
-  {% if query or status %}
-    No se encontraron líneas con los filtros aplicados.
+  {% if query %}
+    No se encontraron mechas para "{{ query }}".
   {% else %}
-    Todavía no hay líneas registradas.
+    Todavía no hay mechas registradas.
   {% endif %}
 </div>
 {% endif %}
