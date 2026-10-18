@@ -1,0 +1,8 @@
+{% if plan.kind == "installments" %}
+<span class="badge badge-secondary badge-outline badge-sm">A plazos</span>
+{% elif plan.kind == "variable" %}
+<span class="badge badge-accent badge-outline badge-sm">Variable</span>
+{% else %}
+<span class="badge badge-primary badge-outline badge-sm">Fijo</span>
+{% endif %}
+{% if not plan.isActive %}<span class="badge badge-ghost badge-sm">Inactivo</span>{% endif %}

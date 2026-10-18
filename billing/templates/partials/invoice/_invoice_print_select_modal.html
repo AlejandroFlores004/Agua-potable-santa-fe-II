@@ -1,5 +1,5 @@
-<div class="modal modal-open" onclick="document.getElementById('modal-container').innerHTML=''">
-  <div class="modal-box max-w-2xl relative" onclick="event.stopPropagation()">
+<div class="modal modal-open modal-bottom sm:modal-middle" onclick="document.getElementById('modal-container').innerHTML=''">
+  <div class="modal-box w-full max-w-none sm:max-w-2xl relative" onclick="event.stopPropagation()">
     <button
       type="button"
       class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
@@ -10,7 +10,7 @@
 
     <h3 class="font-bold text-lg mb-1">Elegir recibos para imprimir</h3>
     <p class="text-sm text-gray-500 mb-4">
-      {{ invoice.fee.name }} — {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}
+      {{ invoice.title }}
     </p>
 
     {% if invoice_lines %}
@@ -60,6 +60,8 @@
                 <td class="text-right">
                   {% if invoice_line.isPaid %}
                   <span class="badge badge-success badge-sm">Pagada</span>
+                  {% elif invoice_line.is_carried %}
+                  <span class="badge badge-ghost badge-sm">Trasladado</span>
                   {% else %}
                   <span class="badge badge-warning badge-outline badge-sm">Pendiente</span>
                   {% endif %}

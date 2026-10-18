@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Gastos{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold">Gastos</h1>
+      <p class="text-sm text-gray-500">Registra los gastos únicos, imprevistos y los pagos de gastos recurrentes.</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-2">
+      <a href="{% url 'recurring_home' %}" class="btn gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+          <path d="M16 16h5v5"/>
+        </svg>
+        Gastos recurrentes
+      </a>
+      <button
+        class="btn btn-primary gap-2"
+        hx-get="{% url 'expense_create' %}"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Nuevo gasto
+      </button>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+    <div class="card-body gap-4 p-4 sm:p-8">
+      <div id="expense-filters" class="grid grid-cols-1 sm:grid-cols-2 gap-2 lg:max-w-2xl">
+        <input
+          type="text"
+          name="q"
+          value="{{ query }}"
+          placeholder="Buscar por concepto o descripción..."
+          class="input input-bordered w-full"
+          hx-get="{% url 'expense_home' %}"
+          hx-trigger="keyup changed delay:400ms, search"
+          hx-target="#expense-table-wrapper"
+          hx-include="#expense-filters [name]"
+        />
+        <label class="input input-bordered w-full flex items-center gap-2">
+          <span class="text-sm text-gray-500 shrink-0">Mes</span>
+          <input
+            type="month"
+            name="month"
+            value="{{ month }}"
+            class="grow min-w-0"
+            hx-get="{% url 'expense_home' %}"
+            hx-trigger="change"
+            hx-target="#expense-table-wrapper"
+            hx-include="#expense-filters [name]"
+          />
+        </label>
+      </div>
+      <p class="text-xs text-gray-500 -mt-2">Borra el mes para ver todo el historial.</p>
+
+      <div id="expense-table-wrapper"
+           hx-get="{% url 'expense_home' %}"
+           hx-trigger="expenseSaved from:body"
+           hx-target="this"
+           hx-swap="innerHTML"
+           hx-include="#expense-filters [name], #expense-table-wrapper [name='page']">
+        {% include "partials/expense/_expense_table.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-container"></div>
+{% endblock %}

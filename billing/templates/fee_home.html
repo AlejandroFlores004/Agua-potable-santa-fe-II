@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Cuotas{% endblock %}
+{% block title %}Cuotas y moras{% endblock %}
 
 {% block content %}
 <div class="flex flex-col gap-6">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
       <h1 class="text-2xl font-bold">Cuotas</h1>
-      <p class="text-sm text-gray-500">Administra las cuotas que se usan para generar facturas. Una vez creada, una cuota no se puede editar.</p>
+      <p class="text-sm text-gray-500">Administra las cuotas que se usan para generar facturas. Una vez creada, una cuota no se puede editar ni eliminar, solo desactivar.</p>
     </div>
     <button
       class="btn btn-primary gap-2"
@@ -24,14 +24,14 @@
     </button>
   </div>
 
-  <div class="card bg-base-100 shadow-xl">
-    <div class="card-body gap-4">
+  <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+    <div class="card-body gap-4 p-4 sm:p-8">
       <input
         type="text"
         name="q"
         value="{{ query }}"
         placeholder="Buscar por nombre..."
-        class="input input-bordered w-full max-w-sm"
+        class="input input-bordered w-full sm:max-w-sm"
         hx-get="{% url 'fee_home' %}"
         hx-trigger="keyup changed delay:400ms, search"
         hx-target="#fee-table-wrapper"
@@ -39,13 +39,39 @@
       />
 
       <div id="fee-table-wrapper"
-           class="overflow-x-auto"
            hx-get="{% url 'fee_home' %}"
            hx-trigger="feeSaved from:body"
            hx-target="this"
            hx-swap="innerHTML"
-           hx-include="[name='q']">
+           hx-include="[name='q'], #fee-table-wrapper [name='page']">
         {% include "partials/fee/_fee_table.html" %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+    <div class="card-body gap-4 p-4 sm:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="card-title">Moras</h2>
+          <p class="text-sm text-gray-500">Si una línea no pagó su recibo anterior, el siguiente recibo trae ese saldo más la mora por defecto. La mora de cada recibo pendiente se puede cambiar desde la factura.</p>
+        </div>
+        <button
+          class="btn btn-outline btn-primary gap-2 shrink-0"
+          hx-get="{% url 'late_fee_create' %}"
+          hx-target="#modal-container"
+          hx-swap="innerHTML"
+        >
+          Nueva mora
+        </button>
+      </div>
+
+      <div id="late-fee-table-wrapper"
+           hx-get="{% url 'late_fee_table' %}"
+           hx-trigger="lateFeeSaved from:body"
+           hx-target="this"
+           hx-swap="innerHTML">
+        {% include "partials/late_fee/_late_fee_table.html" %}
       </div>
     </div>
   </div>

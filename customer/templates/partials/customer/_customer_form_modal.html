@@ -1,5 +1,5 @@
-<div class="modal modal-open" onclick="document.getElementById('modal-container').innerHTML=''">
-  <div class="modal-box max-w-2xl relative" onclick="event.stopPropagation()">
+<div class="modal modal-open modal-bottom sm:modal-middle" onclick="document.getElementById('modal-container').innerHTML=''">
+  <div class="modal-box w-full max-w-none sm:max-w-2xl relative" onclick="event.stopPropagation()">
     <button
       type="button"
       class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
@@ -111,7 +111,7 @@
           <span class="text-error text-xs mt-1">{{ line_form.non_field_errors|join:", " }}</span>
           {% endif %}
           {{ line_form.id }}
-          <div class="hidden">{{ line_form.DELETE }}</div>
+          {% if not line_form.instance.pk %}
           <button
             type="button"
             class="btn btn-ghost btn-xs btn-circle absolute top-2 right-2 text-error"
@@ -120,6 +120,7 @@
           >
             ✕
           </button>
+          {% endif %}
         </div>
         {% endfor %}
       </div>
@@ -187,14 +188,7 @@
     container.addEventListener("click", function (event) {
       const removeBtn = event.target.closest("[data-remove-line]");
       if (!removeBtn) return;
-      const row = removeBtn.closest("[data-line-form]");
-      const deleteCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
-      if (deleteCheckbox) {
-        deleteCheckbox.checked = true;
-        row.classList.add("hidden");
-      } else {
-        row.remove();
-      }
+      removeBtn.closest("[data-line-form]").remove();
     });
   })();
 </script>

@@ -1,4 +1,5 @@
 {% if invoice_lines %}
+<div class="hidden md:block overflow-x-auto">
 <table class="table">
   <thead>
     <tr>
@@ -6,6 +7,7 @@
       <th>Línea</th>
       <th>Cliente</th>
       <th>Ubicación</th>
+      <th>Monto</th>
       <th>Estado</th>
       <th class="text-right">Acciones</th>
     </tr>
@@ -23,14 +25,28 @@
       <td>{{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</td>
       <td>{{ invoice_line.line.location|default:"—" }}</td>
       <td>
+        <div class="font-semibold">${{ invoice_line.total }}</div>
+        <div class="text-xs text-gray-500">{{ invoice_line.fee.name|default:"Cuota" }} ${{ invoice_line.amount }}</div>
+        {% if invoice_line.previous_balance %}
+        <div class="text-xs text-warning">Saldo anterior ${{ invoice_line.previous_balance }}</div>
+        {% endif %}
+        {% if invoice_line.late_fee_amount %}
+        <div class="text-xs text-error">Mora ${{ invoice_line.late_fee_amount }}</div>
+        {% endif %}
+      </td>
+      <td>
         {% if invoice_line.isPaid %}
         <span class="badge badge-success">Pagada</span>
+        {% elif invoice_line.is_carried %}
+        <span class="badge badge-ghost">Trasladado</span>
+        <div class="text-xs text-gray-500 mt-1">al recibo {{ invoice_line.carried_to.code }}</div>
         {% else %}
         <span class="badge badge-warning badge-outline">Pendiente</span>
         {% endif %}
       </td>
       <td class="text-right">
         <div class="flex justify-end gap-2">
+          {% if not invoice_line.is_carried and not invoice.is_draft %}
           <button
             class="btn btn-sm {% if invoice_line.isPaid %}btn-ghost{% else %}btn-success btn-outline{% endif %}"
             hx-post="{% url 'invoice_line_toggle_paid' invoice_line.pk %}"
@@ -39,6 +55,17 @@
           >
             {% if invoice_line.isPaid %}Marcar pendiente{% else %}Marcar pagada{% endif %}
           </button>
+          {% endif %}
+          {% if not invoice_line.isPaid and not invoice_line.is_carried and not invoice.is_closed %}
+          <button
+            class="btn btn-ghost btn-sm"
+            hx-get="{% url 'invoice_line_late_fee' invoice_line.pk %}"
+            hx-target="#modal-container"
+            hx-swap="innerHTML"
+          >
+            Mora
+          </button>
+          {% endif %}
           <a
             href="{% url 'invoice_line_print_receipt' invoice_line.pk %}"
             target="_blank"
@@ -46,12 +73,12 @@
           >
             Recibo
           </a>
-          {% if not invoice_line.isPaid %}
+          {% if not invoice_line.isPaid and not invoice_line.is_carried and not invoice.is_closed %}
           <button
             class="btn btn-ghost btn-sm text-error"
             hx-post="{% url 'invoice_line_remove' invoice_line.pk %}"
             hx-swap="none"
-            hx-confirm="¿Quitar la línea {{ invoice_line.line.code }} de esta factura?"
+            hx-confirm="¿Quitar la línea {{ invoice_line.line.code }} de esta factura?{% if invoice_line.previous_balance %} Los recibos anteriores que trasladó volverán a quedar pendientes.{% endif %}"
           >
             Quitar
           </button>
@@ -62,6 +89,88 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
+
+<div class="md:hidden flex flex-col divide-y divide-base-300 -mx-2">
+  {% for invoice_line in invoice_lines %}
+  <div class="px-2 py-4 flex flex-col gap-3">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="flex items-center gap-1 flex-wrap">
+          <span class="badge badge-outline font-semibold">{{ invoice_line.line.code }}</span>
+          {% if not invoice_line.line.isActive %}
+          <span class="badge badge-ghost badge-sm">Inactiva</span>
+          {% endif %}
+        </div>
+        <div class="font-medium mt-1 break-words">{{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</div>
+        <div class="text-xs text-gray-500">
+          {{ invoice_line.line.location|default:"Sin ubicación" }} · <strong class="text-base-content">${{ invoice_line.total }}</strong> · Recibo {{ invoice_line.code|default:"pendiente" }}
+        </div>
+        {% if invoice_line.previous_balance or invoice_line.late_fee_amount %}
+        <div class="text-xs text-gray-500">
+          Cuota ${{ invoice_line.amount }}
+          {% if invoice_line.previous_balance %}· <span class="text-warning">Saldo anterior ${{ invoice_line.previous_balance }}</span>{% endif %}
+          {% if invoice_line.late_fee_amount %}· <span class="text-error">Mora ${{ invoice_line.late_fee_amount }}</span>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% if invoice_line.isPaid %}
+      <span class="badge badge-success shrink-0">Pagada</span>
+      {% elif invoice_line.is_carried %}
+      <span class="badge badge-ghost shrink-0">Trasladado</span>
+      {% else %}
+      <span class="badge badge-warning badge-outline shrink-0">Pendiente</span>
+      {% endif %}
+    </div>
+
+    {% if invoice_line.is_carried %}
+    <div class="text-xs text-gray-500">Saldo trasladado al recibo {{ invoice_line.carried_to.code }}.</div>
+    {% endif %}
+
+    <div class="flex gap-2">
+      {% if not invoice_line.is_carried and not invoice.is_draft %}
+      <button
+        class="btn btn-sm flex-1 {% if invoice_line.isPaid %}btn-ghost border-base-300{% else %}btn-success{% endif %}"
+        hx-post="{% url 'invoice_line_toggle_paid' invoice_line.pk %}"
+        hx-swap="none"
+        {% if invoice_line.isPaid %}hx-confirm="¿Marcar la línea {{ invoice_line.line.code }} como pendiente?"{% endif %}
+      >
+        {% if invoice_line.isPaid %}Marcar pendiente{% else %}Marcar pagada{% endif %}
+      </button>
+      {% endif %}
+      {% if not invoice_line.isPaid and not invoice_line.is_carried and not invoice.is_closed %}
+      <button
+        class="btn btn-sm btn-outline"
+        hx-get="{% url 'invoice_line_late_fee' invoice_line.pk %}"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
+      >
+        Mora
+      </button>
+      {% endif %}
+      <a
+        href="{% url 'invoice_line_print_receipt' invoice_line.pk %}"
+        target="_blank"
+        class="btn btn-sm btn-outline {% if invoice_line.is_carried or invoice.is_draft %}flex-1{% endif %}"
+      >
+        Recibo
+      </a>
+      {% if not invoice_line.isPaid and not invoice_line.is_carried and not invoice.is_closed %}
+      <button
+        class="btn btn-sm btn-ghost text-error"
+        hx-post="{% url 'invoice_line_remove' invoice_line.pk %}"
+        hx-swap="none"
+        hx-confirm="¿Quitar la línea {{ invoice_line.line.code }} de esta factura?{% if invoice_line.previous_balance %} Los recibos anteriores que trasladó volverán a quedar pendientes.{% endif %}"
+      >
+        Quitar
+      </button>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% url 'invoice_lines' invoice.pk as pagination_url %}
+{% include "partials/base/_pagination.html" with url=pagination_url target="#invoice-lines-wrapper" include="[name='q'], [name='status']" %}
 {% else %}
 <div class="text-center py-12 text-gray-500">
   {% if query or status %}

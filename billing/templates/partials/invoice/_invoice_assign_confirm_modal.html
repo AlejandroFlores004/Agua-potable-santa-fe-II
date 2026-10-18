@@ -1,5 +1,5 @@
-<div class="modal modal-open" onclick="document.getElementById('modal-container').innerHTML=''">
-  <div class="modal-box max-w-md relative" onclick="event.stopPropagation()">
+<div class="modal modal-open modal-bottom sm:modal-middle" onclick="document.getElementById('modal-container').innerHTML=''">
+  <div class="modal-box w-full max-w-none sm:max-w-md relative" onclick="event.stopPropagation()">
     <button
       type="button"
       class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
@@ -10,16 +10,22 @@
 
     <h3 class="font-bold text-lg mb-1">Asignar a todas las líneas activas</h3>
     <p class="text-sm text-gray-500 mb-4">
-      {{ invoice.fee.name }} — {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}
+      {{ invoice.title }}
     </p>
 
     {% if pending_count %}
     <p>
       Se {{ pending_count|pluralize:"va,van" }} a asignar
-      <strong>{{ pending_count }}</strong> línea{{ pending_count|pluralize }} activa{{ pending_count|pluralize }} a esta factura.
+      <strong>{{ pending_count }}</strong> línea{{ pending_count|pluralize }} activa{{ pending_count|pluralize }} a esta factura, cada una con su cuota.
     </p>
     {% else %}
-    <p>Todas las líneas activas ya están asignadas a esta factura.</p>
+    <p>Todas las líneas activas con cuota ya están asignadas a esta factura.</p>
+    {% endif %}
+
+    {% if without_fee_count %}
+    <div class="alert alert-warning mt-4">
+      <span>{{ without_fee_count }} línea{{ without_fee_count|pluralize }} activa{{ without_fee_count|pluralize }} no tiene{{ without_fee_count|pluralize:",n" }} cuota y no se asignará{{ without_fee_count|pluralize:",n" }}.</span>
+    </div>
     {% endif %}
 
     <div class="modal-action">

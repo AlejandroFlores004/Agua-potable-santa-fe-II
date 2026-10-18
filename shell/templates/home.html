@@ -1,13 +1,191 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Inicio{% endblock %}
 
 {% block content %}
-  <div class="card bg-base-100 shadow-xl max-w-lg mx-auto">
-    <div class="card-body items-center text-center gap-4">
-      <h1 class="card-title text-3xl font-bold">Welcome! 👋</h1>
-      <p class="text-gray-500">You are logged in as <strong>{{ request.user.username }}</strong>.</p>
-      <div class="badge badge-primary badge-lg">System Online</div>
+<div class="flex flex-col gap-4 sm:gap-6">
+  <div>
+    <h1 class="text-2xl font-bold">Panel general</h1>
+    <p class="text-sm text-gray-500">Hola, <strong>{{ request.user.username }}</strong> · {{ today|date:"d/m/Y" }}</p>
+  </div>
+
+  <!-- ===== KPIs ===== -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 rounded-box shadow bg-base-100 overflow-hidden">
+    <a href="{% url 'customer_home' %}" class="stat px-4 sm:px-6 border-base-300 border-r border-b lg:border-b-0 hover:bg-base-200 transition-colors">
+      <div class="stat-title whitespace-normal">Clientes</div>
+      <div class="stat-value text-2xl sm:text-4xl">{{ customers_total }}</div>
+      <div class="stat-desc whitespace-normal">
+        {% if customers_without_lines %}<span class="text-warning">{{ customers_without_lines }} sin línea</span>{% else %}Todos con línea{% endif %}
+      </div>
+    </a>
+    <a href="{% url 'mechas' %}" class="stat px-4 sm:px-6 border-base-300 border-b lg:border-b-0 lg:border-r hover:bg-base-200 transition-colors">
+      <div class="stat-title whitespace-normal">Líneas activas</div>
+      <div class="stat-value text-2xl sm:text-4xl text-primary">{{ lines_active }}</div>
+      <div class="stat-desc whitespace-normal">
+        de {{ lines_total }} · {{ lines_inactive }} inactiva{{ lines_inactive|pluralize }}
+        {% if lines_active_without_fee %}<br><span class="text-warning">{{ lines_active_without_fee }} sin cuota</span>{% endif %}
+      </div>
+    </a>
+    <div class="stat px-4 sm:px-6 border-base-300 border-r">
+      <div class="stat-title whitespace-normal">Por cobrar</div>
+      <div class="stat-value text-2xl sm:text-3xl text-warning">${{ pending_amount|floatformat:2 }}</div>
+      <div class="stat-desc whitespace-normal">{{ pending_count }} recibo{{ pending_count|pluralize }} pendiente{{ pending_count|pluralize }}</div>
+    </div>
+    <div class="stat px-4 sm:px-6">
+      <div class="stat-title whitespace-normal">Vencido</div>
+      <div class="stat-value text-2xl sm:text-3xl {% if overdue_count %}text-error{% else %}text-success{% endif %}">${{ overdue_amount|floatformat:2 }}</div>
+      <div class="stat-desc whitespace-normal">
+        {% if overdue_count %}{{ overdue_count }} recibo{{ overdue_count|pluralize }} fuera de plazo{% else %}Nada vencido{% endif %}
+      </div>
     </div>
   </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+
+    <!-- ===== Latest invoice ===== -->
+    <div class="card bg-base-100 shadow-sm sm:shadow-xl lg:col-span-2">
+      <div class="card-body gap-4 p-4 sm:p-8">
+        {% if latest_invoice %}
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Facturación más reciente</p>
+              <h2 class="card-title">{{ latest_invoice.title }}</h2>
+              <p class="text-sm text-gray-500">
+                Vence {{ latest_invoice.due_date|date:"d/m/Y" }}
+                {% if latest_invoice.is_overdue %}<span class="badge badge-error badge-sm ml-1">Vencida</span>{% endif %}
+              </p>
+            </div>
+            <a href="{% url 'invoice_detail' latest_invoice.pk %}" class="btn btn-sm btn-primary">Ver detalle</a>
+          </div>
+
+          {% if latest_invoice.lines_count %}
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="rounded-box bg-base-200 p-3">
+                <div class="text-2xl font-bold">{{ latest_invoice.lines_count }}</div>
+                <div class="text-xs text-gray-500">Recibos</div>
+              </div>
+              <div class="rounded-box bg-base-200 p-3">
+                <div class="text-2xl font-bold text-success">{{ latest_invoice.paid_count }}</div>
+                <div class="text-xs text-gray-500">Pagados</div>
+              </div>
+              <div class="rounded-box bg-base-200 p-3">
+                <div class="text-2xl font-bold text-warning">{{ latest_invoice.pending_count }}</div>
+                <div class="text-xs text-gray-500">Pendientes</div>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <div class="flex justify-between text-sm">
+                <span>Recaudado <strong>${{ latest_invoice.collected_amount|floatformat:2 }}</strong> de ${{ latest_invoice.expected_amount|floatformat:2 }}</span>
+                <span class="font-semibold">{{ latest_invoice.collected_percent }}%</span>
+              </div>
+              <progress class="progress progress-success w-full" value="{{ latest_invoice.collected_percent }}" max="100"></progress>
+            </div>
+          {% else %}
+            <div class="alert">
+              <span>Esta factura aún no tiene recibos asignados.</span>
+              <a href="{% url 'invoice_detail' latest_invoice.pk %}" class="btn btn-sm">Asignar líneas</a>
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="flex flex-col items-center text-center gap-3 py-6">
+            <p class="text-gray-500">Todavía no hay facturas registradas.</p>
+            <a href="{% url 'billing_home' %}" class="btn btn-primary btn-sm">Ir a recibos</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ===== Debtors ===== -->
+    <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+      <div class="card-body gap-3 p-4 sm:p-8">
+        <h2 class="card-title text-base">Clientes con más deuda</h2>
+        {% if debtors %}
+          <ul class="flex flex-col divide-y divide-base-300">
+            {% for customer in debtors %}
+              <li class="flex items-center justify-between gap-3 py-2">
+                <div class="min-w-0">
+                  <p class="font-medium truncate">{{ customer }}</p>
+                  <p class="text-xs text-gray-500">{{ customer.pending_count }} recibo{{ customer.pending_count|pluralize }} pendiente{{ customer.pending_count|pluralize }}</p>
+                </div>
+                <span class="font-semibold text-warning whitespace-nowrap">${{ customer.pending_amount|default:0|floatformat:2 }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-sm text-gray-500">Nadie tiene recibos pendientes. 🎉</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Recent invoices ===== -->
+  {% if recent_invoices %}
+  <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+    <div class="card-body gap-3 p-4 sm:p-8">
+      <div class="flex items-center justify-between">
+        <h2 class="card-title text-base">Cobro por factura</h2>
+        <a href="{% url 'billing_home' %}" class="link link-primary text-sm">Ver todas</a>
+      </div>
+      <div class="flex flex-col gap-3">
+        {% for invoice in recent_invoices %}
+          <a href="{% url 'invoice_detail' invoice.pk %}" class="flex flex-col gap-1 rounded-box p-2 -mx-2 hover:bg-base-200 transition-colors">
+            <div class="flex flex-wrap items-center justify-between gap-x-3 text-sm">
+              <span class="font-medium">
+                {{ invoice.title }}
+                {% if invoice.is_overdue %}<span class="badge badge-error badge-xs ml-1">Vencida</span>{% endif %}
+              </span>
+              <span class="text-gray-500">
+                {{ invoice.paid_count }}/{{ invoice.lines_count }} pagados ·
+                <strong class="text-base-content">${{ invoice.collected_amount|floatformat:2 }}</strong> de ${{ invoice.expected_amount|floatformat:2 }}
+              </span>
+            </div>
+            <progress class="progress {% if invoice.collected_percent >= 100 %}progress-success{% elif invoice.is_overdue %}progress-error{% else %}progress-primary{% endif %} w-full h-2" value="{{ invoice.collected_percent }}" max="100"></progress>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ===== Lines breakdown ===== -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+    <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+      <div class="card-body gap-3 p-4 sm:p-8">
+        <h2 class="card-title text-base">Líneas activas por ubicación</h2>
+        {% for row in lines_by_location %}
+          <div class="flex flex-col gap-1">
+            <div class="flex justify-between text-sm">
+              <span>{{ row.location__name|default:"Sin ubicación" }}</span>
+              <span class="text-gray-500"><strong class="text-base-content">{{ row.total }}</strong> · {{ row.percent }}%</span>
+            </div>
+            <progress class="progress {% if row.location__name %}progress-primary{% else %}progress-warning{% endif %} w-full h-2" value="{{ row.percent }}" max="100"></progress>
+          </div>
+        {% empty %}
+          <p class="text-sm text-gray-500">No hay líneas activas.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+      <div class="card-body gap-3 p-4 sm:p-8">
+        <div class="flex items-center justify-between">
+          <h2 class="card-title text-base">Líneas activas por cuota</h2>
+          <a href="{% url 'fee_home' %}" class="link link-primary text-sm">Cuotas</a>
+        </div>
+        {% for row in lines_by_fee %}
+          <div class="flex flex-col gap-1">
+            <div class="flex justify-between text-sm">
+              <span>{% if row.fee__name %}{{ row.fee__name }} <span class="text-gray-500">(${{ row.fee__amount }})</span>{% else %}Sin cuota{% endif %}</span>
+              <span class="text-gray-500"><strong class="text-base-content">{{ row.total }}</strong> · {{ row.percent }}%</span>
+            </div>
+            <progress class="progress {% if row.fee__name %}progress-primary{% else %}progress-warning{% endif %} w-full h-2" value="{{ row.percent }}" max="100"></progress>
+          </div>
+        {% empty %}
+          <p class="text-sm text-gray-500">No hay líneas activas.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

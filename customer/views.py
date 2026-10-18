@@ -5,6 +5,8 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 
+from shell.pagination import paginate
+
 from .forms import CustomerForm, get_line_formset_class
 from .models import Customer
 
@@ -30,7 +32,8 @@ def _get_customers(request):
 @login_required(login_url="login")
 def customer_home(request):
     customers, query = _get_customers(request)
-    context = {"customers": customers, "query": query}
+    page_obj = paginate(request, customers)
+    context = {"customers": page_obj.object_list, "page_obj": page_obj, "query": query}
     if request.htmx:
         return render(request, "partials/customer/_customer_table.html", context)
     return render(request, "customer_home.html", context)
@@ -58,8 +61,6 @@ def customer_form(request, pk=None):
                     if not line.pk:
                         line.created_by = request.user
                     line.save()
-                for line in formset.deleted_objects:
-                    line.delete()
 
             messages.success(
                 request,
@@ -88,8 +89,12 @@ def customer_form(request, pk=None):
 @require_POST
 def customer_delete(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
-    customer.delete()
-    messages.success(request, "Cliente eliminado correctamente.")
+    # Las mechas no se eliminan, así que un cliente con mechas tampoco.
+    if customer.lines.exists():
+        messages.error(request, "No se puede eliminar un cliente con mechas. Desactiva sus mechas en su lugar.")
+    else:
+        customer.delete()
+        messages.success(request, "Cliente eliminado correctamente.")
     response = render(request, "partials/customer/_form_success_oob.html")
     response["HX-Trigger"] = "customerSaved"
     return response

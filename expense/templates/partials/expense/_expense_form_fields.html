@@ -1,0 +1,10 @@
+{% if form.non_field_errors %}
+<div class="alert alert-error mb-4"><span>{{ form.non_field_errors|join:", " }}</span></div>
+{% endif %}
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  {% include "partials/expense/_field.html" with field=form.concept class="sm:col-span-2" %}
+  {% include "partials/expense/_field.html" with field=form.amount %}
+  {% include "partials/expense/_field.html" with field=form.date %}
+  {% include "partials/expense/_field.html" with field=form.description class="sm:col-span-2" %}
+</div>

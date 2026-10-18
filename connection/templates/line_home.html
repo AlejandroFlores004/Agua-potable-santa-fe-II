@@ -24,15 +24,15 @@
     </button>
   </div>
 
-  <div class="card bg-base-100 shadow-xl">
-    <div class="card-body gap-4">
+  <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+    <div class="card-body gap-4 p-4 sm:p-8">
       <div class="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
           name="q"
           value="{{ query }}"
           placeholder="Buscar por código, cliente, ubicación o descripción..."
-          class="input input-bordered w-full max-w-sm"
+          class="input input-bordered w-full sm:max-w-sm"
           hx-get="{% url 'line_home' %}"
           hx-trigger="keyup changed delay:400ms, search"
           hx-target="#line-table-wrapper"
@@ -55,7 +55,6 @@
       </div>
 
       <div id="line-table-wrapper"
-           class="overflow-x-auto"
            hx-get="{% url 'line_home' %}"
            hx-trigger="lineSaved from:body"
            hx-target="this"

@@ -3,7 +3,13 @@
 <!-- ===== NAVBAR (md and up) ===== -->
 <nav class="navbar bg-base-100 shadow-md px-6 hidden md:flex">
   <div class="flex-1">
-    <a href="/" class="text-xl font-bold">Agua Potable Santa Fe</a>
+    <a href="/" class="flex items-center gap-3">
+      <img src="{% static 'logo-mark.svg' %}" alt="" class="w-9 h-9">
+      <span class="flex flex-col leading-tight">
+        <span class="text-lg font-extrabold tracking-tight text-[#0B3B6E]">Agua Potable</span>
+        <span class="text-[0.65rem] font-semibold tracking-[0.25em] text-[#1E90E6]">SANTA FE II</span>
+      </span>
+    </a>
   </div>
 
   <!-- Nav links -->
@@ -28,7 +34,7 @@
     </a>
 
     <a href="{% url 'billing_home' %}"
-       class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'recibos' %}btn-active{% endif %}">
+       class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'billing_home' or request.resolver_match.url_name == 'invoice_detail' %}btn-active{% endif %}">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -49,11 +55,22 @@
       </svg>
       Cuotas
     </a>
+
+    <a href="{% url 'expense_home' %}"
+       class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'expense_home' or request.resolver_match.url_name == 'recurring_home' %}btn-active{% endif %}">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="6" width="20" height="14" rx="2"/>
+        <path d="M2 10h20"/>
+        <path d="M6 15h4"/>
+        <path d="M16 3 6 6"/>
+      </svg>
+      Gastos
+    </a>
   </div>
 
-  <!-- User + logout -->
-  <div class="flex-none gap-2 items-center ml-4 pl-4 border-l border-base-300">
-    <span class="text-sm text-gray-500">{{ request.user.username }}</span>
-    <a href="{% url 'logout' %}" class="btn btn-ghost btn-sm">Salir</a>
+  <!-- User menu -->
+  <div class="flex-none ml-4 pl-4 border-l border-base-300">
+    {% include "partials/base/_user_menu.html" %}
   </div>
 </nav>

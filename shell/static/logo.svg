@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 72" role="img" aria-label="Agua Potable Santa Fe II">
+  <defs>
+    <linearGradient id="drop" x1="24" y1="8" x2="48" y2="66" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5FD3FF"/>
+      <stop offset="0.55" stop-color="#1E90E6"/>
+      <stop offset="1" stop-color="#0A4F9C"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="0" y1="42" x2="0" y2="66" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.08"/>
+    </linearGradient>
+    <clipPath id="drop-clip">
+      <path d="M36 7C36 7 15 29.5 15 44.5a21 21 0 0 0 42 0C57 29.5 36 7 36 7Z"/>
+    </clipPath>
+  </defs>
+
+  <path fill="url(#drop)" d="M36 7C36 7 15 29.5 15 44.5a21 21 0 0 0 42 0C57 29.5 36 7 36 7Z"/>
+  <g clip-path="url(#drop-clip)">
+    <path fill="url(#wave)" d="M10 46c5-4 10-4 15 0s10 4 15 0 10-4 15 0 8 3 11 1V70H10Z"/>
+    <path fill="#FFFFFF" fill-opacity="0.18" d="M10 54c5-3.5 10-3.5 15 0s10 3.5 15 0 10-3.5 15 0 8 2.5 11 1V70H10Z"/>
+  </g>
+  <path fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.9"
+        d="M27.5 31.5c-3 4.2-5 8.6-5 13"/>
+  <circle cx="23.2" cy="50" r="1.7" fill="#FFFFFF" fill-opacity="0.9"/>
+
+  <text x="72" y="38" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-size="26" font-weight="800" fill="#0B3B6E" letter-spacing="-0.3">Agua Potable</text>
+  <text x="73" y="58" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-size="13" font-weight="600" fill="#1E90E6" letter-spacing="3.2">SANTA FE II</text>
+</svg>

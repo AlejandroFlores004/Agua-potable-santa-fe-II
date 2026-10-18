@@ -50,5 +50,5 @@ def get_line_formset_class(extra=0):
         Line,
         form=LineForm,
         extra=extra,
-        can_delete=True,
+        can_delete=False,
     )

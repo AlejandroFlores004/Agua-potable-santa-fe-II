@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Agua Potable Santa Fe II">
+  <defs>
+    <linearGradient id="drop" x1="20" y1="4" x2="44" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5FD3FF"/>
+      <stop offset="0.55" stop-color="#1E90E6"/>
+      <stop offset="1" stop-color="#0A4F9C"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="0" y1="38" x2="0" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.08"/>
+    </linearGradient>
+    <clipPath id="drop-clip">
+      <path d="M32 3C32 3 11 25.5 11 40.5a21 21 0 0 0 42 0C53 25.5 32 3 32 3Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Gota -->
+  <path fill="url(#drop)" d="M32 3C32 3 11 25.5 11 40.5a21 21 0 0 0 42 0C53 25.5 32 3 32 3Z"/>
+
+  <!-- Agua dentro de la gota -->
+  <g clip-path="url(#drop-clip)">
+    <path fill="url(#wave)" d="M6 42c5-4 10-4 15 0s10 4 15 0 10-4 15 0 8 3 11 1V66H6Z"/>
+    <path fill="#FFFFFF" fill-opacity="0.18" d="M6 50c5-3.5 10-3.5 15 0s10 3.5 15 0 10-3.5 15 0 8 2.5 11 1V66H6Z"/>
+  </g>
+
+  <!-- Brillo -->
+  <path fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.9"
+        d="M23.5 27.5c-3 4.2-5 8.6-5 13"/>
+  <circle cx="19.2" cy="46" r="1.7" fill="#FFFFFF" fill-opacity="0.9"/>
+</svg>

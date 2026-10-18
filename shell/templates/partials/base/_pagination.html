@@ -1,0 +1,66 @@
+{% comment %}
+  Paginación con htmx. Parámetros:
+    url     – endpoint que devuelve el parcial de la tabla
+    target  – selector del contenedor que se reemplaza
+    include – selector de los filtros a conservar (opcional)
+{% endcomment %}
+{% if page_obj.paginator.num_pages > 1 %}
+<input type="hidden" name="page" value="{{ page_obj.number }}" />
+<div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 mt-2 border-t border-base-300">
+  <span class="text-sm text-gray-500">
+    {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ page_obj.paginator.count }}
+  </span>
+
+  <div class="join">
+    <button
+      type="button"
+      class="join-item btn btn-sm"
+      aria-label="Primera página"
+      {% if page_obj.has_previous %}
+      hx-get="{{ url }}"
+      hx-vals='{"page": "1"}'
+      hx-include="{{ include }}"
+      hx-target="{{ target }}"
+      hx-swap="innerHTML show:{{ target }}:top"
+      {% else %}disabled{% endif %}
+    >«</button>
+    <button
+      type="button"
+      class="join-item btn btn-sm"
+      {% if page_obj.has_previous %}
+      hx-get="{{ url }}"
+      hx-vals='{"page": "{{ page_obj.previous_page_number }}"}'
+      hx-include="{{ include }}"
+      hx-target="{{ target }}"
+      hx-swap="innerHTML show:{{ target }}:top"
+      {% else %}disabled{% endif %}
+    >Anterior</button>
+    <span class="join-item btn btn-sm btn-active pointer-events-none whitespace-nowrap">
+      {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+    </span>
+    <button
+      type="button"
+      class="join-item btn btn-sm"
+      {% if page_obj.has_next %}
+      hx-get="{{ url }}"
+      hx-vals='{"page": "{{ page_obj.next_page_number }}"}'
+      hx-include="{{ include }}"
+      hx-target="{{ target }}"
+      hx-swap="innerHTML show:{{ target }}:top"
+      {% else %}disabled{% endif %}
+    >Siguiente</button>
+    <button
+      type="button"
+      class="join-item btn btn-sm"
+      aria-label="Última página"
+      {% if page_obj.has_next %}
+      hx-get="{{ url }}"
+      hx-vals='{"page": "{{ page_obj.paginator.num_pages }}"}'
+      hx-include="{{ include }}"
+      hx-target="{{ target }}"
+      hx-swap="innerHTML show:{{ target }}:top"
+      {% else %}disabled{% endif %}
+    >»</button>
+  </div>
+</div>
+{% endif %}

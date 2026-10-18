@@ -1,0 +1,49 @@
+<div class="modal modal-open modal-bottom sm:modal-middle" onclick="document.getElementById('modal-container').innerHTML=''">
+  <div class="modal-box w-full max-w-none sm:max-w-md relative" onclick="event.stopPropagation()">
+    <button
+      type="button"
+      class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+      onclick="document.getElementById('modal-container').innerHTML=''"
+    >
+      ✕
+    </button>
+
+    <h3 class="font-bold text-lg mb-1">Mora del recibo {{ invoice_line.code }}</h3>
+    <p class="text-sm text-gray-500 mb-4">
+      Línea {{ invoice_line.line.code }}
+      · Cuota ${{ invoice_line.amount }}
+      {% if invoice_line.previous_balance %}· Saldo anterior ${{ invoice_line.previous_balance }}{% endif %}
+      · Mora actual ${{ invoice_line.late_fee_amount }}
+    </p>
+
+    <form
+      hx-post="{% url 'invoice_line_late_fee' invoice_line.pk %}"
+      hx-target="#modal-container"
+      hx-swap="innerHTML"
+    >
+      {% csrf_token %}
+
+      <div class="form-control">
+        <label class="label" for="{{ form.late_fee.id_for_label }}">
+          <span class="label-text">{{ form.late_fee.label }}</span>
+        </label>
+        {{ form.late_fee }}
+        {% if form.late_fee.errors %}
+        <span class="text-error text-xs mt-1">{{ form.late_fee.errors|join:", " }}</span>
+        {% endif %}
+        <span class="text-xs text-gray-500 mt-1">Solo cambia la mora de este recibo. Para cambiar la mora que se cobra por defecto, ve a Cuotas.</span>
+      </div>
+
+      <div class="modal-action">
+        <button
+          type="button"
+          class="btn"
+          onclick="document.getElementById('modal-container').innerHTML=''"
+        >
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>

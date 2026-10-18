@@ -1,0 +1,39 @@
+<div class="flex justify-end flex-wrap gap-1">
+  {% if plan.isActive and not plan.is_finished %}
+  <button
+    class="btn btn-primary btn-sm"
+    hx-get="{% url 'recurring_pay' plan.pk %}"
+    hx-target="#modal-container"
+    hx-swap="innerHTML"
+  >
+    Registrar pago
+  </button>
+  {% endif %}
+  <button
+    class="btn btn-ghost btn-sm"
+    hx-get="{% url 'recurring_edit' plan.pk %}"
+    hx-target="#modal-container"
+    hx-swap="innerHTML"
+  >
+    Editar
+  </button>
+  {% if plan.payments_count %}
+  <button
+    class="btn btn-ghost btn-sm {% if plan.isActive %}text-error{% else %}text-success{% endif %}"
+    hx-post="{% url 'recurring_toggle' plan.pk %}"
+    hx-swap="none"
+    hx-confirm="{% if plan.isActive %}¿Desactivar «{{ plan.name }}»? Sus pagos registrados se conservan.{% else %}¿Activar «{{ plan.name }}»?{% endif %}"
+  >
+    {% if plan.isActive %}Desactivar{% else %}Activar{% endif %}
+  </button>
+  {% else %}
+  <button
+    class="btn btn-ghost btn-sm text-error"
+    hx-post="{% url 'recurring_delete' plan.pk %}"
+    hx-swap="none"
+    hx-confirm="¿Eliminar el gasto recurrente «{{ plan.name }}»?"
+  >
+    Eliminar
+  </button>
+  {% endif %}
+</div>

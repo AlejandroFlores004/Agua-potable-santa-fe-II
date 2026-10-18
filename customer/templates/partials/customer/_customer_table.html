@@ -1,4 +1,5 @@
 {% if customers %}
+<div class="hidden md:block overflow-x-auto">
 <table class="table">
   <thead>
     <tr>
@@ -47,7 +48,7 @@
             class="btn btn-ghost btn-sm text-error"
             hx-post="{% url 'customer_delete' customer.pk %}"
             hx-swap="none"
-            hx-confirm="¿Eliminar a {{ customer.firstName }} {{ customer.lastName }} y todas sus líneas?"
+            hx-confirm="¿Eliminar a {{ customer.firstName }} {{ customer.lastName }}? Solo se puede si no tiene mechas."
           >
             Eliminar
           </button>
@@ -57,6 +58,58 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
+
+<div class="md:hidden flex flex-col divide-y divide-base-300 -mx-2">
+  {% for customer in customers %}
+  <div class="px-2 py-4 flex flex-col gap-3">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="font-semibold break-words">{{ customer.firstName }} {{ customer.lastName }}</div>
+        <div class="text-xs text-gray-500">DUI {{ customer.dui|default:"—" }}</div>
+      </div>
+      <div class="flex gap-1 shrink-0">
+        <button
+          class="btn btn-ghost btn-sm"
+          hx-get="{% url 'customer_edit' customer.pk %}"
+          hx-target="#modal-container"
+          hx-swap="innerHTML"
+        >
+          Editar
+        </button>
+        <button
+          class="btn btn-ghost btn-sm text-error"
+          hx-post="{% url 'customer_delete' customer.pk %}"
+          hx-swap="none"
+          hx-confirm="¿Eliminar a {{ customer.firstName }} {{ customer.lastName }}? Solo se puede si no tiene mechas."
+        >
+          Eliminar
+        </button>
+      </div>
+    </div>
+
+    {% if customer.number or customer.email %}
+    <div class="flex flex-col gap-0.5 text-sm">
+      {% if customer.number %}<a href="tel:{{ customer.number }}" class="link link-hover">{{ customer.number }}</a>{% endif %}
+      {% if customer.email %}<span class="text-gray-500 break-all">{{ customer.email }}</span>{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="flex flex-wrap gap-1">
+      {% for line in customer.lines.all %}
+      <span class="badge badge-outline gap-1">
+        <span class="w-2 h-2 rounded-full {% if line.isActive %}bg-success{% else %}bg-base-300{% endif %}"></span>
+        <span class="{% if not line.isActive %}line-through text-gray-400{% endif %}">{{ line.code|default:"pendiente" }}</span>
+      </span>
+      {% empty %}
+      <span class="text-sm text-gray-400">Sin líneas</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% url 'customer_home' as pagination_url %}
+{% include "partials/base/_pagination.html" with url=pagination_url target="#customer-table-wrapper" include="[name='q']" %}
 {% else %}
 <div class="text-center py-12 text-gray-500">
   {% if query %}

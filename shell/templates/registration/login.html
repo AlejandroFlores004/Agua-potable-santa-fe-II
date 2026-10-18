@@ -1,4 +1,5 @@
 {% load tailwind_tags %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -6,11 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login</title>
   {% tailwind_css %}
+  <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
 </head>
 <body class="min-h-screen bg-base-200 flex items-center justify-center">
 
   <div class="card w-full max-w-sm shadow-xl bg-base-100">
     <div class="card-body gap-4">
+
+      <img src="{% static 'logo.svg' %}" alt="Agua Potable Santa Fe II" class="w-60 mx-auto">
 
       <h2 class="card-title text-2xl font-bold justify-center">Sign in</h2>
 

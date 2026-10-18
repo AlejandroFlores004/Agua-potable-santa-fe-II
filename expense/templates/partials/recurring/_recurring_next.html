@@ -1,0 +1,10 @@
+{% if plan.is_finished %}
+<span class="badge badge-success badge-outline badge-sm">Terminado</span>
+{% elif not plan.isActive %}
+<span class="text-gray-500">—</span>
+{% elif plan.is_overdue %}
+<span class="font-semibold text-error whitespace-nowrap">{{ plan.next_due_date|date:"d/m/Y" }}</span>
+<span class="badge badge-error badge-sm">Atrasado</span>
+{% else %}
+<span class="whitespace-nowrap">{{ plan.next_due_date|date:"d/m/Y" }}</span>
+{% endif %}

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'customer',
     'connection',
     'billing',
+    'expense',
     'shell',
 ]
 

@@ -4,13 +4,15 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 
+from shell.pagination import paginate
+
 from .forms import LineForm
 from .models import Line
 
 
 def _get_lines(request):
     lines = (
-        Line.objects.select_related("customer", "location", "created_by")
+        Line.objects.select_related("customer", "location", "fee", "created_by")
         .order_by("-created_at")
     )
     query = request.GET.get("q", "").strip()
@@ -28,7 +30,8 @@ def _get_lines(request):
 @login_required(login_url="login")
 def line_home(request):
     lines, query = _get_lines(request)
-    context = {"lines": lines, "query": query}
+    page_obj = paginate(request, lines)
+    context = {"lines": page_obj.object_list, "page_obj": page_obj, "query": query}
     if request.htmx:
         return render(request, "partials/line/_line_table.html", context)
     return render(request, "mechas_home.html", context)
@@ -72,10 +75,12 @@ def line_form(request, pk=None):
 
 @login_required(login_url="login")
 @require_POST
-def line_delete(request, pk):
+def line_toggle(request, pk):
+    # Las mechas no se eliminan (las usan los recibos); solo se activan o desactivan.
     line = get_object_or_404(Line, pk=pk)
-    line.delete()
-    messages.success(request, "Línea eliminada correctamente.")
+    line.isActive = not line.isActive
+    line.save(update_fields=["isActive", "updated_at"])
+    messages.success(request, "Mecha activada correctamente." if line.isActive else "Mecha desactivada correctamente.")
     response = render(request, "partials/line/_form_success_oob.html")
     response["HX-Trigger"] = "lineSaved"
     return response

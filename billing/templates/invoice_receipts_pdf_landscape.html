@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Recibos - {{ invoice.fee.name }}</title>
+<title>Avisos de cobro - {{ invoice.title }}</title>
 <style>
   @page {
     size: letter landscape;
@@ -10,7 +10,7 @@
   }
   body {
     font-family: Helvetica, Arial, sans-serif;
-    font-size: 8pt;
+    font-size: 7.5pt;
     color: #1a1a1a;
   }
   table.page-row {
@@ -26,158 +26,149 @@
   table.page-row td.col.right {
     border-left: 1px dashed #999999;
   }
-  table.brand-bar {
+  table.header {
     width: 100%;
     border-collapse: collapse;
+    border-top: 2px solid #1c5d8c;
     border-bottom: 2px solid #1c5d8c;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
-  table.brand-bar td {
+  table.header td {
     text-align: center;
-    padding: 2px 6px 4px 6px;
+    padding: 4px 6px 2px 6px;
   }
-  .brand-title {
+  .header-title {
     color: #1c5d8c;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: bold;
   }
-  .brand-subtitle {
+  .header-subtitle {
     color: #555555;
-    font-size: 6.5pt;
-    font-style: italic;
+    font-size: 7pt;
+    font-weight: bold;
     margin-top: 1px;
   }
-  .internal-title {
-    text-align: center;
-    color: #1c5d8c;
-    font-size: 8.5pt;
-    font-weight: bold;
-    padding: 3px 0;
-    margin-bottom: 5px;
-    border-top: 1px solid #b7d3ea;
-    border-bottom: 1px solid #b7d3ea;
-  }
-  table.card {
-    width: 100%;
-    border: 1px solid #b7d3ea;
-    border-collapse: collapse;
-    margin-bottom: 5px;
-  }
-  td.card-header {
+  .section-title {
     color: #1c5d8c;
     font-size: 7pt;
     font-weight: bold;
-    padding: 3px 6px;
+    padding: 2px 0;
+    margin-top: 3px;
+    margin-bottom: 2px;
     border-bottom: 1px solid #b7d3ea;
   }
-  table.card td.field-col {
+  table.fields {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 3px;
+  }
+  table.fields td {
     vertical-align: top;
-    padding: 4px 6px;
-    width: 50%;
+    padding: 1px 2px;
     font-size: 7.5pt;
-    line-height: 11pt;
+    line-height: 10pt;
   }
-  table.card td.field-col.left-col {
-    border-right: 1px solid #dbe8f2;
+  table.fields td.left {
+    width: 55%;
   }
-  table.card td.field-col div {
-    margin: 0;
-    padding: 0;
+  table.fields td.right {
+    width: 45%;
   }
   .label {
     color: #1c5d8c;
     font-weight: bold;
   }
-  .client-name {
-    min-height: 22pt;
-    margin: 0;
-    padding: 0;
-    line-height: 11pt;
-  }
   table.detail {
     width: 100%;
-    border: 1px solid #b7d3ea;
     border-collapse: collapse;
-    margin-bottom: 4px;
-  }
-  table.detail th, table.detail td {
-    border: 1px solid #dbe8f2;
-    padding: 3px 5px;
-    font-size: 7.5pt;
+    margin-bottom: 2px;
   }
   table.detail th {
     color: #1c5d8c;
     text-align: left;
+    font-size: 7pt;
+    padding: 3px 4px;
+    border-top: 1px solid #1c5d8c;
+    border-bottom: 1px solid #1c5d8c;
   }
-  table.detail td.number {
-    text-align: center;
-  }
-  table.detail td.amount {
-    text-align: right;
-  }
-  table.total-bar {
-    width: 100%;
-    border-collapse: collapse;
-    border-top: 2px solid #1c5d8c;
-    border-bottom: 2px solid #1c5d8c;
-    margin-bottom: 6px;
-  }
-  table.total-bar td {
-    color: #1c5d8c;
-    font-weight: bold;
-    padding: 4px 6px;
-  }
-  table.total-bar td.total-label {
+  table.detail td {
+    padding: 3px 4px;
     font-size: 7.5pt;
+    border-bottom: 1px solid #1c5d8c;
   }
-  table.total-bar td.total-value {
-    font-size: 10pt;
+  table.detail .number {
+    text-align: center;
+  }
+  table.detail .amount {
     text-align: right;
   }
-  table.account-box {
-    width: 100%;
-    border: 1px solid #1c5d8c;
-    border-collapse: collapse;
-    margin-bottom: 5px;
-  }
-  table.account-box td {
-    padding: 3px 6px;
-    vertical-align: middle;
-  }
-  table.account-box td.account-instructions {
-    font-size: 6.5pt;
-    color: #1a1a1a;
-    width: 62%;
-    border-right: 1px solid #b7d3ea;
-  }
-  table.account-box td.account-number {
-    width: 38%;
-    text-align: center;
+  table.detail td.total-label {
+    text-align: right;
+    font-weight: bold;
     color: #1c5d8c;
-    font-size: 11pt;
+    border-bottom: none;
+  }
+  table.detail td.total-value {
+    text-align: right;
+    font-weight: bold;
+    font-size: 9.5pt;
+    color: #1c5d8c;
+    border-bottom: none;
+  }
+  .account {
+    font-size: 8pt;
+    margin-bottom: 3px;
+  }
+  .account-number {
+    color: #1c5d8c;
+    font-size: 10pt;
     font-weight: bold;
   }
-  table.account-box td.account-number .account-number-caption {
-    display: block;
-    font-size: 5.5pt;
-    font-weight: normal;
-    color: #555555;
-    margin-bottom: 1px;
-  }
-  .cut-line {
-    border-top: 1px dashed #999999;
-    margin: 6px 0 6px 0;
-  }
-  table.status-box {
-    width: 100%;
-    border: 1px solid #b7d3ea;
-    border-collapse: collapse;
+  .legal {
+    font-size: 6pt;
+    color: #444444;
+    text-align: justify;
+    border: 1px solid #dbe8f2;
+    padding: 3px 4px;
     margin-top: 3px;
   }
-  table.status-box td {
-    border: 1px solid #dbe8f2;
-    padding: 3px 6px;
+  .legal-title {
+    font-weight: bold;
+    color: #1a1a1a;
+  }
+  table.cut {
+    width: 100%;
+    border-top: 1px dashed #777777;
+    border-bottom: 1px dashed #777777;
+    margin-top: 14px;
+    margin-bottom: 14px;
+  }
+  td.cut-label {
+    text-align: center;
+    font-size: 6pt;
+    color: #777777;
+    padding: 3px 0 1px 0;
+  }
+  .highlight {
+    color: #1c5d8c;
+    font-weight: bold;
+    font-size: 8.5pt;
+  }
+  table.bank-use {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #b7d3ea;
+    margin-top: 2px;
+  }
+  table.bank-use td {
+    padding: 5px 6px;
     font-size: 7.5pt;
+  }
+  table.footer-rule {
+    width: 100%;
+    border-collapse: collapse;
+    border-bottom: 2px solid #1c5d8c;
+    margin-top: 4px;
   }
   .page-break {
     page-break-after: always;
@@ -189,119 +180,119 @@
 {% if forloop.counter0|divisibleby:2 %}<table class="page-row"><tr>{% endif %}
   <td class="col{% if forloop.counter|divisibleby:2 %} right{% endif %}">
 
-    <table class="brand-bar">
+    {# ===== Sección superior: comprobante para el cliente ===== #}
+    <table class="header">
       <tr>
         <td>
-          <div class="brand-title">RECIBO DE PAGO DE AGUA POTABLE</div>
-          <div class="brand-subtitle">Sistema de agua potable Santa Fe II</div>
+          <div class="header-title">AVISO DE COBRO / ORDEN DE DEPÓSITO</div>
+          <div class="header-subtitle">SISTEMA DE AGUA POTABLE SANTA FE II</div>
         </td>
       </tr>
     </table>
 
-    <table class="card">
-      <tr><td class="card-header" colspan="2">INFORMACIÓN DEL CLIENTE</td></tr>
+    <div class="section-title">INFORMACIÓN DEL CLIENTE Y SERVICIO</div>
+    <table class="fields">
       <tr>
-        <td class="field-col left-col">
-          <div class="client-name"><span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</div>
-          <div><span class="label">DUI:</span> {{ invoice_line.line.customer.dui|default:"Sin registrar" }}</div>
-          <div><span class="label">Línea:</span> {{ invoice_line.line.code|default:"Sin asignar" }}</div>
-          <div><span class="label">Ubicación:</span> {{ invoice_line.line.location.name|default:"Sin asignar" }}</div>
-          <div><span class="label">Facturación:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}</div>
-        </td>
-        <td class="field-col">
-          <span class="label">Recibo:</span> {{ invoice_line.code|default:"pendiente" }}<br/>
-          <span class="label">Fecha límite:</span> {{ invoice.due_date|date:"d/m/Y" }}
-          {% if invoice_line.line.description %}<br/><span class="label">Detalle línea:</span> {{ invoice_line.line.description }}{% endif %}
-        </td>
+        <td class="left"><span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName|upper }} {{ invoice_line.line.customer.lastName|upper }}</td>
+        <td class="right"><span class="label">N° Aviso:</span> {{ invoice_line.code|default:"pendiente" }}</td>
+      </tr>
+      <tr>
+        <td class="left"><span class="label">DUI:</span> {{ invoice_line.line.customer.dui|default:"Sin registrar" }}</td>
+        <td class="right"><span class="label">Período:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}</td>
+      </tr>
+      <tr>
+        <td class="left"><span class="label">Línea / Contrato:</span> {{ invoice_line.line.code|default:"Sin asignar" }}</td>
+        <td class="right"><span class="label">Fecha Límite de Pago:</span> {{ invoice.due_date|date:"d/m/Y" }}</td>
+      </tr>
+      <tr>
+        <td class="left" colspan="2"><span class="label">Ubicación:</span> {{ invoice_line.line.location.name|default:"Sin asignar"|upper }}</td>
       </tr>
     </table>
 
+    <div class="section-title">DETALLE DEL COBRO</div>
     <table class="detail">
       <tr>
-        <th>Detalle</th>
-        <th>M<sup>3</sup></th>
-        <th>Valor ($)</th>
+        <th style="width:58%;">Descripción / Concepto</th>
+        <th class="number" style="width:20%;">Consumo (M³)</th>
+        <th class="amount" style="width:22%;">Monto ($)</th>
       </tr>
       <tr>
-        <td>Paga por consumo del {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}</td>
+        <td>Cuota fija por servicio de agua potable</td>
         <td class="number">0</td>
-        <td class="amount">${{ invoice.fee.amount }}</td>
+        <td class="amount">${{ invoice_line.amount }}</td>
+      </tr>
+      {% if invoice_line.previous_balance %}
+      <tr>
+        <td>Saldo anterior pendiente</td>
+        <td class="number">—</td>
+        <td class="amount">${{ invoice_line.previous_balance }}</td>
+      </tr>
+      {% endif %}
+      {% if invoice_line.late_fee_amount %}
+      <tr>
+        <td>Mora por pago atrasado</td>
+        <td class="number">—</td>
+        <td class="amount">${{ invoice_line.late_fee_amount }}</td>
+      </tr>
+      {% endif %}
+      <tr>
+        <td class="total-label" colspan="2">TOTAL A PAGAR:</td>
+        <td class="total-value">${{ invoice_line.total }}</td>
       </tr>
     </table>
 
-    <table class="total-bar">
-      <tr>
-        <td class="total-label">TOTAL A PAGAR</td>
-        <td class="total-value">${{ invoice.fee.amount }}</td>
-      </tr>
+    <div class="section-title">DATOS PARA REALIZAR EL PAGO</div>
+    <div class="account"><span class="label">Número de Cuenta Coope/Banco:</span> <span class="account-number">{{ invoice.account.number }}</span></div>
+
+    <div class="legal">
+      <span class="legal-title">* AVISO LEGAL IMPORTANTE:</span>
+      Este documento constituye únicamente un Aviso de Cobro / Notificación Informativa emitido
+      en virtud del Contrato de Prestación de Servicios. No posee validez de comprobante fiscal
+      ni constituye prueba de pago cancelado sin la correspondiente certificación o sello de
+      depósito de la institución financiera receptora.
+    </div>
+
+    {# ===== Línea de corte ===== #}
+    <table class="cut">
+      <tr><td class="cut-label">- - - LÍNEA DE CORTE / DESPRENDIBLE - - -</td></tr>
     </table>
 
-    <table class="account-box">
+    {# ===== Sección inferior: talón de depósito para la cooperativa ===== #}
+    <table class="header">
       <tr>
-        <td class="account-instructions">El pago de este recibo debe ser ingresado a la cuenta indicada. Solo presentando este recibo se podrán hacer los depósitos.</td>
-        <td class="account-number"><span class="account-number-caption">N&uacute;mero de cuenta</span>{{ invoice.account.number }}</td>
-      </tr>
-    </table>
-
-    <div class="cut-line"></div>
-
-    <div class="internal-title">COMPROBANTE DE PAGO &mdash; CONTROL INTERNO</div>
-
-    <table class="card">
-      <tr><td class="card-header" colspan="2">INFORMACIÓN DEL CLIENTE</td></tr>
-      <tr>
-        <td class="field-col left-col">
-          <div class="client-name"><span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</div>
-          <div><span class="label">DUI:</span> {{ invoice_line.line.customer.dui|default:"Sin registrar" }}</div>
-          <div><span class="label">Línea:</span> {{ invoice_line.line.code|default:"Sin asignar" }}</div>
-          <div><span class="label">Ubicación:</span> {{ invoice_line.line.location.name|default:"Sin asignar" }}</div>
-          <div><span class="label">Facturación:</span> {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}</div>
+        <td>
+          <div class="header-title">TALÓN DE DEPÓSITO - COOPERATIVA</div>
+          <div class="header-subtitle">SISTEMA DE AGUA POTABLE SANTA FE II</div>
         </td>
-        <td class="field-col">
-          <span class="label">Recibo:</span> {{ invoice_line.code|default:"pendiente" }}<br/>
-          <span class="label">Fecha límite:</span> {{ invoice.due_date|date:"d/m/Y" }}
-          {% if invoice_line.line.description %}<br/><span class="label">Detalle línea:</span> {{ invoice_line.line.description }}{% endif %}
-        </td>
       </tr>
     </table>
 
-    <table class="detail">
+    <div class="section-title">INFORMACIÓN DE LA CUENTA Y CLIENTE</div>
+    <table class="fields">
       <tr>
-        <th>Detalle</th>
-        <th>M<sup>3</sup></th>
-        <th>Valor ($)</th>
+        <td class="left"><span class="label">Cliente:</span> {{ invoice_line.line.customer.firstName|upper }} {{ invoice_line.line.customer.lastName|upper }}</td>
+        <td class="right"><span class="label">N° Aviso:</span> {{ invoice_line.code|default:"pendiente" }}</td>
       </tr>
       <tr>
-        <td>Paga por consumo del {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}</td>
-        <td class="number">0</td>
-        <td class="amount">${{ invoice.fee.amount }}</td>
+        <td class="left"><span class="label">Línea / Contrato:</span> {{ invoice_line.line.code|default:"Sin asignar" }}</td>
+        <td class="right"><span class="label">Fecha Límite:</span> {{ invoice.due_date|date:"d/m/Y" }}</td>
       </tr>
-    </table>
-
-    <table class="total-bar">
       <tr>
-        <td class="total-label">TOTAL A PAGAR</td>
-        <td class="total-value">${{ invoice.fee.amount }}</td>
+        <td class="left"><span class="label">N° Cuenta a Depositar:</span> {{ invoice.account.number }}</td>
+        <td class="right"><span class="label">MONTO A DEPOSITAR:</span> <span class="highlight">${{ invoice_line.total }}</span></td>
       </tr>
     </table>
 
-    <table class="account-box">
+    <div class="section-title">USO EXCLUSIVO DE LA COOPERATIVA / BANCO:</div>
+    <table class="bank-use">
       <tr>
-        <td class="account-instructions">El pago de este recibo debe ser ingresado a la cuenta indicada. Solo presentando este recibo se podrán hacer los depósitos.</td>
-        <td class="account-number"><span class="account-number-caption">N&uacute;mero de cuenta</span>{{ invoice.account.number }}</td>
+        <td><span class="label">Fecha de Pago:</span> _____ / _____ / {{ invoice.due_date|date:"Y" }}</td>
+      </tr>
+      <tr>
+        <td><span class="label">Sello / Firma de Cajero:</span> ________________________</td>
       </tr>
     </table>
-
-    <table class="status-box">
-      <tr>
-        <td style="width:30%;">Fecha de pago:</td>
-        <td style="width:70%;">&nbsp;</td>
-      </tr>
-      <tr>
-        <td>Firma:</td>
-        <td>&nbsp;</td>
-      </tr>
-    </table>
+    <table class="footer-rule"><tr><td></td></tr></table>
 
   </td>
 {% if forloop.last and not forloop.counter|divisibleby:2 %}<td class="col right"></td>{% endif %}

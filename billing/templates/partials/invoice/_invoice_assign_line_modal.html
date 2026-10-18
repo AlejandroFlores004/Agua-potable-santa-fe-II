@@ -1,5 +1,5 @@
-<div class="modal modal-open" onclick="document.getElementById('modal-container').innerHTML=''">
-  <div class="modal-box max-w-lg relative" onclick="event.stopPropagation()">
+<div class="modal modal-open modal-bottom sm:modal-middle" onclick="document.getElementById('modal-container').innerHTML=''">
+  <div class="modal-box w-full max-w-none sm:max-w-lg relative" onclick="event.stopPropagation()">
     <button
       type="button"
       class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
@@ -10,7 +10,7 @@
 
     <h3 class="font-bold text-lg mb-1">Asignar a una línea</h3>
     <p class="text-sm text-gray-500 mb-4">
-      {{ invoice.fee.name }} — {{ invoice.start_date|date:"d/m/Y" }} al {{ invoice.end_date|date:"d/m/Y" }}
+      {{ invoice.title }}
     </p>
 
     <form
@@ -29,7 +29,7 @@
         <span class="text-error text-xs mt-1">{{ form.line.errors|join:", " }}</span>
         {% endif %}
         {% if not form.fields.line.queryset.exists %}
-        <span class="text-xs text-gray-500 mt-1">Todas las líneas ya están asignadas a esta factura.</span>
+        <span class="text-xs text-gray-500 mt-1">No hay líneas con cuota pendientes de asignar a esta factura.</span>
         {% endif %}
       </div>
 

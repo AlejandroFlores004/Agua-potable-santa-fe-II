@@ -1,11 +1,14 @@
 {% if lines %}
+<div class="hidden md:block overflow-x-auto">
 <table class="table">
   <thead>
     <tr>
       <th>Código</th>
       <th>Cliente</th>
       <th>Ubicación</th>
+      <th>Cuota</th>
       <th>Descripción</th>
+      <th>Estado</th>
       <th class="text-right">Acciones</th>
     </tr>
   </thead>
@@ -18,7 +21,13 @@
       </td>
       <td>{{ line.customer }}</td>
       <td>{{ line.location|default:"—" }}</td>
+      <td>
+        {% if line.fee %}{{ line.fee.name }} <span class="text-gray-500">${{ line.fee.amount }}</span>{% else %}<span class="badge badge-warning badge-outline badge-sm">Sin cuota</span>{% endif %}
+      </td>
       <td class="max-w-xs truncate">{{ line.description|default:"—" }}</td>
+      <td>
+        {% if line.isActive %}<span class="badge badge-success badge-outline badge-sm">Activa</span>{% else %}<span class="badge badge-ghost badge-sm">Inactiva</span>{% endif %}
+      </td>
       <td class="text-right">
         <div class="flex justify-end gap-2">
           <button
@@ -30,12 +39,12 @@
             Editar
           </button>
           <button
-            class="btn btn-ghost btn-sm text-error"
-            hx-post="{% url 'line_delete' line.pk %}"
+            class="btn btn-ghost btn-sm {% if line.isActive %}text-error{% else %}text-success{% endif %}"
+            hx-post="{% url 'line_toggle' line.pk %}"
             hx-swap="none"
-            hx-confirm="¿Eliminar la mecha {{ line.code|default:'pendiente' }}?"
+            hx-confirm="{% if line.isActive %}¿Desactivar la mecha {{ line.code|default:'pendiente' }}? Ya no se le asignarán nuevos recibos.{% else %}¿Activar la mecha {{ line.code|default:'pendiente' }}?{% endif %}"
           >
-            Eliminar
+            {% if line.isActive %}Desactivar{% else %}Activar{% endif %}
           </button>
         </div>
       </td>
@@ -43,6 +52,49 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
+
+<div class="md:hidden flex flex-col divide-y divide-base-300 -mx-2">
+  {% for line in lines %}
+  <div class="px-2 py-4 flex flex-col gap-2">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <span class="badge badge-outline font-semibold">{{ line.code|default:"pendiente" }}</span>
+        {% if not line.isActive %}<span class="badge badge-ghost badge-sm">Inactiva</span>{% endif %}
+        <div class="font-medium mt-1 break-words">{{ line.customer }}</div>
+        <div class="text-sm text-gray-500">{{ line.location|default:"Sin ubicación" }}</div>
+        <div class="text-sm">
+          {% if line.fee %}{{ line.fee.name }} · ${{ line.fee.amount }}{% else %}<span class="badge badge-warning badge-outline badge-sm">Sin cuota</span>{% endif %}
+        </div>
+      </div>
+      <div class="flex gap-1 shrink-0">
+        <button
+          class="btn btn-ghost btn-sm"
+          hx-get="{% url 'line_edit' line.pk %}"
+          hx-target="#modal-container"
+          hx-swap="innerHTML"
+        >
+          Editar
+        </button>
+        <button
+          class="btn btn-ghost btn-sm {% if line.isActive %}text-error{% else %}text-success{% endif %}"
+          hx-post="{% url 'line_toggle' line.pk %}"
+          hx-swap="none"
+          hx-confirm="{% if line.isActive %}¿Desactivar la mecha {{ line.code|default:'pendiente' }}? Ya no se le asignarán nuevos recibos.{% else %}¿Activar la mecha {{ line.code|default:'pendiente' }}?{% endif %}"
+        >
+          {% if line.isActive %}Desactivar{% else %}Activar{% endif %}
+        </button>
+      </div>
+    </div>
+    {% if line.description %}
+    <p class="text-sm text-gray-600 line-clamp-2">{{ line.description }}</p>
+    {% endif %}
+    <div class="text-xs text-gray-400">Creada {{ line.created_at|date:"d/m/Y" }} por {{ line.created_by }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% url 'mechas' as pagination_url %}
+{% include "partials/base/_pagination.html" with url=pagination_url target="#line-table-wrapper" include="[name='q']" %}
 {% else %}
 <div class="text-center py-12 text-gray-500">
   {% if query %}

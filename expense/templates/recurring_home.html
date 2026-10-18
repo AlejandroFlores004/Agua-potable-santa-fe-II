@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Gastos recurrentes{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <div class="text-sm breadcrumbs py-0">
+        <ul>
+          <li><a href="{% url 'expense_home' %}">Gastos</a></li>
+          <li>Recurrentes</li>
+        </ul>
+      </div>
+      <h1 class="text-2xl font-bold">Gastos recurrentes</h1>
+      <p class="text-sm text-gray-500">Gastos que se repiten: fijos, variables (como la luz) o a plazos.</p>
+    </div>
+    <button
+      class="btn btn-primary gap-2"
+      hx-get="{% url 'recurring_create' %}"
+      hx-target="#modal-container"
+      hx-swap="innerHTML"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Nuevo gasto recurrente
+    </button>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+    <div class="card-body gap-4 p-4 sm:p-8">
+      <div id="recurring-filters" class="flex flex-col sm:flex-row gap-2">
+        <input
+          type="text"
+          name="q"
+          value="{{ query }}"
+          placeholder="Buscar por concepto o descripción..."
+          class="input input-bordered w-full sm:max-w-sm"
+          hx-get="{% url 'recurring_home' %}"
+          hx-trigger="keyup changed delay:400ms, search"
+          hx-target="#recurring-table-wrapper"
+          hx-include="#recurring-filters [name]"
+        />
+        <select
+          name="status"
+          class="select select-bordered w-full sm:w-48"
+          hx-get="{% url 'recurring_home' %}"
+          hx-trigger="change"
+          hx-target="#recurring-table-wrapper"
+          hx-include="#recurring-filters [name]"
+        >
+          <option value="" {% if not status %}selected{% endif %}>Todos los estados</option>
+          <option value="active" {% if status == "active" %}selected{% endif %}>Activos</option>
+          <option value="inactive" {% if status == "inactive" %}selected{% endif %}>Inactivos</option>
+        </select>
+      </div>
+
+      <div id="recurring-table-wrapper"
+           hx-get="{% url 'recurring_home' %}"
+           hx-trigger="recurringSaved from:body"
+           hx-target="this"
+           hx-swap="innerHTML"
+           hx-include="#recurring-filters [name], #recurring-table-wrapper [name='page']">
+        {% include "partials/recurring/_recurring_table.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-container"></div>
+{% endblock %}

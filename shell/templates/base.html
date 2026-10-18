@@ -19,12 +19,13 @@
     {% include "partials/base/_messages.html" %}
   </div>
 
-  <main class="flex-1 container mx-auto px-6 py-8 pb-24 md:pb-8">
+  <main class="flex-1 container mx-auto px-4 sm:px-6 py-5 sm:py-8 pb-28 md:pb-8">
     {% block content %}{% endblock %}
   </main>
 
   {% include "partials/base/_footer.html" %}
   {% include "partials/base/_dock.html" %}
+  {% include "partials/base/_logout_modal.html" %}
 
   {% block extra_scripts %}{% endblock %}
 </body>

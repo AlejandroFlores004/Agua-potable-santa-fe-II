@@ -1,0 +1,1 @@
+{% if invoice.is_draft %}<span class="badge badge-ghost {{ size }}">Borrador</span>{% elif invoice.is_open %}<span class="badge badge-success {{ size }}">Abierta</span>{% else %}<span class="badge badge-neutral {{ size }}">Cerrada</span>{% endif %}

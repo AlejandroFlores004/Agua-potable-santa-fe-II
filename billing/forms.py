@@ -2,7 +2,7 @@ from django import forms
 
 from connection.models import Line
 
-from .models import Account, Fee, Invoice, InvoiceLine
+from .models import Account, Fee, Invoice, InvoiceLine, LateFee
 
 INPUT_CLASSES = "input input-bordered w-full"
 SELECT_CLASSES = "select select-bordered w-full"
@@ -18,12 +18,44 @@ class FeeForm(forms.ModelForm):
         }
 
 
+class LateFeeForm(forms.ModelForm):
+    make_default = forms.BooleanField(
+        label="Usar como mora por defecto",
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={"class": "checkbox checkbox-primary"}),
+    )
+
+    class Meta:
+        model = LateFee
+        fields = ["name", "amount"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": INPUT_CLASSES}),
+            "amount": forms.NumberInput(attrs={"class": INPUT_CLASSES, "step": "0.01", "min": "0"}),
+        }
+
+
+class InvoiceLineLateFeeForm(forms.Form):
+    late_fee = forms.ModelChoiceField(
+        label="Mora",
+        queryset=LateFee.objects.order_by("-isDefault", "name"),
+        required=False,
+        empty_label="Sin mora",
+        widget=forms.Select(attrs={"class": SELECT_CLASSES}),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["late_fee"].label_from_instance = (
+            lambda late_fee: f"{late_fee.name} ${late_fee.amount}" + (" (por defecto)" if late_fee.isDefault else "")
+        )
+
+
 class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
-        fields = ["fee", "account", "start_date", "end_date", "due_date"]
+        fields = ["account", "start_date", "end_date", "due_date"]
         widgets = {
-            "fee": forms.Select(attrs={"class": SELECT_CLASSES}),
             "account": forms.Select(attrs={"class": SELECT_CLASSES}),
             "start_date": forms.DateInput(attrs={"class": INPUT_CLASSES, "type": "date"}),
             "end_date": forms.DateInput(attrs={"class": INPUT_CLASSES, "type": "date"}),
@@ -57,7 +89,8 @@ class InvoiceLineAssignForm(forms.Form):
         assigned_line_ids = InvoiceLine.objects.filter(invoice=invoice).values_list("line_id", flat=True)
         self.fields["line"].queryset = (
             Line.objects.exclude(id__in=assigned_line_ids)
-            .select_related("customer", "location")
+            .filter(fee__isnull=False)
+            .select_related("customer", "location", "fee")
             .order_by("-isActive", "code")
         )
         self.fields["line"].label_from_instance = self._line_label
@@ -67,6 +100,7 @@ class InvoiceLineAssignForm(forms.Form):
         label = f"{line.code} — {line.customer.firstName} {line.customer.lastName}"
         if line.location:
             label += f" ({line.location})"
+        label += f" · {line.fee.name} ${line.fee.amount}"
         if not line.isActive:
             label += " [inactiva]"
         return label

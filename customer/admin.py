@@ -8,6 +8,7 @@ class LineInline(admin.TabularInline):
     extra = 1
     fields = ('location', 'description')  # only ask for what's actually needed; code & created_by are handled automatically
     readonly_fields = ()
+    can_delete = False
 
     def save_new_instance(self, form, formset):
         # not used directly, kept here for reference if you override further

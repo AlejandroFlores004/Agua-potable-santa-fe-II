@@ -1,9 +1,11 @@
 {% if fees %}
+<div class="hidden md:block overflow-x-auto">
 <table class="table">
   <thead>
     <tr>
       <th>Nombre</th>
       <th>Monto</th>
+      <th>Estado</th>
       <th>Creada</th>
       <th class="text-right">Acciones</th>
     </tr>
@@ -14,17 +16,20 @@
       <td class="font-semibold">{{ fee.name }}</td>
       <td>${{ fee.amount }}</td>
       <td>
+        {% if fee.isActive %}<span class="badge badge-success badge-outline badge-sm">Activa</span>{% else %}<span class="badge badge-ghost badge-sm">Inactiva</span>{% endif %}
+      </td>
+      <td>
         <div class="text-xs text-gray-500">{{ fee.created_at|date:"d/m/Y" }} por {{ fee.created_by }}</div>
       </td>
       <td class="text-right">
         <div class="flex justify-end gap-2">
           <button
-            class="btn btn-ghost btn-sm text-error"
-            hx-post="{% url 'fee_delete' fee.pk %}"
+            class="btn btn-ghost btn-sm {% if fee.isActive %}text-error{% else %}text-success{% endif %}"
+            hx-post="{% url 'fee_toggle' fee.pk %}"
             hx-swap="none"
-            hx-confirm="¿Eliminar la cuota &quot;{{ fee.name }}&quot;? Esto también eliminará las facturas asociadas y sus líneas asignadas."
+            hx-confirm="{% if fee.isActive %}¿Desactivar la cuota &quot;{{ fee.name }}&quot;? Ya no se podrá asignar a nuevas mechas; las que ya la tienen la conservan.{% else %}¿Activar la cuota &quot;{{ fee.name }}&quot;?{% endif %}"
           >
-            Eliminar
+            {% if fee.isActive %}Desactivar{% else %}Activar{% endif %}
           </button>
         </div>
       </td>
@@ -32,6 +37,34 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
+
+<div class="md:hidden flex flex-col divide-y divide-base-300 -mx-2">
+  {% for fee in fees %}
+  <div class="px-2 py-4 flex items-center justify-between gap-3">
+    <div class="min-w-0">
+      <div class="font-semibold truncate">
+        {{ fee.name }}
+        {% if not fee.isActive %}<span class="badge badge-ghost badge-sm ml-1">Inactiva</span>{% endif %}
+      </div>
+      <div class="text-xs text-gray-500">{{ fee.created_at|date:"d/m/Y" }} por {{ fee.created_by }}</div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <span class="text-lg font-bold">${{ fee.amount }}</span>
+      <button
+        class="btn btn-ghost btn-sm {% if fee.isActive %}text-error{% else %}text-success{% endif %}"
+        hx-post="{% url 'fee_toggle' fee.pk %}"
+        hx-swap="none"
+        hx-confirm="{% if fee.isActive %}¿Desactivar la cuota &quot;{{ fee.name }}&quot;? Ya no se podrá asignar a nuevas mechas; las que ya la tienen la conservan.{% else %}¿Activar la cuota &quot;{{ fee.name }}&quot;?{% endif %}"
+      >
+        {% if fee.isActive %}Desactivar{% else %}Activar{% endif %}
+      </button>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% url 'fee_home' as pagination_url %}
+{% include "partials/base/_pagination.html" with url=pagination_url target="#fee-table-wrapper" include="[name='q']" %}
 {% else %}
 <div class="text-center py-12 text-gray-500">
   {% if query %}

@@ -1,10 +1,16 @@
+{% load static %}
 <!-- ===== MOBILE TOPBAR (below md) ===== -->
 <nav class="navbar bg-base-100 shadow-md px-4 flex md:hidden">
   <div class="flex-1">
-    <a href="/" class="text-lg font-bold">Agua Potable SF</a>
+    <a href="/" class="flex items-center gap-2">
+      <img src="{% static 'logo-mark.svg' %}" alt="" class="w-8 h-8">
+      <span class="flex flex-col leading-tight">
+        <span class="text-base font-extrabold tracking-tight text-[#0B3B6E]">Agua Potable</span>
+        <span class="text-[0.6rem] font-semibold tracking-[0.25em] text-[#1E90E6]">SANTA FE II</span>
+      </span>
+    </a>
   </div>
-  <div class="flex-none gap-2 items-center">
-    <span class="text-sm text-gray-500">{{ request.user.username }}</span>
-    <a href="{% url 'logout' %}" class="btn btn-ghost btn-sm">Salir</a>
+  <div class="flex-none">
+    {% include "partials/base/_user_menu.html" %}
   </div>
 </nav>

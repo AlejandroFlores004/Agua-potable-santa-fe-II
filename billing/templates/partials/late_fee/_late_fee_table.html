@@ -1,0 +1,32 @@
+{% if late_fees %}
+<div class="flex flex-col divide-y divide-base-300 -mx-2">
+  {% for late_fee in late_fees %}
+  <div class="px-2 py-3 flex items-center justify-between gap-3">
+    <div class="min-w-0">
+      <div class="font-semibold truncate">
+        {{ late_fee.name }}
+        {% if late_fee.isDefault %}<span class="badge badge-primary badge-sm ml-1">Por defecto</span>{% endif %}
+      </div>
+      <div class="text-xs text-gray-500">{{ late_fee.created_at|date:"d/m/Y" }} por {{ late_fee.created_by }}</div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <span class="text-lg font-bold">${{ late_fee.amount }}</span>
+      {% if not late_fee.isDefault %}
+      <button
+        class="btn btn-ghost btn-sm text-primary"
+        hx-post="{% url 'late_fee_make_default' late_fee.pk %}"
+        hx-swap="none"
+        hx-confirm="¿Usar &quot;{{ late_fee.name }}&quot; (${{ late_fee.amount }}) como mora por defecto? Se cobrará en los recibos atrasados que se generen de ahora en adelante."
+      >
+        Usar por defecto
+      </button>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-8 text-gray-500">
+  Todavía no hay moras registradas. Sin una mora por defecto, los recibos atrasados solo arrastran el saldo anterior.
+</div>
+{% endif %}
