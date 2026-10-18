@@ -1,0 +1,106 @@
+<div class="modal modal-open modal-bottom sm:modal-middle" onclick="document.getElementById('modal-container').innerHTML=''">
+  <div class="modal-box w-full max-w-none sm:max-w-md relative" onclick="event.stopPropagation()">
+    <button
+      type="button"
+      class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+      onclick="document.getElementById('modal-container').innerHTML=''"
+    >
+      ✕
+    </button>
+
+    <div class="w-10 h-1 rounded-full bg-base-300 mx-auto -mt-2 mb-4 sm:hidden"></div>
+
+    <div class="flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left gap-3 sm:gap-4">
+      <div class="shrink-0 w-12 h-12 rounded-full grid place-items-center {% if action == 'open' %}bg-primary/10 text-primary{% else %}bg-warning/15 text-warning{% endif %}">
+        {% if action == "open" %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+        </svg>
+        {% else %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        {% endif %}
+      </div>
+      <div class="min-w-0">
+        <h3 class="font-bold text-lg">{% if action == "open" %}Abrir factura{% else %}Cerrar factura{% endif %}</h3>
+        <p class="text-sm text-gray-500">{{ invoice.title }} · {{ invoice.account.name }}</p>
+      </div>
+    </div>
+
+    {% if action == "open" %}
+    <p class="mt-4">
+      Desde ahora se podrán registrar los pagos de esta factura. Seguirá abierta hasta que la cierres,
+      aunque pase la fecha de vencimiento ({{ invoice.due_date|date:"d/m/Y" }}).
+    </p>
+
+    <div class="grid grid-cols-2 gap-2 mt-4">
+      <div class="rounded-box bg-base-200 p-3 text-center">
+        <div class="text-xs text-gray-500">Recibos</div>
+        <div class="text-2xl font-bold">{{ lines_count }}</div>
+      </div>
+      <div class="rounded-box bg-base-200 p-3 text-center">
+        <div class="text-xs text-gray-500">Por cobrar</div>
+        <div class="text-2xl font-bold">${{ expected_amount }}</div>
+      </div>
+    </div>
+
+    {% if not lines_count %}
+    <div role="alert" class="alert alert-warning text-sm mt-4">
+      <span>Esta factura todavía no tiene líneas asignadas.</span>
+    </div>
+    {% elif unassigned_active_count %}
+    <div role="alert" class="alert alert-warning text-sm mt-4">
+      <span>{{ unassigned_active_count }} línea{{ unassigned_active_count|pluralize }} activa{{ unassigned_active_count|pluralize }} con cuota todavía no {{ unassigned_active_count|pluralize:"está,están" }} asignada{{ unassigned_active_count|pluralize }}.</span>
+    </div>
+    {% endif %}
+    {% else %}
+    <p class="mt-4">
+      Al cerrarla <strong>ya no se podrá modificar ningún recibo</strong>: ni registrar pagos, ni cambiar moras, ni asignar o quitar líneas.
+    </p>
+
+    <div class="grid grid-cols-2 gap-2 mt-4">
+      <div class="rounded-box bg-base-200 p-3 text-center">
+        <div class="text-xs text-gray-500">Pagados</div>
+        <div class="text-2xl font-bold text-success">{{ paid_count }}</div>
+        <div class="text-xs text-gray-500">${{ collected_amount }}</div>
+      </div>
+      <div class="rounded-box p-3 text-center {% if pending_count %}bg-error/10{% else %}bg-base-200{% endif %}">
+        <div class="text-xs text-gray-500">Quedarán vencidos</div>
+        <div class="text-2xl font-bold {% if pending_count %}text-error{% endif %}">{{ pending_count }}</div>
+        <div class="text-xs text-gray-500">de {{ lines_count }} recibo{{ lines_count|pluralize }}</div>
+      </div>
+    </div>
+
+    {% if pending_count %}
+    <div role="alert" class="alert alert-warning text-sm mt-4">
+      <span>Revisa que estén marcados todos los comprobantes recibidos antes de cerrar.</span>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <div class="modal-action flex-col-reverse sm:flex-row gap-2">
+      <button
+        type="button"
+        class="btn w-full sm:w-auto m-0"
+        onclick="document.getElementById('modal-container').innerHTML=''"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="btn w-full sm:w-auto m-0 {% if action == 'open' %}btn-primary{% else %}btn-warning{% endif %}"
+        hx-post="{% if action == 'open' %}{% url 'invoice_open' invoice.pk %}{% else %}{% url 'invoice_close' invoice.pk %}{% endif %}"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
+        hx-disabled-elt="this"
+      >
+        {% if action == "open" %}Abrir factura{% else %}Cerrar factura{% endif %}
+      </button>
+    </div>
+  </div>
+</div>

@@ -7,6 +7,7 @@ from django.db.models import Count, Q, Sum
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 
+from shell.htmx import messages_response
 from shell.pagination import paginate
 
 from .forms import ExpenseForm, RecurringExpenseForm
@@ -107,9 +108,7 @@ def expense_form(request, pk=None):
                 request,
                 "Gasto registrado correctamente." if is_new else "Gasto actualizado correctamente.",
             )
-            response = render(request, "partials/expense/_form_success_oob.html")
-            response["HX-Trigger"] = "expenseSaved"
-            return response
+            return messages_response(request, "expenseSaved")
         return _render_expense_form(request, form, expense, is_new)
 
     return _render_expense_form(request, ExpenseForm(instance=expense), expense, is_new)
@@ -121,9 +120,7 @@ def expense_delete(request, pk):
     expense = get_object_or_404(Expense, pk=pk)
     expense.delete()
     messages.success(request, "Gasto eliminado correctamente.")
-    response = render(request, "partials/expense/_form_success_oob.html")
-    response["HX-Trigger"] = "expenseSaved"
-    return response
+    return messages_response(request, "expenseSaved")
 
 
 def _get_recurring(request):
@@ -193,9 +190,7 @@ def recurring_form(request, pk=None):
                 request,
                 "Gasto recurrente creado correctamente." if is_new else "Gasto recurrente actualizado correctamente.",
             )
-            response = render(request, "partials/expense/_form_success_oob.html")
-            response["HX-Trigger"] = "recurringSaved"
-            return response
+            return messages_response(request, "recurringSaved")
     else:
         form = RecurringExpenseForm(instance=plan)
 
@@ -216,9 +211,7 @@ def recurring_toggle(request, pk):
         request,
         "Gasto recurrente activado correctamente." if plan.isActive else "Gasto recurrente desactivado correctamente.",
     )
-    response = render(request, "partials/expense/_form_success_oob.html")
-    response["HX-Trigger"] = "recurringSaved"
-    return response
+    return messages_response(request, "recurringSaved")
 
 
 @login_required(login_url="login")
@@ -231,9 +224,7 @@ def recurring_delete(request, pk):
     else:
         plan.delete()
         messages.success(request, "Gasto recurrente eliminado correctamente.")
-    response = render(request, "partials/expense/_form_success_oob.html")
-    response["HX-Trigger"] = "recurringSaved"
-    return response
+    return messages_response(request, "recurringSaved")
 
 
 @login_required(login_url="login")
@@ -249,9 +240,7 @@ def recurring_pay(request, pk):
 
     if plan.is_finished or not plan.isActive:
         messages.error(request, "Este gasto recurrente ya no admite pagos.")
-        response = render(request, "partials/expense/_form_success_oob.html")
-        response["HX-Trigger"] = "recurringSaved"
-        return response
+        return messages_response(request, "recurringSaved")
 
     if request.method == "POST":
         form = ExpenseForm(request.POST, instance=expense)
@@ -260,9 +249,7 @@ def recurring_pay(request, pk):
             expense.created_by = request.user
             expense.save()
             messages.success(request, f"Pago de «{plan.name}» registrado correctamente.")
-            response = render(request, "partials/expense/_form_success_oob.html")
-            response["HX-Trigger"] = "recurringSaved"
-            return response
+            return messages_response(request, "recurringSaved")
     else:
         form = ExpenseForm(instance=expense)
 

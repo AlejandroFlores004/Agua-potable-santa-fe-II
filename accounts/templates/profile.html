@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Mi cuenta{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6 max-w-3xl mx-auto">
+  <div class="flex items-center gap-4">
+    <span class="w-14 h-14 rounded-full bg-primary/10 text-primary text-2xl font-bold flex items-center justify-center uppercase">{{ request.user.username|first }}</span>
+    <div>
+      <h1 class="text-2xl font-bold">Mi cuenta</h1>
+      <p class="text-sm text-gray-500">@{{ request.user.username }}</p>
+      <div class="flex flex-wrap gap-1 mt-1">
+        {% if request.user.is_superuser %}<span class="badge badge-primary badge-sm">Administrador total</span>{% endif %}
+        {% for group in groups %}<span class="badge badge-outline badge-sm">{{ group.name }}</span>{% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+    <form method="post" class="card-body gap-4 p-4 sm:p-8">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="profile">
+      <h2 class="card-title">Datos personales</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {% include "partials/accounts/_field.html" with field=profile_form.first_name %}
+        {% include "partials/accounts/_field.html" with field=profile_form.last_name %}
+        {% include "partials/accounts/_field.html" with field=profile_form.email class="sm:col-span-2" %}
+      </div>
+      <div class="card-actions justify-end">
+        <button type="submit" class="btn btn-primary">Guardar datos</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+    <form method="post" class="card-body gap-4 p-4 sm:p-8">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="password">
+      <h2 class="card-title">Cambiar contraseña</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {% include "partials/accounts/_field.html" with field=password_form.old_password class="sm:col-span-2" %}
+        {% include "partials/accounts/_field.html" with field=password_form.new_password1 %}
+        {% include "partials/accounts/_field.html" with field=password_form.new_password2 %}
+      </div>
+      <div class="card-actions justify-end">
+        <button type="submit" class="btn btn-primary">Cambiar contraseña</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 
+from shell.htmx import messages_response
 from shell.pagination import paginate
 
 from .forms import CustomerForm, get_line_formset_class
@@ -66,9 +67,7 @@ def customer_form(request, pk=None):
                 request,
                 "Cliente creado correctamente." if is_new else "Cliente actualizado correctamente.",
             )
-            response = render(request, "partials/customer/_form_success_oob.html")
-            response["HX-Trigger"] = "customerSaved"
-            return response
+            return messages_response(request, "customerSaved")
 
         return render(
             request,
@@ -95,6 +94,4 @@ def customer_delete(request, pk):
     else:
         customer.delete()
         messages.success(request, "Cliente eliminado correctamente.")
-    response = render(request, "partials/customer/_form_success_oob.html")
-    response["HX-Trigger"] = "customerSaved"
-    return response
+    return messages_response(request, "customerSaved")

@@ -16,7 +16,7 @@
         class="btn btn-ghost btn-sm text-primary"
         hx-post="{% url 'late_fee_make_default' late_fee.pk %}"
         hx-swap="none"
-        hx-confirm="¿Usar &quot;{{ late_fee.name }}&quot; (${{ late_fee.amount }}) como mora por defecto? Se cobrará en los recibos atrasados que se generen de ahora en adelante."
+        hx-confirm="¿Usar «{{ late_fee.name }}» (${{ late_fee.amount }}) como mora por defecto? Se cobrará en los recibos atrasados que se generen de ahora en adelante."
       >
         Usar por defecto
       </button>

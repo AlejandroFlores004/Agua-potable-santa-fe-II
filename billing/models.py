@@ -61,8 +61,10 @@ class LateFee(models.Model):
 
 class Invoice(models.Model):
     # Una factura nace en borrador (se asignan líneas e imprimen recibos), se abre
-    # cuando se entregan los recibos (desde ahí se cobra y puede vencer) y se cierra
-    # al terminar el periodo. Solo puede haber una factura abierta a la vez.
+    # cuando se entregan los recibos y se cobra mientras siga abierta, aunque ya pasó
+    # la fecha de vencimiento (los comprobantes llegan después de fin de mes). Al
+    # cerrarla ya no se toca ningún recibo y los que no se pagaron quedan vencidos.
+    # Solo puede haber una factura abierta a la vez.
     class Status(models.TextChoices):
         DRAFT = "draft", "Borrador"
         OPEN = "open", "Abierta"

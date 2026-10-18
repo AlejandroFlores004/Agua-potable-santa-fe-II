@@ -49,7 +49,7 @@
           hx-include="[name='q']"
         >
           <option value="" {% if not status %}selected{% endif %}>Todos los estados</option>
-          <option value="pending" {% if status == "pending" %}selected{% endif %}>Pendientes</option>
+          <option value="pending" {% if status == "pending" %}selected{% endif %}>{% if invoice.is_closed %}Vencidas{% else %}Pendientes{% endif %}</option>
           <option value="paid" {% if status == "paid" %}selected{% endif %}>Pagadas</option>
           <option value="carried" {% if status == "carried" %}selected{% endif %}>Trasladadas</option>
         </select>

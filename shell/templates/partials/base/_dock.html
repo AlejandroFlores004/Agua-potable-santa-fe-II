@@ -1,8 +1,9 @@
 {% with url_name=request.resolver_match.url_name %}
 <!-- ===== MOBILE DOCK (below md) ===== -->
 <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-base-100 border-t border-base-300 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]">
-  <div class="grid grid-cols-5 h-16">
+  <div class="grid grid-flow-col auto-cols-fr h-16">
 
+    {% if perms.customer %}
     <a href="{% url 'customer_home' %}"
        class="flex flex-col items-center justify-center gap-1 text-xs transition-colors
               {% if url_name == 'customer_home' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
@@ -13,7 +14,9 @@
       </svg>
       <span>Clientes</span>
     </a>
+    {% endif %}
 
+    {% if perms.connection %}
     <a href="{% url 'mechas' %}"
        class="flex flex-col items-center justify-center gap-1 text-xs transition-colors
               {% if url_name == 'mechas' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
@@ -23,7 +26,9 @@
       </svg>
       <span>Mechas</span>
     </a>
+    {% endif %}
 
+    {% if perms.billing %}
     <a href="{% url 'billing_home' %}"
        class="flex flex-col items-center justify-center gap-1 text-xs transition-colors
               {% if url_name == 'billing_home' or url_name == 'invoice_detail' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
@@ -37,7 +42,9 @@
       </svg>
       <span>Recibos</span>
     </a>
+    {% endif %}
 
+    {% if perms.billing %}
     <a href="{% url 'fee_home' %}"
        class="flex flex-col items-center justify-center gap-1 text-xs transition-colors
               {% if url_name == 'fee_home' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
@@ -48,7 +55,9 @@
       </svg>
       <span>Cuotas</span>
     </a>
+    {% endif %}
 
+    {% if perms.expense %}
     <a href="{% url 'expense_home' %}"
        class="flex flex-col items-center justify-center gap-1 text-xs transition-colors
               {% if url_name == 'expense_home' or url_name == 'recurring_home' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
@@ -61,6 +70,7 @@
       </svg>
       <span>Gastos</span>
     </a>
+    {% endif %}
 
   </div>
 </nav>

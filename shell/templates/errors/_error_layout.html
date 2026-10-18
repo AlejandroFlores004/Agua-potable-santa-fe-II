@@ -1,0 +1,35 @@
+{% load tailwind_tags %}
+{% load static %}
+{% comment %}
+  Layout de las páginas de error. No extiende base.html a propósito: la 500 se renderiza
+  sin contexto (sin request ni usuario) y no debe depender de nada que pueda fallar.
+  Solo se ven con DEBUG=False; con DEBUG=True Django muestra su página de depuración.
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Error{% endblock %} · Agua Potable Santa Fe</title>
+  {% tailwind_css %}
+  <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+</head>
+<body class="min-h-screen bg-base-200 flex items-center justify-center p-4">
+  <div class="card w-full max-w-md shadow-xl bg-base-100">
+    <div class="card-body items-center text-center gap-4">
+      <img src="{% static 'logo.svg' %}" alt="Agua Potable Santa Fe II" class="w-48">
+
+      <div class="text-6xl font-extrabold tracking-tight {% block code_class %}text-primary{% endblock %}">
+        {% block code %}{% endblock %}
+      </div>
+      <h1 class="text-xl font-bold">{% block heading %}{% endblock %}</h1>
+      <p class="text-gray-500">{% block message %}{% endblock %}</p>
+
+      <div class="card-actions flex-col-reverse sm:flex-row w-full sm:w-auto mt-2">
+        <button type="button" class="btn w-full sm:w-auto" onclick="history.back()">Volver</button>
+        <a href="{% url 'home' %}" class="btn btn-primary w-full sm:w-auto">Ir al inicio</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

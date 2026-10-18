@@ -14,6 +14,7 @@
 
   <!-- Nav links -->
   <div class="flex-none gap-1">
+    {% if perms.customer %}
     <a href="{% url 'customer_home' %}"
        class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'customer_home' %}btn-active{% endif %}">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
@@ -23,7 +24,9 @@
       </svg>
       Clientes
     </a>
+    {% endif %}
 
+    {% if perms.connection %}
     <a href="{% url 'mechas' %}"
        class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'mechas' %}btn-active{% endif %}">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
@@ -32,7 +35,9 @@
       </svg>
       Mechas
     </a>
+    {% endif %}
 
+    {% if perms.billing %}
     <a href="{% url 'billing_home' %}"
        class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'billing_home' or request.resolver_match.url_name == 'invoice_detail' %}btn-active{% endif %}">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
@@ -45,7 +50,9 @@
       </svg>
       Recibos
     </a>
+    {% endif %}
 
+    {% if perms.billing %}
     <a href="{% url 'fee_home' %}"
        class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'fee_home' %}btn-active{% endif %}">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
@@ -55,7 +62,9 @@
       </svg>
       Cuotas
     </a>
+    {% endif %}
 
+    {% if perms.expense %}
     <a href="{% url 'expense_home' %}"
        class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'expense_home' or request.resolver_match.url_name == 'recurring_home' %}btn-active{% endif %}">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
@@ -67,6 +76,7 @@
       </svg>
       Gastos
     </a>
+    {% endif %}
   </div>
 
   <!-- User menu -->

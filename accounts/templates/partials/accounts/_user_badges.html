@@ -1,0 +1,8 @@
+<div class="flex flex-wrap gap-1">
+  {% if account.is_superuser %}<span class="badge badge-primary badge-sm">Administrador total</span>{% endif %}
+  {% for item in account.groups.all %}
+  <span class="badge badge-outline badge-sm">{{ item.name }}</span>
+  {% empty %}
+  {% if not account.is_superuser %}<span class="badge badge-warning badge-outline badge-sm">Sin grupo</span>{% endif %}
+  {% endfor %}
+</div>

@@ -1,0 +1,29 @@
+{% comment %}Acciones sobre un usuario. Solo un administrador total puede tocar a otro administrador total.{% endcomment %}
+{% if perms.auth.change_user %}{% if not account.is_superuser or request.user.is_superuser %}
+<button
+  class="btn btn-ghost btn-sm"
+  hx-get="{% url 'user_edit' account.pk %}"
+  hx-target="#modal-container"
+  hx-swap="innerHTML"
+>
+  Editar
+</button>
+<button
+  class="btn btn-ghost btn-sm"
+  hx-get="{% url 'user_password' account.pk %}"
+  hx-target="#modal-container"
+  hx-swap="innerHTML"
+>
+  Contraseña
+</button>
+{% if account.pk != request.user.pk %}
+<button
+  class="btn btn-ghost btn-sm {% if account.is_active %}text-error{% else %}text-success{% endif %}"
+  hx-post="{% url 'user_toggle' account.pk %}"
+  hx-swap="none"
+  {% if account.is_active %}hx-confirm="¿Desactivar a «{{ account.username }}»? Ya no podrá iniciar sesión, pero se conserva todo lo que registró."{% endif %}
+>
+  {% if account.is_active %}Desactivar{% else %}Activar{% endif %}
+</button>
+{% endif %}
+{% endif %}{% endif %}

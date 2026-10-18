@@ -1,0 +1,107 @@
+<!-- ===== Resumen ===== -->
+<div class="grid grid-cols-2 sm:grid-cols-4 rounded-box border border-base-300 overflow-hidden mb-2">
+  <div class="stat px-4 sm:px-6 border-base-300 border-b sm:border-b-0 border-r">
+    <div class="stat-title whitespace-normal">Activos</div>
+    <div class="stat-value text-2xl sm:text-3xl">{{ counts.active }}</div>
+    <div class="stat-desc whitespace-normal">de {{ counts.total }} usuario{{ counts.total|pluralize }}</div>
+  </div>
+  <div class="stat px-4 sm:px-6 border-base-300 border-b sm:border-b-0 sm:border-r">
+    <div class="stat-title whitespace-normal">Desactivados</div>
+    <div class="stat-value text-2xl sm:text-3xl">{{ counts.inactive }}</div>
+    <div class="stat-desc whitespace-normal">no pueden iniciar sesión</div>
+  </div>
+  <div class="stat px-4 sm:px-6 border-base-300 border-r">
+    <div class="stat-title whitespace-normal">Administradores</div>
+    <div class="stat-value text-2xl sm:text-3xl">{{ counts.admins }}</div>
+    <div class="stat-desc whitespace-normal">con todos los permisos</div>
+  </div>
+  <div class="stat px-4 sm:px-6">
+    <div class="stat-title whitespace-normal">Sin grupo</div>
+    <div class="stat-value text-2xl sm:text-3xl {% if counts.without_group %}text-warning{% endif %}">{{ counts.without_group }}</div>
+    <div class="stat-desc whitespace-normal">no pueden ver ningún módulo</div>
+  </div>
+</div>
+
+{% if users %}
+<div class="hidden md:block overflow-x-auto">
+<table class="table">
+  <thead>
+    <tr>
+      <th>Usuario</th>
+      <th>Grupos</th>
+      <th>Estado</th>
+      <th>Último acceso</th>
+      <th class="text-right">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for account in users %}
+    <tr class="{% if not account.is_active %}opacity-60{% endif %}">
+      <td>
+        <div class="flex items-center gap-3">
+          <span class="w-9 h-9 shrink-0 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center uppercase">{{ account.username|first }}</span>
+          <div class="min-w-0">
+            <div class="font-semibold">
+              {{ account.get_full_name|default:account.username }}
+              {% if account.pk == request.user.pk %}<span class="badge badge-ghost badge-sm">Tú</span>{% endif %}
+            </div>
+            <div class="text-xs text-gray-500">@{{ account.username }}{% if account.email %} · {{ account.email }}{% endif %}</div>
+          </div>
+        </div>
+      </td>
+      <td>{% include "partials/accounts/_user_badges.html" %}</td>
+      <td>
+        {% if account.is_active %}<span class="badge badge-success badge-sm">Activo</span>
+        {% else %}<span class="badge badge-ghost badge-sm">Desactivado</span>{% endif %}
+      </td>
+      <td class="whitespace-nowrap text-sm">
+        {% if account.last_login %}{{ account.last_login|date:"d/m/Y H:i" }}{% else %}<span class="text-gray-400">Nunca</span>{% endif %}
+      </td>
+      <td class="text-right">
+        <div class="flex justify-end gap-1">
+          {% include "partials/accounts/_user_actions.html" %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<div class="md:hidden flex flex-col divide-y divide-base-300 -mx-2">
+  {% for account in users %}
+  <div class="px-2 py-4 flex flex-col gap-2 {% if not account.is_active %}opacity-60{% endif %}">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="font-medium break-words">
+          {{ account.get_full_name|default:account.username }}
+          {% if account.pk == request.user.pk %}<span class="badge badge-ghost badge-sm">Tú</span>{% endif %}
+        </div>
+        <div class="text-xs text-gray-500 break-all">@{{ account.username }}</div>
+      </div>
+      {% if account.is_active %}<span class="badge badge-success badge-sm shrink-0">Activo</span>
+      {% else %}<span class="badge badge-ghost badge-sm shrink-0">Desactivado</span>{% endif %}
+    </div>
+    {% include "partials/accounts/_user_badges.html" %}
+    <div class="flex items-center justify-between gap-2">
+      <span class="text-xs text-gray-400">
+        {% if account.last_login %}Último acceso {{ account.last_login|date:"d/m/Y" }}{% else %}Nunca ha entrado{% endif %}
+      </span>
+      <div class="flex flex-wrap justify-end gap-1">
+        {% include "partials/accounts/_user_actions.html" %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% url 'user_home' as pagination_url %}
+{% include "partials/base/_pagination.html" with url=pagination_url target="#user-table-wrapper" include="#user-filters [name]" %}
+{% else %}
+<div class="text-center py-12 text-gray-500">
+  {% if query %}
+    No se encontraron usuarios para "{{ query }}".
+  {% else %}
+    No hay usuarios con estos filtros.
+  {% endif %}
+</div>
+{% endif %}

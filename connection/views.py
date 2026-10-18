@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 
+from shell.htmx import messages_response
 from shell.pagination import paginate
 
 from .forms import LineForm
@@ -53,11 +54,9 @@ def line_form(request, pk=None):
 
             messages.success(
                 request,
-                "Línea creada correctamente." if is_new else "Línea actualizada correctamente.",
+                "Mecha creada correctamente." if is_new else "Mecha actualizada correctamente.",
             )
-            response = render(request, "partials/line/_form_success_oob.html")
-            response["HX-Trigger"] = "lineSaved"
-            return response
+            return messages_response(request, "lineSaved")
 
         return render(
             request,
@@ -81,6 +80,4 @@ def line_toggle(request, pk):
     line.isActive = not line.isActive
     line.save(update_fields=["isActive", "updated_at"])
     messages.success(request, "Mecha activada correctamente." if line.isActive else "Mecha desactivada correctamente.")
-    response = render(request, "partials/line/_form_success_oob.html")
-    response["HX-Trigger"] = "lineSaved"
-    return response
+    return messages_response(request, "lineSaved")

@@ -12,7 +12,7 @@ from customer.models import Customer
 
 class DashboardTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user("admin", password="pass")
+        self.user = User.objects.create_superuser("admin", password="pass")
         self.client.force_login(self.user)
         self.ana = Customer.objects.create(firstName="Ana", lastName="Pérez", created_by=self.user)
         self.luis = Customer.objects.create(firstName="Luis", lastName="Gómez", created_by=self.user)
@@ -68,6 +68,12 @@ class DashboardTests(TestCase):
         # Only the receipt from the invoice whose due date has passed is overdue.
         self.assertEqual(ctx["overdue_count"], 1)
         self.assertEqual(ctx["overdue_amount"], Decimal("5"))
+
+    def test_open_invoice_past_due_date_is_not_overdue(self):
+        # Mientras está abierta todavía se reciben comprobantes, aunque ya pasó la fecha.
+        Invoice.objects.filter(pk=self.old_invoice.pk).update(status=Invoice.Status.OPEN)
+        ctx = self.client.get(reverse("home")).context
+        self.assertEqual(ctx["overdue_count"], 0)
 
     def test_draft_invoice_is_never_overdue(self):
         Invoice.objects.filter(pk=self.old_invoice.pk).update(status=Invoice.Status.DRAFT)

@@ -1,8 +1,5 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
 from django.db.models import Count, Q, Sum
 from django.utils import timezone
 
@@ -30,10 +27,9 @@ def _dashboard_context():
     pending = InvoiceLine.objects.filter(isPaid=False).aggregate(
         count=Count("id"), amount=Sum("amount")
     )
-    # Una factura en borrador todavía no se entregó, así que sus recibos no pueden estar vencidos.
-    overdue = InvoiceLine.objects.filter(isPaid=False, invoice__due_date__lt=today).exclude(
-        invoice__status=Invoice.Status.DRAFT
-    ).aggregate(
+    # El vencimiento lo marca el cierre de la factura, no la fecha: mientras está abierta
+    # todavía se reciben comprobantes atrasados.
+    overdue = InvoiceLine.objects.filter(isPaid=False, invoice__status=Invoice.Status.CLOSED).aggregate(
         count=Count("id"), amount=Sum("amount")
     )
 
@@ -52,9 +48,7 @@ def _dashboard_context():
         invoice.collected_amount = invoice.collected_amount or 0
         invoice.pending_count = invoice.lines_count - invoice.paid_count
         invoice.collected_percent = _percent(invoice.collected_amount, invoice.expected_amount)
-        invoice.is_overdue = (
-            not invoice.is_draft and invoice.due_date < today and invoice.paid_count < invoice.lines_count
-        )
+        invoice.is_overdue = invoice.is_closed and invoice.paid_count < invoice.lines_count
     latest_invoice = recent_invoices[0] if recent_invoices else None
 
     # Customers with the most unpaid receipts.
@@ -105,26 +99,3 @@ def _dashboard_context():
 @login_required(login_url='login')
 def home_view(request):
     return render(request, 'home.html', _dashboard_context())
-
-def login_view(request):
-    if request.user.is_authenticated:
-        return redirect("home")  # change to your home url name
-
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
-            return redirect("home")  # change to your home url name
-        else:
-            messages.error(request, "Invalid username or password.")
-
-    return render(request, "registration/login.html")
-
-
-@require_POST
-def logout_view(request):
-    logout(request)
-    return redirect("login")

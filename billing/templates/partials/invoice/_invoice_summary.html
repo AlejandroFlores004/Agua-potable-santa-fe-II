@@ -18,9 +18,9 @@
       {% if invoice.is_draft %}
       <button
         class="btn btn-sm btn-primary"
-        hx-post="{% url 'invoice_open' invoice.pk %}"
-        hx-swap="none"
-        hx-confirm="¿Abrir la {{ invoice.title|lower }}? Desde ahora se podrán registrar pagos y contará como vencida después del {{ invoice.due_date|date:'d/m/Y' }}."
+        hx-get="{% url 'invoice_open' invoice.pk %}"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
         {% if other_open_invoice %}disabled title="Primero cierra la {{ other_open_invoice.title|lower }}"{% endif %}
       >
         Abrir factura
@@ -28,9 +28,9 @@
       {% elif invoice.is_open %}
       <button
         class="btn btn-sm btn-warning"
-        hx-post="{% url 'invoice_close' invoice.pk %}"
-        hx-swap="none"
-        hx-confirm="¿Cerrar la {{ invoice.title|lower }}? Ya no se podrán asignar ni quitar líneas, pero sí registrar pagos atrasados."
+        hx-get="{% url 'invoice_close' invoice.pk %}"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
       >
         Cerrar factura
       </button>
@@ -78,8 +78,8 @@
       <div class="stat-desc whitespace-normal">{{ paid_percent }}% del total</div>
     </div>
     <div class="stat px-4 sm:px-6 border-base-300 border-r">
-      <div class="stat-title whitespace-normal">Pendientes</div>
-      <div class="stat-value text-2xl sm:text-4xl text-warning">{{ pending_count }}</div>
+      <div class="stat-title whitespace-normal">{% if invoice.is_closed %}Vencidas{% else %}Pendientes{% endif %}</div>
+      <div class="stat-value text-2xl sm:text-4xl {% if invoice.is_closed %}text-error{% else %}text-warning{% endif %}">{{ pending_count }}</div>
       <div class="stat-desc whitespace-normal">{% if carried_count %}{{ carried_count }} trasladada{{ carried_count|pluralize }} al siguiente recibo{% else %}&nbsp;{% endif %}</div>
     </div>
     <div class="stat px-4 sm:px-6">
@@ -99,6 +99,10 @@
   {% elif invoice.is_draft %}
   <div role="alert" class="alert text-sm">
     <span>Factura en borrador: asigna las líneas e imprime los recibos. Al abrirla se podrán registrar pagos.</span>
+  </div>
+  {% elif invoice.is_closed %}
+  <div role="alert" class="alert text-sm">
+    <span>Factura cerrada: sus recibos ya no se pueden modificar{% if pending_count %} y los {{ pending_count }} sin pagar quedaron vencidos{% endif %}.</span>
   </div>
   {% endif %}
 

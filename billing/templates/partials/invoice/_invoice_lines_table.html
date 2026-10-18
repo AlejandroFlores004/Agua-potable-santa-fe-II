@@ -41,12 +41,12 @@
         <span class="badge badge-ghost">Trasladado</span>
         <div class="text-xs text-gray-500 mt-1">al recibo {{ invoice_line.carried_to.code }}</div>
         {% else %}
-        <span class="badge badge-warning badge-outline">Pendiente</span>
+        {% if invoice.is_closed %}<span class="badge badge-error">Vencido</span>{% else %}<span class="badge badge-warning badge-outline">Pendiente</span>{% endif %}
         {% endif %}
       </td>
       <td class="text-right">
         <div class="flex justify-end gap-2">
-          {% if not invoice_line.is_carried and not invoice.is_draft %}
+          {% if not invoice_line.is_carried and invoice.is_open %}
           <button
             class="btn btn-sm {% if invoice_line.isPaid %}btn-ghost{% else %}btn-success btn-outline{% endif %}"
             hx-post="{% url 'invoice_line_toggle_paid' invoice_line.pk %}"
@@ -119,7 +119,7 @@
       {% elif invoice_line.is_carried %}
       <span class="badge badge-ghost shrink-0">Trasladado</span>
       {% else %}
-      <span class="badge badge-warning badge-outline shrink-0">Pendiente</span>
+      {% if invoice.is_closed %}<span class="badge badge-error shrink-0">Vencido</span>{% else %}<span class="badge badge-warning badge-outline shrink-0">Pendiente</span>{% endif %}
       {% endif %}
     </div>
 
@@ -128,7 +128,7 @@
     {% endif %}
 
     <div class="flex gap-2">
-      {% if not invoice_line.is_carried and not invoice.is_draft %}
+      {% if not invoice_line.is_carried and invoice.is_open %}
       <button
         class="btn btn-sm flex-1 {% if invoice_line.isPaid %}btn-ghost border-base-300{% else %}btn-success{% endif %}"
         hx-post="{% url 'invoice_line_toggle_paid' invoice_line.pk %}"
@@ -151,7 +151,7 @@
       <a
         href="{% url 'invoice_line_print_receipt' invoice_line.pk %}"
         target="_blank"
-        class="btn btn-sm btn-outline {% if invoice_line.is_carried or invoice.is_draft %}flex-1{% endif %}"
+        class="btn btn-sm btn-outline {% if invoice_line.is_carried or not invoice.is_open %}flex-1{% endif %}"
       >
         Recibo
       </a>

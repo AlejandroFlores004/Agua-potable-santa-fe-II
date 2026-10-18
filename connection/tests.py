@@ -10,7 +10,7 @@ from .models import Line
 
 class LineTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user("admin", password="pass")
+        self.user = User.objects.create_superuser("admin", password="pass")
         self.client.force_login(self.user)
         self.customer = Customer.objects.create(firstName="Ana", lastName="Pérez", created_by=self.user)
         self.line = Line.objects.create(customer=self.customer, created_by=self.user)

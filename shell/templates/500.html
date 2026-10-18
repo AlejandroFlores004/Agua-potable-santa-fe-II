@@ -1,0 +1,10 @@
+{% extends "errors/_error_layout.html" %}
+
+{% block title %}Error del servidor{% endblock %}
+{% block code_class %}text-error{% endblock %}
+{% block code %}500{% endblock %}
+{% block heading %}Algo salió mal{% endblock %}
+{% block message %}
+  Ocurrió un error inesperado en el servidor. Inténtalo de nuevo en unos minutos;
+  si el problema continúa, avisa al administrador.
+{% endblock %}

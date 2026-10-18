@@ -1,0 +1,20 @@
+{% if perms.auth.change_group %}
+<button
+  class="btn btn-ghost btn-sm"
+  hx-get="{% url 'group_edit' group.pk %}"
+  hx-target="#modal-container"
+  hx-swap="innerHTML"
+>
+  Editar
+</button>
+{% endif %}
+{% if perms.auth.delete_group %}
+<button
+  class="btn btn-ghost btn-sm text-error"
+  hx-post="{% url 'group_delete' group.pk %}"
+  hx-swap="none"
+  hx-confirm="¿Eliminar el grupo «{{ group.name }}»?{% if group.users_count %} {{ group.users_count }} usuario{{ group.users_count|pluralize }} perderá{{ group.users_count|pluralize:'n' }} los permisos que les da.{% endif %}"
+>
+  Eliminar
+</button>
+{% endif %}

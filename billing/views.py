@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 from xhtml2pdf import pisa
 
 from connection.models import Line
+from shell.htmx import messages_response
 from shell.pagination import paginate
 
 from .forms import FeeForm, InvoiceForm, InvoiceLineAssignForm, InvoiceLineLateFeeForm, LateFeeForm
@@ -49,9 +50,7 @@ def late_fee_table(request):
 
 
 def _late_fee_saved_response(request):
-    response = render(request, "partials/fee/_form_success_oob.html")
-    response["HX-Trigger"] = "lateFeeSaved"
-    return response
+    return messages_response(request, "lateFeeSaved")
 
 
 @login_required(login_url="login")
@@ -80,7 +79,7 @@ def late_fee_create(request):
 def late_fee_make_default(request, pk):
     late_fee = get_object_or_404(LateFee, pk=pk)
     late_fee.make_default()
-    messages.success(request, f"La mora \"{late_fee.name}\" ahora es la mora por defecto.")
+    messages.success(request, f"La mora «{late_fee.name}» ahora es la mora por defecto.")
     return _late_fee_saved_response(request)
 
 
@@ -94,9 +93,7 @@ def fee_create(request):
             fee.save()
 
             messages.success(request, "Cuota creada correctamente.")
-            response = render(request, "partials/fee/_form_success_oob.html")
-            response["HX-Trigger"] = "feeSaved"
-            return response
+            return messages_response(request, "feeSaved")
 
         return render(request, "partials/fee/_fee_form_modal.html", {"form": form})
 
@@ -112,9 +109,7 @@ def fee_toggle(request, pk):
     fee.isActive = not fee.isActive
     fee.save(update_fields=["isActive"])
     messages.success(request, "Cuota activada correctamente." if fee.isActive else "Cuota desactivada correctamente.")
-    response = render(request, "partials/fee/_form_success_oob.html")
-    response["HX-Trigger"] = "feeSaved"
-    return response
+    return messages_response(request, "feeSaved")
 
 
 def _get_invoices(request):
@@ -161,9 +156,7 @@ def invoice_form(request, pk=None):
                 request,
                 "Factura creada correctamente." if is_new else "Factura actualizada correctamente.",
             )
-            response = render(request, "partials/invoice/_form_success_oob.html")
-            response["HX-Trigger"] = "invoiceSaved"
-            return response
+            return messages_response(request, "invoiceSaved")
 
         return render(
             request,
@@ -191,36 +184,39 @@ def invoice_delete(request, pk):
 
 
 def _invoice_status_changed_response(request):
-    response = render(request, "partials/invoice/_form_success_oob.html")
     # Las acciones de cada recibo dependen del estado de la factura, así que se refrescan ambas partes.
-    response["HX-Trigger"] = "invoiceSaved, invoiceLinesChanged"
-    return response
+    return messages_response(request, "invoiceSaved, invoiceLinesChanged")
+
+
+def _invoice_status_action(request, pk, action):
+    # GET muestra el modal de confirmación; POST abre o cierra la factura.
+    invoice = get_object_or_404(Invoice.objects.select_related("account"), pk=pk)
+    if request.method != "POST":
+        return render(
+            request,
+            "partials/invoice/_invoice_status_modal.html",
+            {"invoice": invoice, "action": action, **_get_invoice_summary(invoice)},
+        )
+    try:
+        getattr(invoice, action)()
+    except ValidationError as error:
+        messages.error(request, error.messages[0])
+    else:
+        if action == "open":
+            messages.success(request, f"{invoice.title} abierta. Ya se pueden registrar pagos.")
+        else:
+            messages.success(request, f"{invoice.title} cerrada. Los recibos sin pagar quedaron vencidos.")
+    return _invoice_status_changed_response(request)
 
 
 @login_required(login_url="login")
-@require_POST
 def invoice_open(request, pk):
-    invoice = get_object_or_404(Invoice, pk=pk)
-    try:
-        invoice.open()
-    except ValidationError as error:
-        messages.error(request, error.messages[0])
-    else:
-        messages.success(request, f"{invoice.title} abierta. Ya se pueden registrar pagos.")
-    return _invoice_status_changed_response(request)
+    return _invoice_status_action(request, pk, "open")
 
 
 @login_required(login_url="login")
-@require_POST
 def invoice_close(request, pk):
-    invoice = get_object_or_404(Invoice, pk=pk)
-    try:
-        invoice.close()
-    except ValidationError as error:
-        messages.error(request, error.messages[0])
-    else:
-        messages.success(request, f"{invoice.title} cerrada.")
-    return _invoice_status_changed_response(request)
+    return _invoice_status_action(request, pk, "close")
 
 
 def _assign_blocked_reason(invoice):
@@ -288,6 +284,7 @@ def _get_invoice_lines(request, invoice):
     if status == "paid":
         invoice_lines = invoice_lines.filter(isPaid=True)
     elif status == "pending":
+        # En una factura cerrada estos son los vencidos.
         invoice_lines = invoice_lines.filter(isPaid=False, carried_to__isnull=True)
     elif status == "carried":
         invoice_lines = invoice_lines.filter(carried_to__isnull=False)
@@ -295,9 +292,7 @@ def _get_invoice_lines(request, invoice):
 
 
 def _invoice_lines_changed_response(request):
-    response = render(request, "partials/invoice/_form_success_oob.html")
-    response["HX-Trigger"] = "invoiceLinesChanged"
-    return response
+    return messages_response(request, "invoiceLinesChanged")
 
 
 @login_required(login_url="login")
@@ -418,6 +413,9 @@ def invoice_line_toggle_paid(request, pk):
     invoice_line = get_object_or_404(InvoiceLine.objects.select_related("invoice", "line", "carried_to"), pk=pk)
     if invoice_line.invoice.is_draft:
         messages.error(request, "La factura sigue en borrador; ábrela para poder registrar pagos.")
+        return _invoice_lines_changed_response(request)
+    if invoice_line.invoice.is_closed:
+        messages.error(request, "La factura está cerrada; sus recibos ya no se pueden modificar.")
         return _invoice_lines_changed_response(request)
     if invoice_line.is_carried:
         messages.error(

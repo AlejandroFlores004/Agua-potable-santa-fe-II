@@ -1,0 +1,18 @@
+{% extends "errors/_error_layout.html" %}
+{% comment %}
+  accounts.middleware.ModulePermissionMiddleware la renderiza con `module` ("Gastos") y
+  `action` ("consultar"/"modificar"). Sin ellos (PermissionDenied) muestra un texto genérico.
+{% endcomment %}
+
+{% block title %}Acceso denegado{% endblock %}
+{% block code_class %}text-error{% endblock %}
+{% block code %}403{% endblock %}
+{% block heading %}Acceso denegado{% endblock %}
+{% block message %}
+  {% if module and action %}
+    Tu usuario no tiene permiso para {{ action }} <strong>{{ module }}</strong>.
+  {% else %}
+    Tu usuario no tiene permiso para ver esta página.
+  {% endif %}
+  Si crees que es un error, pide acceso al administrador.
+{% endblock %}

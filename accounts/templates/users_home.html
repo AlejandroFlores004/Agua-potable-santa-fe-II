@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Usuarios{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold">Usuarios</h1>
+      <p class="text-sm text-gray-500">Quién puede entrar al sistema y a qué grupos pertenece cada persona.</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-2">
+      {% if perms.auth.view_group %}
+      <a href="{% url 'group_home' %}" class="btn gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Grupos y permisos
+      </a>
+      {% endif %}
+      {% if perms.auth.add_user %}
+      <button
+        class="btn btn-primary gap-2"
+        hx-get="{% url 'user_create' %}"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Nuevo usuario
+      </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+    <div class="card-body gap-4 p-4 sm:p-8">
+      <div id="user-filters" class="grid grid-cols-1 sm:grid-cols-3 gap-2 lg:max-w-3xl">
+        <input
+          type="search"
+          name="q"
+          value="{{ query }}"
+          placeholder="Buscar por usuario, nombre o correo..."
+          class="input input-bordered w-full"
+          hx-get="{% url 'user_home' %}"
+          hx-trigger="keyup changed delay:400ms, search"
+          hx-target="#user-table-wrapper"
+          hx-include="#user-filters [name]"
+        />
+        <select
+          name="status"
+          class="select select-bordered w-full"
+          hx-get="{% url 'user_home' %}"
+          hx-trigger="change"
+          hx-target="#user-table-wrapper"
+          hx-include="#user-filters [name]"
+        >
+          <option value="active" {% if status == "active" %}selected{% endif %}>Activos</option>
+          <option value="inactive" {% if status == "inactive" %}selected{% endif %}>Desactivados</option>
+          <option value="all" {% if status == "all" %}selected{% endif %}>Todos</option>
+        </select>
+        <select
+          name="group"
+          class="select select-bordered w-full"
+          hx-get="{% url 'user_home' %}"
+          hx-trigger="change"
+          hx-target="#user-table-wrapper"
+          hx-include="#user-filters [name]"
+        >
+          <option value="">Todos los grupos</option>
+          {% for item in groups %}
+          <option value="{{ item.pk }}" {% if group == item.pk|stringformat:"s" %}selected{% endif %}>{{ item.name }}</option>
+          {% endfor %}
+          <option value="none" {% if group == "none" %}selected{% endif %}>Sin grupo</option>
+        </select>
+      </div>
+
+      <div id="user-table-wrapper"
+           hx-get="{% url 'user_home' %}"
+           hx-trigger="userSaved from:body"
+           hx-target="this"
+           hx-swap="innerHTML"
+           hx-include="#user-filters [name], #user-table-wrapper [name='page']">
+        {% include "partials/accounts/_users_table.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-container"></div>
+{% endblock %}

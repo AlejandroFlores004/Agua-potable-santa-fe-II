@@ -1,0 +1,4 @@
+{% if level == "full" %}<span class="badge badge-success badge-sm">Completo</span>
+{% elif level == "read" %}<span class="badge badge-info badge-sm">Consulta</span>
+{% elif level == "custom" %}<span class="badge badge-warning badge-sm" title="Permisos asignados desde el admin de Django">Personalizado</span>
+{% else %}<span class="badge badge-ghost badge-sm">—</span>{% endif %}

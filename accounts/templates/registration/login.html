@@ -1,0 +1,88 @@
+{% load tailwind_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iniciar sesión · Agua Potable Santa Fe</title>
+  {% tailwind_css %}
+  <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+</head>
+<body class="min-h-screen bg-base-200 flex items-center justify-center p-4">
+
+  <div class="card w-full max-w-sm shadow-xl bg-base-100">
+    <div class="card-body gap-4">
+
+      <img src="{% static 'logo.svg' %}" alt="Agua Potable Santa Fe II" class="w-60 mx-auto">
+
+      <h2 class="card-title text-2xl font-bold justify-center">Iniciar sesión</h2>
+
+      {% for message in messages %}
+        <div role="alert" class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+
+      {% if form.non_field_errors %}
+        <div role="alert" class="alert alert-error">
+          <span>Usuario o contraseña incorrectos, o la cuenta está desactivada.</span>
+        </div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+        <div class="form-control">
+          <label class="label" for="id_username">
+            <span class="label-text">Usuario</span>
+          </label>
+          <input
+            type="text"
+            id="id_username"
+            name="username"
+            value="{{ form.username.value|default:'' }}"
+            class="input input-bordered w-full"
+            placeholder="Tu nombre de usuario"
+            autocomplete="username"
+            autocapitalize="none"
+            autofocus
+            required
+          />
+        </div>
+
+        <div class="form-control mt-3">
+          <label class="label" for="id_password">
+            <span class="label-text">Contraseña</span>
+          </label>
+          <input
+            type="password"
+            id="id_password"
+            name="password"
+            class="input input-bordered w-full"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            required
+          />
+        </div>
+
+        <label class="label cursor-pointer justify-start gap-3 mt-3">
+          <input type="checkbox" name="remember" value="1" class="checkbox checkbox-primary checkbox-sm" />
+          <span class="label-text">Mantener la sesión iniciada</span>
+        </label>
+
+        <div class="form-control mt-6">
+          <button type="submit" class="btn btn-primary w-full">Entrar</button>
+        </div>
+
+      </form>
+
+      <p class="text-xs text-center text-gray-500">
+        ¿Olvidaste tu contraseña? Pide a un administrador que la restablezca.
+      </p>
+    </div>
+  </div>
+
+</body>
+</html>

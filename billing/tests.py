@@ -12,7 +12,7 @@ from .models import Account, Fee, Invoice, InvoiceLine, LateFee
 
 class InvoiceDetailTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user("admin", password="pass")
+        self.user = User.objects.create_superuser("admin", password="pass")
         self.client.force_login(self.user)
         customer = Customer.objects.create(firstName="Ana", lastName="Pérez", created_by=self.user)
         self.fee = Fee.objects.create(name="Mensual", amount=5, created_by=self.user)
@@ -148,7 +148,7 @@ class InvoiceDetailTests(TestCase):
 
 class FeeToggleTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user("admin", password="pass")
+        self.user = User.objects.create_superuser("admin", password="pass")
         self.client.force_login(self.user)
         self.customer = Customer.objects.create(firstName="Ana", lastName="Pérez", created_by=self.user)
         self.fee = Fee.objects.create(name="Mensual", amount=5, created_by=self.user)
@@ -177,7 +177,7 @@ class FeeToggleTests(TestCase):
 
 class LateFeeTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user("admin", password="pass")
+        self.user = User.objects.create_superuser("admin", password="pass")
         self.client.force_login(self.user)
         customer = Customer.objects.create(firstName="Ana", lastName="Pérez", created_by=self.user)
         self.fee = Fee.objects.create(name="Mensual", amount=5, created_by=self.user)
@@ -292,7 +292,7 @@ class LateFeeTests(TestCase):
 
 class InvoiceStatusTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user("admin", password="pass")
+        self.user = User.objects.create_superuser("admin", password="pass")
         self.client.force_login(self.user)
         customer = Customer.objects.create(firstName="Ana", lastName="Pérez", created_by=self.user)
         fee = Fee.objects.create(name="Mensual", amount=5, created_by=self.user)
@@ -314,6 +314,20 @@ class InvoiceStatusTests(TestCase):
         invoice_line = InvoiceLine(invoice=invoice, line=self.line, created_by=self.user)
         invoice_line.save()
         return invoice_line
+
+    def test_open_and_close_show_confirmation_modal(self):
+        self._assign(self.september)
+        response = self.client.get(reverse("invoice_open", args=[self.september.pk]))
+        self.assertContains(response, reverse("invoice_open", args=[self.september.pk]))
+        self.september.refresh_from_db()
+        self.assertTrue(self.september.is_draft)
+
+        self.september.open()
+        response = self.client.get(reverse("invoice_close", args=[self.september.pk]))
+        self.assertContains(response, "Quedarán vencidos")
+        self.assertEqual(response.context["pending_count"], 1)
+        self.september.refresh_from_db()
+        self.assertTrue(self.september.is_open)
 
     def test_new_invoice_starts_as_draft(self):
         self.assertEqual(self.september.status, Invoice.Status.DRAFT)
@@ -358,22 +372,31 @@ class InvoiceStatusTests(TestCase):
         with self.assertRaises(IntegrityError), transaction.atomic():
             Invoice.objects.filter(pk=self.october.pk).update(status=Invoice.Status.OPEN)
 
+    def test_paid_receipt_cannot_be_unmarked_after_close(self):
+        invoice_line = self._assign(self.september)
+        self.september.open()
+        self.client.post(reverse("invoice_line_toggle_paid", args=[invoice_line.pk]))
+        self.september.close()
+        self.client.post(reverse("invoice_line_toggle_paid", args=[invoice_line.pk]))
+        invoice_line.refresh_from_db()
+        self.assertTrue(invoice_line.isPaid)
+
     def test_draft_cannot_be_paid(self):
         invoice_line = self._assign(self.september)
         self.client.post(reverse("invoice_line_toggle_paid", args=[invoice_line.pk]))
         invoice_line.refresh_from_db()
         self.assertFalse(invoice_line.isPaid)
 
-    def test_closed_invoice_accepts_late_payments_but_not_line_changes(self):
-        invoice_line = self._assign(self.september)
+    def test_closed_invoice_receipts_cannot_change(self):
+        unpaid = self._assign(self.september)
         self.september.open()
         self.september.close()
-        self.client.post(reverse("invoice_line_toggle_paid", args=[invoice_line.pk]))
-        invoice_line.refresh_from_db()
-        self.assertTrue(invoice_line.isPaid)
+        self.client.post(reverse("invoice_line_toggle_paid", args=[unpaid.pk]))
+        unpaid.refresh_from_db()
+        self.assertFalse(unpaid.isPaid)
+        self.assertContains(self.client.get(reverse("invoice_detail", args=[self.september.pk])), "Vencido")
 
-        invoice_line.isPaid = False
-        invoice_line.save(update_fields=["isPaid"])
+        invoice_line = unpaid
         self.client.post(reverse("invoice_line_remove", args=[invoice_line.pk]))
         self.assertTrue(InvoiceLine.objects.filter(pk=invoice_line.pk).exists())
         self.client.post(reverse("invoice_assign_lines", args=[self.september.pk]))

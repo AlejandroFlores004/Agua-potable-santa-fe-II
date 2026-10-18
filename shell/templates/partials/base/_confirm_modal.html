@@ -1,0 +1,109 @@
+<!-- ===== CONFIRMACIÓN GLOBAL + ERRORES HTMX =====
+  Todo elemento con hx-confirm="¿Pregunta?" usa este modal en lugar del confirm() del navegador.
+  - Texto del botón: data-confirm-label, o el texto del propio botón ("Eliminar", "Desactivar"...).
+  - Color: data-confirm-tone="error|warning|success|primary"; si falta, se toma de las clases
+    del botón (text-error/btn-error → error, text-success/btn-success → success; si no, primary).
+  Si una petición HTMX falla (403, 404, 500, sin conexión) se muestra una alerta en #messages-container.
+-->
+<dialog id="confirm-modal" class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box w-full max-w-none sm:max-w-md">
+    <div class="flex items-start gap-4">
+      <div id="confirm-modal-icon" class="shrink-0 w-11 h-11 rounded-full flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="min-w-0">
+        <h3 class="font-bold text-lg">Confirmar acción</h3>
+        <p id="confirm-modal-question" class="text-sm text-gray-500 mt-1 break-words"></p>
+      </div>
+    </div>
+
+    <div class="modal-action flex-col-reverse sm:flex-row gap-2">
+      <form method="dialog" class="w-full sm:w-auto">
+        <button class="btn w-full sm:w-auto">Cancelar</button>
+      </form>
+      <button type="button" id="confirm-modal-accept" class="btn w-full sm:w-auto m-0">Confirmar</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button aria-label="Cerrar">cerrar</button>
+  </form>
+</dialog>
+
+<script>
+  (function () {
+    const TONES = {
+      error: ["btn-error", "bg-error/10 text-error"],
+      warning: ["btn-warning", "bg-warning/15 text-warning"],
+      success: ["btn-success", "bg-success/10 text-success"],
+      primary: ["btn-primary", "bg-primary/10 text-primary"],
+    };
+    const ERRORS = {
+      400: "La solicitud no es válida. Revisa los datos e inténtalo de nuevo.",
+      403: "No tienes permiso para realizar esta acción.",
+      404: "El registro ya no existe. Recarga la página.",
+      405: "Esta acción no está permitida.",
+      500: "Ocurrió un error inesperado. Inténtalo de nuevo; si persiste, avisa al administrador.",
+    };
+
+    const modal = document.getElementById("confirm-modal");
+    const question = document.getElementById("confirm-modal-question");
+    const icon = document.getElementById("confirm-modal-icon");
+    const accept = document.getElementById("confirm-modal-accept");
+    let pending = null;
+
+    function toneFor(elt) {
+      if (elt.dataset.confirmTone in TONES) return elt.dataset.confirmTone;
+      if (elt.matches(".text-error, .btn-error")) return "error";
+      if (elt.matches(".text-success, .btn-success")) return "success";
+      return "primary";
+    }
+
+    document.body.addEventListener("htmx:confirm", function (evt) {
+      if (!evt.detail.question) return;
+      evt.preventDefault();
+      const elt = evt.detail.elt;
+      const [btnClass, iconClass] = TONES[toneFor(elt)];
+      question.textContent = evt.detail.question;
+      icon.className = "shrink-0 w-11 h-11 rounded-full flex items-center justify-center " + iconClass;
+      accept.className = "btn w-full sm:w-auto m-0 " + btnClass;
+      accept.textContent = elt.dataset.confirmLabel || elt.textContent.trim() || "Confirmar";
+      pending = evt.detail;
+      modal.showModal();
+    });
+
+    accept.addEventListener("click", function () {
+      modal.close();
+      if (pending) pending.issueRequest(true);
+      pending = null;
+    });
+    modal.addEventListener("close", function () { pending = null; });
+
+    function showError(text) {
+      const container = document.getElementById("messages-container");
+      if (!container) return;
+      const wrapper = document.createElement("div");
+      wrapper.className = "container mx-auto px-4 sm:px-6 pt-4 space-y-2";
+      const alert = document.createElement("div");
+      alert.setAttribute("role", "alert");
+      alert.className = "alert alert-error";
+      const span = document.createElement("span");
+      span.textContent = text;
+      alert.appendChild(span);
+      wrapper.appendChild(alert);
+      container.replaceChildren(wrapper);
+    }
+
+    document.body.addEventListener("htmx:responseError", function (evt) {
+      const status = evt.detail.xhr.status;
+      showError(ERRORS[status] || ERRORS[status >= 500 ? 500 : 400]);
+    });
+    document.body.addEventListener("htmx:sendError", function () {
+      showError("No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.");
+    });
+  })();
+</script>

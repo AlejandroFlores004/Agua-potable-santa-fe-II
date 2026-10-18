@@ -27,7 +27,7 @@
             class="btn btn-ghost btn-sm {% if fee.isActive %}text-error{% else %}text-success{% endif %}"
             hx-post="{% url 'fee_toggle' fee.pk %}"
             hx-swap="none"
-            hx-confirm="{% if fee.isActive %}¿Desactivar la cuota &quot;{{ fee.name }}&quot;? Ya no se podrá asignar a nuevas mechas; las que ya la tienen la conservan.{% else %}¿Activar la cuota &quot;{{ fee.name }}&quot;?{% endif %}"
+            hx-confirm="{% if fee.isActive %}¿Desactivar la cuota «{{ fee.name }}»? Ya no se podrá asignar a nuevas mechas; las que ya la tienen la conservan.{% else %}¿Activar la cuota «{{ fee.name }}»?{% endif %}"
           >
             {% if fee.isActive %}Desactivar{% else %}Activar{% endif %}
           </button>
@@ -55,7 +55,7 @@
         class="btn btn-ghost btn-sm {% if fee.isActive %}text-error{% else %}text-success{% endif %}"
         hx-post="{% url 'fee_toggle' fee.pk %}"
         hx-swap="none"
-        hx-confirm="{% if fee.isActive %}¿Desactivar la cuota &quot;{{ fee.name }}&quot;? Ya no se podrá asignar a nuevas mechas; las que ya la tienen la conservan.{% else %}¿Activar la cuota &quot;{{ fee.name }}&quot;?{% endif %}"
+        hx-confirm="{% if fee.isActive %}¿Desactivar la cuota «{{ fee.name }}»? Ya no se podrá asignar a nuevas mechas; las que ya la tienen la conservan.{% else %}¿Activar la cuota «{{ fee.name }}»?{% endif %}"
       >
         {% if fee.isActive %}Desactivar{% else %}Activar{% endif %}
       </button>

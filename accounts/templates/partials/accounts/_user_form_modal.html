@@ -1,0 +1,55 @@
+<div class="modal modal-open modal-bottom sm:modal-middle" onclick="document.getElementById('modal-container').innerHTML=''">
+  <div class="modal-box w-full max-w-none sm:max-w-2xl relative" onclick="event.stopPropagation()">
+    <button
+      type="button"
+      class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+      onclick="document.getElementById('modal-container').innerHTML=''"
+    >
+      ✕
+    </button>
+
+    <h3 class="font-bold text-lg mb-4">
+      {% if is_new %}Nuevo usuario{% else %}Editar usuario «{{ account.username }}»{% endif %}
+    </h3>
+
+    <form
+      hx-post="{% if is_new %}{% url 'user_create' %}{% else %}{% url 'user_edit' account.pk %}{% endif %}"
+      hx-target="#modal-container"
+      hx-swap="innerHTML"
+    >
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="alert alert-error mb-4"><span>{{ form.non_field_errors|join:", " }}</span></div>
+      {% endif %}
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {% include "partials/accounts/_field.html" with field=form.username class="sm:col-span-2" %}
+        {% include "partials/accounts/_field.html" with field=form.first_name %}
+        {% include "partials/accounts/_field.html" with field=form.last_name %}
+        {% include "partials/accounts/_field.html" with field=form.email class="sm:col-span-2" %}
+        {% if form.password1 %}
+        {% include "partials/accounts/_field.html" with field=form.password1 %}
+        {% include "partials/accounts/_field.html" with field=form.password2 %}
+        <p class="text-xs text-gray-500 sm:col-span-2 -mt-2">Mínimo 8 caracteres; no puede ser solo números ni parecerse al usuario.</p>
+        {% endif %}
+        {% include "partials/accounts/_field.html" with field=form.groups class="sm:col-span-2" %}
+        <p class="text-xs text-gray-500 sm:col-span-2 -mt-2">Los grupos definen a qué módulos puede entrar. Si está en varios, suma los permisos de todos.</p>
+        {% include "partials/accounts/_field.html" with field=form.is_active %}
+        {% if form.is_superuser %}
+        {% include "partials/accounts/_field.html" with field=form.is_superuser %}
+        {% endif %}
+      </div>
+
+      <div class="modal-action">
+        <button
+          type="button"
+          class="btn"
+          onclick="document.getElementById('modal-container').innerHTML=''"
+        >
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>

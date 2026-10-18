@@ -18,7 +18,7 @@ class AddMonthsTests(TestCase):
 
 class RecurringExpenseTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user("admin", password="pass")
+        self.user = User.objects.create_superuser("admin", password="pass")
         self.client.force_login(self.user)
 
     def make_plan(self, **kwargs):
@@ -116,7 +116,7 @@ class RecurringExpenseTests(TestCase):
 
 class ExpenseTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user("admin", password="pass")
+        self.user = User.objects.create_superuser("admin", password="pass")
         self.client.force_login(self.user)
 
     def test_create_one_time_expense(self):
@@ -156,7 +156,7 @@ class ExpenseTests(TestCase):
 
 class ExpenseTemplatesTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user("admin", password="pass")
+        self.user = User.objects.create_superuser("admin", password="pass")
         self.client.force_login(self.user)
         self.plan = RecurringExpense.objects.create(
             name="Sueldo fontanero", amount=Decimal("3000"),

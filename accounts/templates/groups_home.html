@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Grupos y permisos{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold">Grupos y permisos</h1>
+      <p class="text-sm text-gray-500">Cada grupo define a qué módulos pueden entrar sus usuarios y si solo consultan o también modifican.</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-2">
+      {% if perms.auth.view_user %}
+      <a href="{% url 'user_home' %}" class="btn gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Usuarios
+      </a>
+      {% endif %}
+      {% if perms.auth.add_group %}
+      <button
+        class="btn btn-primary gap-2"
+        hx-get="{% url 'group_create' %}"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Nuevo grupo
+      </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+    <div class="card-body gap-4 p-4 sm:p-8">
+      <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500">
+        <span class="flex items-center gap-2"><span class="badge badge-success badge-sm">Completo</span> consulta y modifica</span>
+        <span class="flex items-center gap-2"><span class="badge badge-info badge-sm">Consulta</span> solo puede ver</span>
+        <span class="flex items-center gap-2"><span class="badge badge-ghost badge-sm">—</span> no ve el módulo</span>
+      </div>
+
+      <div id="group-table-wrapper"
+           hx-get="{% url 'group_home' %}"
+           hx-trigger="groupSaved from:body"
+           hx-target="this"
+           hx-swap="innerHTML">
+        {% include "partials/accounts/_groups_table.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-container"></div>
+{% endblock %}
