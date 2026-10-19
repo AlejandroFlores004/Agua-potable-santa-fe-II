@@ -108,13 +108,36 @@ WSGI_APPLICATION = 'agua_potable_santa_fe_II.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Uses DATABASE_URL when defined (e.g. Railway Postgres), otherwise falls back to SQLite
-DATABASES = {
-    'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-    )
-}
+# Railway's Postgres plugin exposes DATABASE_URL (private network) and also the
+# individual PGHOST/PGPORT/PGUSER/PGPASSWORD/PGDATABASE variables.
+# Priority: DATABASE_URL -> PG* variables -> local SQLite (kept for the data migration).
+if os.environ.get("DATABASE_URL"):
+    DATABASES = {
+        'default': dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+elif os.environ.get("PGHOST"):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get("PGDATABASE", "railway"),
+            'USER': os.environ.get("PGUSER", "postgres"),
+            'PASSWORD': os.environ.get("PGPASSWORD", ""),
+            'HOST': os.environ["PGHOST"],
+            'PORT': os.environ.get("PGPORT", "5432"),
+            'CONN_MAX_AGE': 600,
+            'CONN_HEALTH_CHECKS': True,
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
