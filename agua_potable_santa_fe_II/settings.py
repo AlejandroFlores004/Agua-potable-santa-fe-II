@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'tailwind',
     'theme',
     'django_htmx',
+    'easyaudit',
     'accounts',
     'customer',
     'connection',
@@ -83,6 +84,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
     'accounts.middleware.ModulePermissionMiddleware',
+    'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
 ]
 
 ROOT_URLCONF = 'agua_potable_santa_fe_II.urls'
