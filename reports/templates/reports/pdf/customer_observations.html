@@ -1,0 +1,44 @@
+{% extends "reports/pdf/_base.html" %}
+
+{% block title %}Clientes con observaciones{% endblock %}
+{% block heading %}CLIENTES CON OBSERVACIONES{% endblock %}
+{% block footer_title %}Clientes con observaciones{% endblock %}
+
+{% block content %}
+{% if customers %}
+<div class="filters">
+  {{ customers|length }} cliente{{ customers|length|pluralize }} con {{ lines_count }} mecha{{ lines_count|pluralize }} que tienen observaciones.
+</div>
+<table class="data" repeat="1">
+  <thead>
+    <tr>
+      <th width="10%">Mecha</th>
+      <th width="23%">Ubicación</th>
+      <th width="9%">Estado</th>
+      <th width="58%">Observación</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for customer in customers %}
+    <tr class="group">
+      <td colspan="4">
+        {{ customer.firstName|upper }} {{ customer.lastName|upper }}
+        &nbsp;·&nbsp; DUI: {{ customer.dui|default:"sin registrar" }}
+        &nbsp;·&nbsp; Tel.: {{ customer.number|default:"—" }}
+      </td>
+    </tr>
+    {% for line in customer.observed_lines %}
+    <tr>
+      <td>{{ line.code }}</td>
+      <td>{{ line.location|default:"Sin ubicación" }}</td>
+      <td>{% if line.isActive %}Activa{% else %}<span class="muted">Inactiva</span>{% endif %}</td>
+      <td class="observation">{{ line.description|linebreaksbr }}</td>
+    </tr>
+    {% endfor %}
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">Ningún cliente tiene mechas con observaciones.</div>
+{% endif %}
+{% endblock %}

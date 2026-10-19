@@ -1,12 +1,12 @@
 {% load icons %}
 {% load static %}
 
-<!-- ===== NAVBAR (md and up) ===== -->
-<nav class="navbar bg-base-100 shadow-md px-6 hidden md:flex">
-  <div class="flex-1">
-    <a href="/" class="flex items-center gap-3">
+<!-- ===== NAVBAR (lg and up) ===== -->
+<nav class="navbar bg-base-100 shadow-md px-6 hidden lg:flex">
+  <div class="flex-1 min-w-0">
+    <a href="/" class="flex items-center gap-3 shrink-0">
       <img src="{% static 'logo-mark.svg' %}" alt="" class="w-9 h-9">
-      <span class="flex flex-col leading-tight">
+      <span class="flex flex-col leading-tight whitespace-nowrap">
         <span class="text-lg font-extrabold tracking-tight text-[#0B3B6E]">Agua Potable</span>
         <span class="text-[0.65rem] font-semibold tracking-[0.25em] text-[#1E90E6]">SANTA FE II</span>
       </span>
@@ -14,44 +14,58 @@
   </div>
 
   <!-- Nav links -->
-  <div class="flex-none gap-1">
+  <div class="flex-none flex items-center gap-1 ml-4">
     {% if perms.customer %}
     <a href="{% url 'customer_home' %}"
-       class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'customer_home' %}btn-active{% endif %}">
+       title="Clientes"
+       class="btn btn-ghost btn-sm gap-2 px-2 xl:px-3 {% if request.resolver_match.url_name == 'customer_home' %}btn-active{% endif %}">
       {% icon "user" %}
-      Clientes
+      <span class="hidden xl:inline">Clientes</span>
     </a>
     {% endif %}
 
     {% if perms.connection %}
     <a href="{% url 'mechas' %}"
-       class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'mechas' %}btn-active{% endif %}">
+       title="Mechas"
+       class="btn btn-ghost btn-sm gap-2 px-2 xl:px-3 {% if request.resolver_match.url_name == 'mechas' %}btn-active{% endif %}">
       {% icon "wrench" %}
-      Mechas
+      <span class="hidden xl:inline">Mechas</span>
     </a>
     {% endif %}
 
     {% if perms.billing %}
     <a href="{% url 'billing_home' %}"
-       class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'billing_home' or request.resolver_match.url_name == 'invoice_detail' %}btn-active{% endif %}">
+       title="Recibos"
+       class="btn btn-ghost btn-sm gap-2 px-2 xl:px-3 {% if request.resolver_match.url_name == 'billing_home' or request.resolver_match.url_name == 'invoice_detail' %}btn-active{% endif %}">
       {% icon "file-text" %}
-      Recibos
+      <span class="hidden xl:inline">Recibos</span>
     </a>
     {% endif %}
 
     {% if perms.billing %}
     <a href="{% url 'fee_home' %}"
-       class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'fee_home' %}btn-active{% endif %}">
+       title="Cuotas"
+       class="btn btn-ghost btn-sm gap-2 px-2 xl:px-3 {% if request.resolver_match.url_name == 'fee_home' %}btn-active{% endif %}">
       {% icon "tag" %}
-      Cuotas
+      <span class="hidden xl:inline">Cuotas</span>
     </a>
     {% endif %}
 
     {% if perms.expense %}
     <a href="{% url 'expense_home' %}"
-       class="btn btn-ghost btn-sm gap-2 {% if request.resolver_match.url_name == 'expense_home' or request.resolver_match.url_name == 'recurring_home' %}btn-active{% endif %}">
+       title="Gastos"
+       class="btn btn-ghost btn-sm gap-2 px-2 xl:px-3 {% if request.resolver_match.url_name == 'expense_home' or request.resolver_match.url_name == 'recurring_home' %}btn-active{% endif %}">
       {% icon "wallet" %}
-      Gastos
+      <span class="hidden xl:inline">Gastos</span>
+    </a>
+    {% endif %}
+
+    {% if perms.customer or perms.connection or perms.billing %}
+    <a href="{% url 'reports_home' %}"
+       title="Reportes"
+       class="btn btn-ghost btn-sm gap-2 px-2 xl:px-3 {% if request.resolver_match.url_name == 'reports_home' %}btn-active{% endif %}">
+      {% icon "printer" %}
+      <span class="hidden xl:inline">Reportes</span>
     </a>
     {% endif %}
   </div>

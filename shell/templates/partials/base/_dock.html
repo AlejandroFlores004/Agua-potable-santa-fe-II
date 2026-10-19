@@ -1,7 +1,7 @@
 {% load icons %}
 {% with url_name=request.resolver_match.url_name %}
 <!-- ===== MOBILE DOCK (below md) ===== -->
-<nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-base-100 border-t border-base-300 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]">
+<nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-base-100 border-t border-base-300 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]">
   <div class="grid grid-flow-col auto-cols-fr h-16">
 
     {% if perms.customer %}
@@ -46,6 +46,15 @@
               {% if url_name == 'expense_home' or url_name == 'recurring_home' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
       {% icon "wallet" class="w-5 h-5" %}
       <span>Gastos</span>
+    </a>
+    {% endif %}
+
+    {% if perms.customer or perms.connection or perms.billing %}
+    <a href="{% url 'reports_home' %}"
+       class="flex flex-col items-center justify-center gap-1 text-xs transition-colors
+              {% if url_name == 'reports_home' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
+      {% icon "printer" class="w-5 h-5" %}
+      <span>Reportes</span>
     </a>
     {% endif %}
 

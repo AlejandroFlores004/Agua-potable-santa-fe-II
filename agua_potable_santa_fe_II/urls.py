@@ -26,6 +26,7 @@ urlpatterns = [
     path('connection/', include('connection.urls')),
     path('billing/', include('billing.urls')),
     path('expense/', include('expense.urls')),
+    path('reports/', include('reports.urls')),
 ]
 
 if settings.DEBUG:

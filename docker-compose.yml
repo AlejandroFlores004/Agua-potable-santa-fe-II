@@ -1,12 +1,37 @@
 services:
+  db:
+    image: postgres:17
+    container_name: agua-potable-santa-fe-II-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-agua_potable}
+      POSTGRES_USER: ${POSTGRES_USER:-agua_potable}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-agua_potable}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   web:
     build: .
     env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-agua_potable}:${POSTGRES_PASSWORD:-agua_potable}@db:5432/${POSTGRES_DB:-agua_potable}
     container_name: agua-potable-santa-fe-II
     command: ./start-dev.sh
     ports:
       - "8001:8000"
     volumes:
       - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
     stdin_open: true
     tty: true
+
+volumes:
+  postgres_data:

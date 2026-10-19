@@ -1,0 +1,39 @@
+{% extends "reports/pdf/_base.html" %}
+
+{% block title %}Listado de clientes{% endblock %}
+{% block heading %}LISTADO DE CLIENTES{% endblock %}
+{% block footer_title %}Listado de clientes{% endblock %}
+
+{% block content %}
+{% if customers %}
+<table class="data" repeat="1">
+  <thead>
+    <tr>
+      <th class="number" width="5%">#</th>
+      <th width="31%">Cliente</th>
+      <th width="13%">DUI</th>
+      <th width="13%">Teléfono</th>
+      <th width="38%">Mechas</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for customer in customers %}
+    <tr>
+      <td class="number">{{ forloop.counter }}</td>
+      <td>{{ customer.firstName|upper }} {{ customer.lastName|upper }}</td>
+      <td>{{ customer.dui|default:"—" }}</td>
+      <td>{{ customer.number|default:"—" }}</td>
+      <td>
+        {% for line in customer.lines.all %}{{ line.code }}{% if not line.isActive %} <span class="muted">(inactiva)</span>{% endif %}{% if not forloop.last %}, {% endif %}{% empty %}<span class="muted">Sin mechas</span>{% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+    <tr class="total">
+      <td colspan="5">Total: {{ customers|length }} cliente{{ customers|length|pluralize }}</td>
+    </tr>
+  </tbody>
+</table>
+{% else %}
+<div class="empty">No hay clientes registrados.</div>
+{% endif %}
+{% endblock %}

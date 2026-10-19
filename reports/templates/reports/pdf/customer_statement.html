@@ -1,0 +1,100 @@
+{% extends "reports/pdf/_base.html" %}
+
+{% block title %}Estado de cuenta - {{ customer }}{% endblock %}
+{% block heading %}ESTADO DE CUENTA{% endblock %}
+{% block footer_title %}Estado de cuenta de {{ customer.firstName|upper }} {{ customer.lastName|upper }}{% endblock %}
+
+{% block content %}
+<div class="section-title">CLIENTE</div>
+<table class="data">
+  <tr>
+    <td width="50%"><strong>Nombre:</strong> {{ customer.firstName|upper }} {{ customer.lastName|upper }}</td>
+    <td width="50%"><strong>DUI:</strong> {{ customer.dui|default:"Sin registrar" }}</td>
+  </tr>
+  <tr>
+    <td><strong>Teléfono:</strong> {{ customer.number|default:"—" }}</td>
+    <td><strong>Correo:</strong> {{ customer.email|default:"—" }}</td>
+  </tr>
+</table>
+
+<table class="summary">
+  <tr>
+    <td width="33%">
+      <div class="summary-label">MECHAS</div>
+      <div class="summary-value">{{ lines|length }}</div>
+    </td>
+    <td width="33%">
+      <div class="summary-label">SALDO PENDIENTE</div>
+      <div class="summary-value">${{ pending_total|floatformat:2 }}</div>
+    </td>
+    <td width="34%">
+      <div class="summary-label">DEL CUAL VENCIDO</div>
+      <div class="summary-value">${{ overdue_total|floatformat:2 }}</div>
+    </td>
+  </tr>
+</table>
+
+<div class="section-title">MECHAS</div>
+{% if lines %}
+<table class="data" repeat="1">
+  <thead>
+    <tr>
+      <th width="11%">Código</th>
+      <th width="22%">Ubicación</th>
+      <th width="16%">Cuota</th>
+      <th width="9%">Estado</th>
+      <th width="42%">Observación</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for line in lines %}
+    <tr>
+      <td>{{ line.code }}</td>
+      <td>{{ line.location|default:"Sin ubicación" }}</td>
+      <td>{% if line.fee %}{{ line.fee.name }} (${{ line.fee.amount }}){% else %}<span class="muted">Sin cuota</span>{% endif %}</td>
+      <td>{% if line.isActive %}Activa{% else %}<span class="muted">Inactiva</span>{% endif %}</td>
+      <td class="observation">{{ line.description|default:""|linebreaksbr }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">El cliente no tiene mechas.</div>
+{% endif %}
+
+<div class="section-title">HISTORIAL DE RECIBOS</div>
+{% if receipts %}
+<table class="data" repeat="1">
+  <thead>
+    <tr>
+      <th width="22%">Factura</th>
+      <th width="10%">Mecha</th>
+      <th class="amount" width="11%">Cuota</th>
+      <th class="amount" width="13%">Saldo ant.</th>
+      <th class="amount" width="10%">Mora</th>
+      <th class="amount" width="12%">Total</th>
+      <th width="22%">Estado</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for receipt in receipts %}
+    <tr>
+      <td>{{ receipt.invoice.start_date|date:"d/m/Y" }} al {{ receipt.invoice.end_date|date:"d/m/Y" }}</td>
+      <td>{{ receipt.line.code }}</td>
+      <td class="amount">${{ receipt.amount }}</td>
+      <td class="amount">{% if receipt.previous_balance %}${{ receipt.previous_balance }}{% else %}—{% endif %}</td>
+      <td class="amount">{% if receipt.late_fee_amount %}${{ receipt.late_fee_amount }}{% else %}—{% endif %}</td>
+      <td class="amount"><strong>${{ receipt.total }}</strong></td>
+      <td>
+        <span class="status-{{ receipt.status_label|lower }}">{{ receipt.status_label }}</span>
+        {% if receipt.is_carried %}<span class="muted"> al {{ receipt.carried_to.code }}</span>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="muted">Los recibos trasladados ya están sumados en el saldo anterior del recibo que los absorbió.</div>
+{% else %}
+<div class="empty">El cliente todavía no tiene recibos.</div>
+{% endif %}
+{% endblock %}

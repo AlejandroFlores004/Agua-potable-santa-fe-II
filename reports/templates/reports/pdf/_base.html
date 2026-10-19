@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}{% endblock %}</title>
+<style>
+  @page {
+    size: letter {% block orientation %}portrait{% endblock %};
+    margin: 1.3cm 1.2cm 1.8cm 1.2cm;
+    @frame footer {
+      -pdf-frame-content: footer;
+      bottom: 0.7cm;
+      margin-left: 1.2cm;
+      margin-right: 1.2cm;
+      height: 0.6cm;
+    }
+  }
+  body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 8pt;
+    color: #1a1a1a;
+  }
+  table.header {
+    width: 100%;
+    border-collapse: collapse;
+    border-top: 2px solid #1c5d8c;
+    border-bottom: 2px solid #1c5d8c;
+    margin-bottom: 8px;
+  }
+  table.header td {
+    padding: 5px 4px 3px 4px;
+    vertical-align: middle;
+  }
+  .org {
+    color: #555555;
+    font-size: 7pt;
+    font-weight: bold;
+  }
+  .report-title {
+    color: #1c5d8c;
+    font-size: 13pt;
+    font-weight: bold;
+  }
+  .meta {
+    text-align: right;
+    color: #555555;
+    font-size: 7pt;
+  }
+  .filters {
+    color: #555555;
+    font-size: 7.5pt;
+    margin-bottom: 6px;
+  }
+  .section-title {
+    color: #1c5d8c;
+    font-size: 9pt;
+    font-weight: bold;
+    padding: 2px 0;
+    margin-top: 8px;
+    margin-bottom: 3px;
+    border-bottom: 1px solid #b7d3ea;
+  }
+  table.data {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 6px;
+  }
+  table.data th {
+    color: #ffffff;
+    background-color: #1c5d8c;
+    text-align: left;
+    font-size: 7.5pt;
+    padding: 3px 4px 2px 4px;
+  }
+  table.data td {
+    padding: 3px 4px 2px 4px;
+    font-size: 8pt;
+    border-bottom: 1px solid #dbe8f2;
+    vertical-align: top;
+  }
+  table.data tr.group td {
+    background-color: #eaf2f9;
+    color: #1c5d8c;
+    font-weight: bold;
+  }
+  table.data tr.total td {
+    font-weight: bold;
+    color: #1c5d8c;
+    border-bottom: none;
+    border-top: 1px solid #1c5d8c;
+  }
+  .number { text-align: center; }
+  .amount { text-align: right; }
+  .muted { color: #777777; }
+  .observation { color: #8a4b00; }
+  .status-pagado { color: #1f7a3a; font-weight: bold; }
+  .status-pendiente { color: #a86400; font-weight: bold; }
+  .status-vencido { color: #b42318; font-weight: bold; }
+  .status-trasladado { color: #777777; }
+  table.summary {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 4px;
+    margin-bottom: 6px;
+  }
+  table.summary td {
+    border: 1px solid #b7d3ea;
+    padding: 5px 6px 3px 6px;
+    text-align: center;
+  }
+  .summary-label {
+    color: #555555;
+    font-size: 7pt;
+  }
+  .summary-value {
+    color: #1c5d8c;
+    font-size: 12pt;
+    font-weight: bold;
+  }
+  .empty {
+    text-align: center;
+    color: #777777;
+    padding: 20px 0;
+  }
+  #footer {
+    font-size: 6.5pt;
+    color: #777777;
+  }
+  {% block extra_style %}{% endblock %}
+</style>
+</head>
+<body>
+  <table class="header">
+    <tr>
+      <td>
+        <div class="org">SISTEMA DE AGUA POTABLE SANTA FE II</div>
+        <div class="report-title">{% block heading %}{% endblock %}</div>
+      </td>
+      <td class="meta">
+        Generado el {{ generated_at|date:"d/m/Y H:i" }}
+      </td>
+    </tr>
+  </table>
+
+  {% block content %}{% endblock %}
+
+  <div id="footer">
+    <table width="100%">
+      <tr>
+        <td>{% block footer_title %}{% endblock %}</td>
+        <td style="text-align: right;">Página <pdf:pagenumber> de <pdf:pagecount></td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

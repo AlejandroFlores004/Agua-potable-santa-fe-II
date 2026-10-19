@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Apply pending database migrations
+python manage.py migrate --noinput
+
 # Start Tailwind watcher in the background
 python manage.py tailwind start &
 

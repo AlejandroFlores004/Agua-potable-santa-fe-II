@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load icons %}
+
+{% block title %}Reportes{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div>
+    <h1 class="text-2xl font-bold">Reportes</h1>
+    <p class="text-sm text-gray-500">Genera listados en PDF para imprimir. Se abren en una pestaña nueva.</p>
+  </div>
+
+  {% if not can_customers and not can_lines and not can_billing %}
+  <div class="alert">No tienes acceso a ningún módulo con reportes.</div>
+  {% endif %}
+
+  {% if can_customers %}
+  <section class="flex flex-col gap-3">
+    <h2 class="text-lg font-semibold flex items-center gap-2">{% icon "user" class="w-5 h-5" %} Clientes</h2>
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+
+      <div class="card bg-base-100 shadow-sm">
+        <div class="card-body gap-3 p-5">
+          <h3 class="card-title text-base">Listado de clientes</h3>
+          <p class="text-sm text-gray-500 flex-1">Todos los clientes con su DUI, teléfono y mechas.</p>
+          <div class="card-actions justify-end">
+            <a href="{% url 'report_customers' %}" target="_blank" class="btn btn-primary btn-sm gap-2">
+              {% icon "printer" %} Imprimir
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-sm">
+        <div class="card-body gap-3 p-5">
+          <h3 class="card-title text-base">
+            Clientes con observaciones
+            <span class="badge badge-warning badge-sm">{{ observations_count }}</span>
+          </h3>
+          <p class="text-sm text-gray-500 flex-1">
+            Clientes con alguna mecha que tiene descripción, con la observación de cada mecha.
+          </p>
+          <div class="card-actions justify-end">
+            <a href="{% url 'report_customer_observations' %}" target="_blank" class="btn btn-primary btn-sm gap-2">
+              {% icon "printer" %} Imprimir
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {% if can_billing %}
+      <form class="card bg-base-100 shadow-sm" method="get" action="{% url 'report_customer_statement' %}" target="_blank">
+        <div class="card-body gap-3 p-5">
+          <h3 class="card-title text-base">Estado de cuenta</h3>
+          <p class="text-sm text-gray-500">Mechas, historial de recibos y saldo pendiente de un cliente.</p>
+          <select name="customer" class="select select-bordered select-sm w-full" required>
+            <option value="">Selecciona un cliente…</option>
+            {% for customer in customers %}
+            <option value="{{ customer.pk }}">{{ customer.firstName }} {{ customer.lastName }}{% if customer.dui %} · {{ customer.dui }}{% endif %}</option>
+            {% endfor %}
+          </select>
+          <div class="card-actions justify-end">
+            <button type="submit" class="btn btn-primary btn-sm gap-2">{% icon "printer" %} Imprimir</button>
+          </div>
+        </div>
+      </form>
+      {% endif %}
+
+    </div>
+  </section>
+  {% endif %}
+
+  {% if can_lines %}
+  <section class="flex flex-col gap-3">
+    <h2 class="text-lg font-semibold flex items-center gap-2">{% icon "wrench" class="w-5 h-5" %} Mechas</h2>
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <form class="card bg-base-100 shadow-sm md:col-span-2 xl:col-span-2" method="get" action="{% url 'report_lines' %}" target="_blank">
+        <div class="card-body gap-3 p-5">
+          <h3 class="card-title text-base">Listado de mechas</h3>
+          <p class="text-sm text-gray-500">Agrupadas por ubicación, con cliente, cuota y observación.</p>
+          <div class="grid gap-3 sm:grid-cols-3">
+            <label class="form-control w-full">
+              <span class="label-text text-xs mb-1">Estado</span>
+              <select name="status" class="select select-bordered select-sm w-full">
+                {% for value, label in line_statuses.items %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label class="form-control w-full">
+              <span class="label-text text-xs mb-1">Ubicación</span>
+              <select name="location" class="select select-bordered select-sm w-full">
+                <option value="">Todas</option>
+                {% for location in locations %}
+                <option value="{{ location.pk }}">{{ location }}</option>
+                {% endfor %}
+                <option value="none">Sin ubicación</option>
+              </select>
+            </label>
+            <label class="form-control w-full">
+              <span class="label-text text-xs mb-1">Cuota</span>
+              <select name="fee" class="select select-bordered select-sm w-full">
+                <option value="">Todas</option>
+                {% for fee in fees %}
+                <option value="{{ fee.pk }}">{{ fee.name }} (${{ fee.amount }}){% if not fee.isActive %} · inactiva{% endif %}</option>
+                {% endfor %}
+              </select>
+            </label>
+          </div>
+          <div class="card-actions justify-end">
+            <button type="submit" class="btn btn-primary btn-sm gap-2">{% icon "printer" %} Imprimir</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if can_billing %}
+  <section class="flex flex-col gap-3">
+    <h2 class="text-lg font-semibold flex items-center gap-2">{% icon "file-text" class="w-5 h-5" %} Cobros</h2>
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <form class="card bg-base-100 shadow-sm" method="get" action="{% url 'report_debtors' %}" target="_blank">
+        <div class="card-body gap-3 p-5">
+          <h3 class="card-title text-base">Clientes con saldo pendiente</h3>
+          <p class="text-sm text-gray-500">Recibos sin pagar agrupados por cliente, con el total que debe cada uno.</p>
+          <label class="label cursor-pointer justify-start gap-2">
+            <input type="checkbox" name="overdue" value="1" class="checkbox checkbox-sm">
+            <span class="label-text text-sm">Solo vencidos (facturas cerradas)</span>
+          </label>
+          <div class="card-actions justify-end">
+            <button type="submit" class="btn btn-primary btn-sm gap-2">{% icon "printer" %} Imprimir</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "reports/pdf/_base.html" %}
+
+{% block title %}Listado de mechas{% endblock %}
+{% block heading %}LISTADO DE MECHAS{% endblock %}
+{% block footer_title %}Listado de mechas{% endblock %}
+
+{% block content %}
+<div class="filters">{{ filters|join:" · " }}</div>
+{% if lines %}
+{% regroup lines by location as groups %}
+<table class="data" repeat="1">
+  <thead>
+    <tr>
+      <th width="11%">Código</th>
+      <th width="30%">Cliente</th>
+      <th width="17%">Cuota</th>
+      <th width="9%">Estado</th>
+      <th width="33%">Observación</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for group in groups %}
+    <tr class="group">
+      <td colspan="5">{{ group.grouper|default:"Sin ubicación" }} ({{ group.list|length }})</td>
+    </tr>
+    {% for line in group.list %}
+    <tr>
+      <td>{{ line.code }}</td>
+      <td>{{ line.customer.firstName|upper }} {{ line.customer.lastName|upper }}</td>
+      <td>{% if line.fee %}{{ line.fee.name }} (${{ line.fee.amount }}){% else %}<span class="muted">Sin cuota</span>{% endif %}</td>
+      <td>{% if line.isActive %}Activa{% else %}<span class="muted">Inactiva</span>{% endif %}</td>
+      <td class="observation">{{ line.description|default:""|linebreaksbr }}</td>
+    </tr>
+    {% endfor %}
+    {% endfor %}
+    <tr class="total">
+      <td colspan="3">Total: {{ lines|length }} mecha{{ lines|length|pluralize }}</td>
+      <td colspan="2" class="amount">Cuota mensual de las activas: ${{ monthly_total|floatformat:2 }}</td>
+    </tr>
+  </tbody>
+</table>
+{% else %}
+<div class="empty">No hay mechas con esos filtros.</div>
+{% endif %}
+{% endblock %}
