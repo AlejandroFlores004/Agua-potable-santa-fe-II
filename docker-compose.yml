@@ -3,6 +3,7 @@ services:
     build: .
     env_file: .env
     container_name: agua-potable-santa-fe-II
+    command: ./start-dev.sh
     ports:
       - "8001:8000"
     volumes:

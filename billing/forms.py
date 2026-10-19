@@ -8,6 +8,13 @@ INPUT_CLASSES = "input input-bordered w-full"
 SELECT_CLASSES = "select select-bordered w-full"
 
 
+def _clean_positive_amount(form):
+    amount = form.cleaned_data.get("amount")
+    if amount is not None and amount <= 0:
+        raise forms.ValidationError("El monto debe ser mayor a cero.")
+    return amount
+
+
 class FeeForm(forms.ModelForm):
     class Meta:
         model = Fee
@@ -16,6 +23,9 @@ class FeeForm(forms.ModelForm):
             "name": forms.TextInput(attrs={"class": INPUT_CLASSES}),
             "amount": forms.NumberInput(attrs={"class": INPUT_CLASSES, "step": "0.01", "min": "0"}),
         }
+
+    def clean_amount(self):
+        return _clean_positive_amount(self)
 
 
 class LateFeeForm(forms.ModelForm):
@@ -33,6 +43,9 @@ class LateFeeForm(forms.ModelForm):
             "name": forms.TextInput(attrs={"class": INPUT_CLASSES}),
             "amount": forms.NumberInput(attrs={"class": INPUT_CLASSES, "step": "0.01", "min": "0"}),
         }
+
+    def clean_amount(self):
+        return _clean_positive_amount(self)
 
 
 class InvoiceLineLateFeeForm(forms.Form):

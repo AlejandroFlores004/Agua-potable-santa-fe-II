@@ -22,7 +22,7 @@ class Line(models.Model):
     fee = models.ForeignKey('billing.Fee', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Cuota", related_name='lines')
     created_at = models.DateTimeField("Fecha de creación", auto_now_add=True)
     updated_at = models.DateTimeField("Fecha de edición", auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Creado por")
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Creado por")
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT, related_name='lines')
 
     def __str__(self):

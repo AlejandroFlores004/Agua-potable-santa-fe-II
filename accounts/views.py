@@ -6,8 +6,7 @@ from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import Group, User
-from django.core.exceptions import PermissionDenied
-from django.db.models import Count, Q
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import translation
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -16,8 +15,9 @@ from django.views.decorators.http import require_POST
 from shell.htmx import messages_response
 from shell.pagination import paginate
 
+from . import services
 from .forms import AdminSetPasswordForm, GroupForm, ProfileForm, ProfilePasswordForm, UserForm
-from .permissions import MODULES, level_for
+from .permissions import MODULES
 
 
 def in_spanish(view):
@@ -93,41 +93,13 @@ def profile_view(request):
 
 # ===== Usuarios =====
 
-def _check_can_manage(editor, user):
-    # Solo un administrador total puede modificar a otro administrador total;
-    # si no, cualquiera con permiso de usuarios podría tomar su cuenta.
-    if user.is_superuser and not editor.is_superuser:
-        raise PermissionDenied
-
-
-def _get_users(request):
-    users = User.objects.prefetch_related("groups").order_by("-is_active", "username")
-    query = request.GET.get("q", "").strip()
-    status = request.GET.get("status", "active")
-    group = request.GET.get("group", "")
-    if query:
-        users = users.filter(
-            Q(username__icontains=query)
-            | Q(first_name__icontains=query)
-            | Q(last_name__icontains=query)
-            | Q(email__icontains=query)
-        )
-    if status == "active":
-        users = users.filter(is_active=True)
-    elif status == "inactive":
-        users = users.filter(is_active=False)
-    if group == "none":
-        users = users.filter(groups__isnull=True, is_superuser=False)
-    elif group.isdigit():
-        users = users.filter(groups__pk=group)
-    return users, query, status, group
-
-
 @login_required
 @permission_required("auth.view_user", raise_exception=True)
 def user_home(request):
-    users, query, status, group = _get_users(request)
-    page_obj = paginate(request, users)
+    query = request.GET.get("q", "").strip()
+    status = request.GET.get("status", "active")
+    group = request.GET.get("group", "")
+    page_obj = paginate(request, services.search_users(query, status, group))
     context = {
         "users": page_obj.object_list,
         "page_obj": page_obj,
@@ -135,14 +107,7 @@ def user_home(request):
         "status": status,
         "group": group,
         "groups": Group.objects.order_by("name"),
-        # distinct: el filtro por grupos une la tabla de grupos y repetiría usuarios.
-        "counts": User.objects.aggregate(
-            total=Count("id", distinct=True),
-            active=Count("id", distinct=True, filter=Q(is_active=True)),
-            inactive=Count("id", distinct=True, filter=Q(is_active=False)),
-            admins=Count("id", distinct=True, filter=Q(is_active=True, is_superuser=True)),
-            without_group=Count("id", distinct=True, filter=Q(is_active=True, is_superuser=False, groups__isnull=True)),
-        ),
+        "counts": services.user_counts(),
     }
     if request.htmx:
         return render(request, "partials/accounts/_users_table.html", context)
@@ -156,7 +121,7 @@ def user_form(request, pk=None):
     is_new = user.pk is None
     if not request.user.has_perm("auth.add_user" if is_new else "auth.change_user"):
         raise PermissionDenied
-    _check_can_manage(request.user, user)
+    services.check_can_manage(request.user, user)
 
     if request.method == "POST":
         form = UserForm(request.POST, instance=user, editor=request.user)
@@ -178,7 +143,7 @@ def user_form(request, pk=None):
 @in_spanish
 def user_password(request, pk):
     user = get_object_or_404(User, pk=pk)
-    _check_can_manage(request.user, user)
+    services.check_can_manage(request.user, user)
 
     if request.method == "POST":
         form = AdminSetPasswordForm(user, request.POST)
@@ -199,12 +164,11 @@ def user_password(request, pk):
 @require_POST
 def user_toggle(request, pk):
     user = get_object_or_404(User, pk=pk)
-    _check_can_manage(request.user, user)
-    if user == request.user:
-        messages.error(request, "No puedes desactivar tu propia cuenta.")
+    try:
+        services.toggle_user(user, request.user)
+    except ValidationError as error:
+        messages.error(request, error.messages[0])
     else:
-        user.is_active = not user.is_active
-        user.save(update_fields=["is_active"])
         messages.success(
             request,
             f"Usuario «{user.username}» activado correctamente." if user.is_active
@@ -218,15 +182,7 @@ def user_toggle(request, pk):
 @login_required
 @permission_required("auth.view_group", raise_exception=True)
 def group_home(request):
-    groups = list(
-        Group.objects.prefetch_related("permissions")
-        .annotate(users_count=Count("user", filter=Q(user__is_active=True)))
-        .order_by("name")
-    )
-    for group in groups:
-        permission_ids = {permission.pk for permission in group.permissions.all()}
-        group.levels = [(label, level_for(permission_ids, app_label)) for app_label, label in MODULES]
-    context = {"groups": groups, "modules": MODULES}
+    context = {"groups": services.groups_with_levels(), "modules": MODULES}
     if request.htmx:
         return render(request, "partials/accounts/_groups_table.html", context)
     return render(request, "groups_home.html", context)

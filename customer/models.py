@@ -9,7 +9,7 @@ class Customer(models.Model):
     email = models.EmailField("Correo electrónico", unique=True, blank=True, null=True)
     number = models.CharField("Número de teléfono", max_length=20, blank=True, null=True, default="0000-0000")
     created_at = models.DateTimeField("Fecha de creación", auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Creado por")
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Creado por")
     edited_at = models.DateTimeField("Fecha de edición", auto_now=True)
 
     def __str__(self):

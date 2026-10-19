@@ -53,7 +53,7 @@ class RecurringExpense(models.Model):
     isActive = models.BooleanField("Activo", default=True)
     created_at = models.DateTimeField("Fecha de creación", auto_now_add=True)
     updated_at = models.DateTimeField("Fecha de edición", auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Creado por")
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Creado por")
 
     def __str__(self):
         return self.name
@@ -112,7 +112,7 @@ class Expense(models.Model):
     description = models.TextField("Descripción", blank=True, null=True)
     created_at = models.DateTimeField("Fecha de creación", auto_now_add=True)
     updated_at = models.DateTimeField("Fecha de edición", auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Creado por")
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Creado por")
 
     def __str__(self):
         return f"{self.concept} - {self.amount}"

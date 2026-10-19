@@ -1,7 +1,9 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory
 
 from .models import Customer
+from .validators import validate_dui, validate_phone
 from connection.models import Line
 
 INPUT_CLASSES = "input input-bordered w-full"
@@ -20,6 +22,24 @@ class CustomerForm(forms.ModelForm):
             "email": forms.EmailInput(attrs={"class": INPUT_CLASSES}),
             "number": forms.TextInput(attrs={"class": INPUT_CLASSES, "placeholder": "0000-0000"}),
         }
+
+    @property
+    def dui_warning(self):
+        # Por ahora el DUI no es obligatorio ni bloquea el guardado; solo se avisa.
+        dui = self.cleaned_data.get("dui")
+        if not dui:
+            return "El cliente no tiene DUI; regístralo en cuanto sea posible."
+        try:
+            validate_dui(dui)
+        except ValidationError as error:
+            return f"{error.messages[0]} Corrígelo en cuanto sea posible."
+        return None
+
+    def clean_number(self):
+        number = self.cleaned_data.get("number")
+        if number:
+            validate_phone(number)
+        return number
 
 
 class LineForm(forms.ModelForm):

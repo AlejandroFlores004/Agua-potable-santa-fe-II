@@ -1,3 +1,4 @@
+{% load icons %}
 <div class="modal modal-open modal-bottom sm:modal-middle" onclick="document.getElementById('modal-container').innerHTML=''">
   <div class="modal-box w-full max-w-none sm:max-w-md relative" onclick="event.stopPropagation()">
     <button
@@ -13,17 +14,9 @@
     <div class="flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left gap-3 sm:gap-4">
       <div class="shrink-0 w-12 h-12 rounded-full grid place-items-center {% if action == 'open' %}bg-primary/10 text-primary{% else %}bg-warning/15 text-warning{% endif %}">
         {% if action == "open" %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2"/>
-          <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
-        </svg>
+        {% icon "lock-open" class="w-6 h-6" %}
         {% else %}
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
+        {% icon "lock" class="w-6 h-6" %}
         {% endif %}
       </div>
       <div class="min-w-0">

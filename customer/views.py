@@ -1,39 +1,21 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
-from django.db.models import Q
+from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 
 from shell.htmx import messages_response
 from shell.pagination import paginate
 
+from . import services
 from .forms import CustomerForm, get_line_formset_class
 from .models import Customer
 
 
-def _get_customers(request):
-    customers = (
-        Customer.objects.select_related("created_by")
-        .prefetch_related("lines__location")
-        .order_by("-created_at")
-    )
-    query = request.GET.get("q", "").strip()
-    if query:
-        customers = customers.filter(
-            Q(firstName__icontains=query)
-            | Q(lastName__icontains=query)
-            | Q(dui__icontains=query)
-            | Q(email__icontains=query)
-            | Q(number__icontains=query)
-        )
-    return customers, query
-
-
 @login_required(login_url="login")
 def customer_home(request):
-    customers, query = _get_customers(request)
-    page_obj = paginate(request, customers)
+    query = request.GET.get("q", "").strip()
+    page_obj = paginate(request, services.search_customers(query))
     context = {"customers": page_obj.object_list, "page_obj": page_obj, "query": query}
     if request.htmx:
         return render(request, "partials/customer/_customer_table.html", context)
@@ -51,32 +33,18 @@ def customer_form(request, pk=None):
         formset = LineFormSet(request.POST, instance=customer, prefix="lines")
 
         if form.is_valid() and formset.is_valid():
-            with transaction.atomic():
-                customer = form.save(commit=False)
-                if is_new:
-                    customer.created_by = request.user
-                customer.save()
-
-                lines = formset.save(commit=False)
-                for line in lines:
-                    if not line.pk:
-                        line.created_by = request.user
-                    line.save()
-
+            services.save_customer(form, formset, request.user)
             messages.success(
                 request,
                 "Cliente creado correctamente." if is_new else "Cliente actualizado correctamente.",
             )
+            if form.dui_warning:
+                messages.warning(request, form.dui_warning)
             return messages_response(request, "customerSaved")
+    else:
+        form = CustomerForm(instance=customer)
+        formset = LineFormSet(instance=customer, prefix="lines")
 
-        return render(
-            request,
-            "partials/customer/_customer_form_modal.html",
-            {"form": form, "formset": formset, "customer": customer, "is_new": is_new},
-        )
-
-    form = CustomerForm(instance=customer)
-    formset = LineFormSet(instance=customer, prefix="lines")
     return render(
         request,
         "partials/customer/_customer_form_modal.html",
@@ -88,10 +56,10 @@ def customer_form(request, pk=None):
 @require_POST
 def customer_delete(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
-    # Las mechas no se eliminan, así que un cliente con mechas tampoco.
-    if customer.lines.exists():
-        messages.error(request, "No se puede eliminar un cliente con mechas. Desactiva sus mechas en su lugar.")
+    try:
+        services.delete_customer(customer)
+    except ValidationError as error:
+        messages.error(request, error.messages[0])
     else:
-        customer.delete()
         messages.success(request, "Cliente eliminado correctamente.")
     return messages_response(request, "customerSaved")

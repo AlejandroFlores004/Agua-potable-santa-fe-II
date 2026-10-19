@@ -10,7 +10,7 @@ class Account(models.Model):
     number = models.CharField("Número de cuenta", max_length=50, unique=True)
 
     created_at = models.DateTimeField("Fecha de creación", auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Creado por")
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Creado por")
 
     def __str__(self):
         return f"{self.name} - {self.number}"
@@ -24,7 +24,7 @@ class Fee(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     isActive = models.BooleanField("Activa", default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def __str__(self):
         return f"{self.name} - {self.amount}"
@@ -40,7 +40,7 @@ class LateFee(models.Model):
     # recibos nuevos que arrastran saldo de un recibo anterior sin pagar.
     isDefault = models.BooleanField("Por defecto", default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def __str__(self):
         return f"{self.name} - {self.amount}"
@@ -70,14 +70,14 @@ class Invoice(models.Model):
         OPEN = "open", "Abierta"
         CLOSED = "closed", "Cerrada"
 
-    account = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name="Cuenta")
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, verbose_name="Cuenta")
     start_date = models.DateField()
     end_date = models.DateField()
     due_date = models.DateField()
     status = models.CharField("Estado", max_length=10, choices=Status.choices, default=Status.DRAFT)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def __str__(self):
         return f"{self.title} - Vencimiento: {self.due_date}"
@@ -129,9 +129,10 @@ class Invoice(models.Model):
         ]
 
 class InvoiceLine(models.Model):
-    code = models.CharField(max_length=10, unique=True, blank=True, null=True)
+    # Año + código de la mecha + id, p. ej. "2026-AP0001-328".
+    code = models.CharField(max_length=120, unique=True, blank=True, null=True)
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
-    line = models.ForeignKey(Line, on_delete=models.CASCADE)
+    line = models.ForeignKey(Line, on_delete=models.PROTECT)
     fee = models.ForeignKey(Fee, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Cuota")
     # Snapshot of the fee amount at assignment time, so later changes to the
     # line's fee (or the fee itself) don't alter receipts already issued.
@@ -149,7 +150,7 @@ class InvoiceLine(models.Model):
     isPaid = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def __str__(self):
         return f"Factura de linea: {self.code} - Linea: {self.line.code} - cliente: {self.line.customer.firstName} {self.line.customer.lastName} - Pagada: {self.isPaid}"

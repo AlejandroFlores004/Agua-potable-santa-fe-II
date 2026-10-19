@@ -1,3 +1,4 @@
+{% load icons %}
 {% if invoices %}
 <div class="hidden md:block overflow-x-auto">
 <table class="table">
@@ -27,10 +28,7 @@
         </div>
       </td>
       <td class="text-right">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline text-gray-400" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>
+        {% icon "chevron-right" class="w-4 h-4 inline text-gray-400" %}
       </td>
     </tr>
     {% endfor %}
@@ -49,10 +47,7 @@
       <div class="text-xs text-gray-500">Vence {{ invoice.due_date|date:"d/m/Y" }} · {{ invoice.account.name }}</div>
       <progress class="progress progress-success w-full mt-1" value="{{ invoice.paid_count }}" max="{{ invoice.lines_count|default:1 }}"></progress>
     </div>
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0 text-gray-400" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="9 18 15 12 9 6"/>
-    </svg>
+    {% icon "chevron-right" class="w-5 h-5 shrink-0 text-gray-400" %}
   </a>
   {% endfor %}
 </div>

@@ -214,3 +214,38 @@ class ViewConventionsTests(TestCase):
         response = self.client.get(reverse("fee_home"))
         self.assertContains(response, "¿Desactivar la cuota «Mensual»?")
         self.assertNotContains(response, "&quot;Mensual&quot;")
+
+
+class UIConventionsTests(TestCase):
+    """Los mismos elementos deben verse igual en todas las pantallas."""
+
+    def _templates(self):
+        from pathlib import Path
+
+        from django.conf import settings
+
+        for path in Path(settings.BASE_DIR).glob("*/templates/**/*.html"):
+            yield path, path.read_text()
+
+    def test_templates_use_shared_icons_instead_of_inline_svg(self):
+        for path, html in self._templates():
+            with self.subTest(template=str(path)):
+                self.assertNotIn("<svg", html, "Usa {% icon \"nombre\" %} (shell/templatetags/icons.py).")
+
+    def test_search_inputs_use_type_search(self):
+        import re
+
+        for path, html in self._templates():
+            for tag in re.findall(r"<input\b[^>]*\bname=\"q\"[^>]*>", html, re.S):
+                with self.subTest(template=str(path)):
+                    self.assertIn('type="search"', tag)
+
+    def test_icon_tag_renders_shared_svg(self):
+        from django.template import Context, Template, TemplateSyntaxError
+
+        html = Template('{% load icons %}{% icon "plus" %}{% icon "user" class="w-5 h-5" %}').render(Context())
+        self.assertIn('class="w-4 h-4"', html)
+        self.assertIn('class="w-5 h-5"', html)
+        self.assertIn('aria-hidden="true"', html)
+        with self.assertRaises(TemplateSyntaxError):
+            Template('{% load icons %}{% icon "no-existe" %}').render(Context())

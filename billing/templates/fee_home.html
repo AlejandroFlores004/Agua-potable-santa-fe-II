@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load icons %}
 
 {% block title %}Cuotas y moras{% endblock %}
 
@@ -15,11 +16,7 @@
       hx-target="#modal-container"
       hx-swap="innerHTML"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
+      {% icon "plus" %}
       Nueva cuota
     </button>
   </div>
@@ -27,7 +24,7 @@
   <div class="card bg-base-100 shadow-sm sm:shadow-xl">
     <div class="card-body gap-4 p-4 sm:p-8">
       <input
-        type="text"
+        type="search"
         name="q"
         value="{{ query }}"
         placeholder="Buscar por nombre..."

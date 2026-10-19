@@ -101,3 +101,46 @@ class CustomerViewTests(TestCase):
         response = self.client.post(reverse("customer_delete", args=[customer.pk]))
         self.assertContains(response, "Cliente eliminado correctamente.")
         self.assertFalse(Customer.objects.exists())
+
+
+class CustomerValidationTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_superuser("admin", password="pass")
+        self.client.force_login(self.user)
+
+    def _create(self, **overrides):
+        return self.client.post(reverse("customer_create"), customer_data(**overrides), HTTP_HX_REQUEST="true")
+
+    def test_valid_dui_saves_without_warning(self):
+        response = self._create(dui="00870139-1")
+        self.assertTrue(Customer.objects.filter(dui="00870139-1").exists())
+        self.assertContains(response, "Cliente creado correctamente.")
+        self.assertNotContains(response, "alert-warning")
+
+    def test_missing_dui_saves_with_warning(self):
+        response = self._create(dui="")
+        self.assertEqual(Customer.objects.count(), 1)
+        self.assertContains(response, "El cliente no tiene DUI")
+
+    def test_badly_formatted_dui_saves_with_warning(self):
+        response = self._create(dui="0267179-0")
+        self.assertTrue(Customer.objects.filter(dui="0267179-0").exists())
+        self.assertContains(response, "El DUI debe tener el formato 00000000-0.")
+
+    def test_wrong_check_digit_saves_with_warning(self):
+        response = self._create(dui="05052625-6")
+        self.assertTrue(Customer.objects.filter(dui="05052625-6").exists())
+        self.assertContains(response, "El DUI no es válido")
+
+    def test_invalid_phone_is_rejected(self):
+        for number in ["123", "abcd-efgh"]:
+            with self.subTest(number=number):
+                response = self._create(number=number)
+                self.assertEqual(Customer.objects.count(), 0)
+                self.assertContains(response, "al menos 8 dígitos")
+
+    def test_valid_phone_formats_are_accepted(self):
+        for index, number in enumerate(["7000-0000", "+503 7000 0000"]):
+            with self.subTest(number=number):
+                self._create(number=number, firstName=f"Ana{index}")
+        self.assertEqual(Customer.objects.count(), 2)
