@@ -1,6 +1,7 @@
 services:
   web:
     build: .
+    env_file: .env
     container_name: agua-potable-santa-fe-II
     ports:
       - "8001:8000"
