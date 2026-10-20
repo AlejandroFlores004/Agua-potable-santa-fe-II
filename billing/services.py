@@ -250,3 +250,38 @@ def receipts_pdf(invoice, invoice_lines, template_name):
     if pisa.CreatePDF(html, dest=buffer).err:
         return None
     return buffer.getvalue()
+
+
+def receipts_by_status(invoice, query="", status=""):
+    """Recibos de la factura agrupados por estado para el listado en PDF.
+
+    Respeta los mismos filtros (búsqueda y estado) que la tabla de la factura.
+    """
+    pending_label = "Vencidos" if invoice.is_closed else "Pendientes"
+    groups = {
+        "pending": {"label": pending_label, "receipts": [], "total": 0},
+        "paid": {"label": "Pagados", "receipts": [], "total": 0},
+        "carried": {"label": "Trasladados", "receipts": [], "total": 0},
+    }
+    for receipt in search_invoice_lines(invoice, query, status):
+        if receipt.isPaid:
+            key = "paid"
+        elif receipt.is_carried:
+            key = "carried"
+        else:
+            key = "pending"
+        groups[key]["receipts"].append(receipt)
+        groups[key]["total"] += receipt.total
+
+    filters = []
+    if query:
+        filters.append(f"Búsqueda: {query}")
+    if status in groups:
+        filters.append(f"Estado: {groups[status]['label']}")
+        groups = {status: groups[status]}
+    return {
+        "invoice": invoice,
+        "groups": list(groups.values()),
+        "filters": filters,
+        "receipts_count": sum(len(group["receipts"]) for group in groups.values()),
+    }

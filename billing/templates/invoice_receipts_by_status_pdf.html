@@ -1,0 +1,70 @@
+{% extends "reports/pdf/_base.html" %}
+
+{% block title %}Recibos por estado{% endblock %}
+{% block heading %}RECIBOS POR ESTADO{% endblock %}
+{% block footer_title %}Recibos por estado · {{ invoice.title }}{% endblock %}
+
+{% block content %}
+<div class="filters">
+  {{ invoice.title }} &nbsp;·&nbsp; Vence {{ invoice.due_date|date:"d/m/Y" }} &nbsp;·&nbsp; Factura {{ invoice.get_status_display|lower }}
+  {% for filter in filters %}&nbsp;·&nbsp; {{ filter }}{% endfor %}
+</div>
+
+<table class="summary">
+  <tr>
+    {% for group in groups %}
+    <td>
+      <div class="summary-label">{{ group.label|upper }}</div>
+      <div class="summary-value">{{ group.receipts|length }}</div>
+      <div class="summary-label">${{ group.total|floatformat:2 }}</div>
+    </td>
+    {% endfor %}
+  </tr>
+</table>
+
+{% if receipts_count %}
+{% for group in groups %}
+{% if group.receipts %}
+<div class="section-title">{{ group.label }} ({{ group.receipts|length }})</div>
+<table class="data" repeat="1">
+  <thead>
+    <tr>
+      <th width="5%" class="number">#</th>
+      <th width="10%">Mecha</th>
+      <th width="27%">Cliente</th>
+      <th width="12%">Teléfono</th>
+      <th width="20%">Ubicación</th>
+      <th width="16%">Recibo</th>
+      <th class="amount" width="10%">Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for receipt in group.receipts %}
+    <tr>
+      <td class="number">{{ forloop.counter }}</td>
+      <td>{{ receipt.line.code }}</td>
+      <td>{{ receipt.line.customer.firstName }} {{ receipt.line.customer.lastName }}</td>
+      <td>{{ receipt.line.customer.number|default:"—" }}</td>
+      <td>{{ receipt.line.location|default:"Sin ubicación" }}</td>
+      <td>
+        {{ receipt.code|default:"—" }}
+        {% if receipt.is_carried %}<div class="muted">al recibo {{ receipt.carried_to.code }}</div>{% endif %}
+      </td>
+      <td class="amount">${{ receipt.total }}</td>
+    </tr>
+    {% endfor %}
+    <tr class="total">
+      <td colspan="6">Total {{ group.label|lower }}</td>
+      <td class="amount">${{ group.total|floatformat:2 }}</td>
+    </tr>
+  </tbody>
+</table>
+{% endif %}
+{% endfor %}
+{% if groups|length > 1 %}
+<div class="muted">Los recibos trasladados ya están sumados en el saldo anterior del recibo que los absorbió.</div>
+{% endif %}
+{% else %}
+<div class="empty">No hay recibos con los filtros aplicados.</div>
+{% endif %}
+{% endblock %}

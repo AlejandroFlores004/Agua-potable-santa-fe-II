@@ -7,6 +7,7 @@ from django.urls import reverse
 from connection.models import Line
 from customer.models import Customer
 
+from . import services
 from .models import Account, Fee, Invoice, InvoiceLine, LateFee
 
 
@@ -144,6 +145,28 @@ class InvoiceDetailTests(TestCase):
         self._assign(self.active_1)
         response = self.client.get(reverse("invoice_print_selected", args=[self.invoice.pk]))
         self.assertRedirects(response, reverse("invoice_detail", args=[self.invoice.pk]))
+
+    def test_receipts_by_status_pdf(self):
+        self._assign(self.active_1, is_paid=True)
+        self._assign(self.active_2)
+        response = self.client.get(reverse("invoice_receipts_by_status_pdf", args=[self.invoice.pk]))
+        self.assertEqual(response["Content-Type"], "application/pdf")
+
+    def test_receipts_by_status_groups_receipts(self):
+        paid = self._assign(self.active_1, is_paid=True)
+        pending = self._assign(self.active_2)
+        context = services.receipts_by_status(self.invoice)
+        groups = {group["label"]: group["receipts"] for group in context["groups"]}
+        self.assertEqual(groups["Pagados"], [paid])
+        self.assertEqual(groups["Pendientes"], [pending])
+        self.assertEqual(groups["Trasladados"], [])
+
+    def test_receipts_by_status_respects_status_filter(self):
+        self._assign(self.active_1, is_paid=True)
+        self._assign(self.active_2)
+        context = services.receipts_by_status(self.invoice, status="paid")
+        self.assertEqual([group["label"] for group in context["groups"]], ["Pagados"])
+        self.assertEqual(context["receipts_count"], 1)
 
 
 class FeeToggleTests(TestCase):

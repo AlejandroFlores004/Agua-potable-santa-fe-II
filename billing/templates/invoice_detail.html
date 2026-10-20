@@ -24,13 +24,15 @@
     <div class="card-body gap-4 p-4 sm:p-8">
       <h2 class="card-title">Líneas en esta factura</h2>
 
+      <form id="receipts-by-status-form" action="{% url 'invoice_receipts_by_status_pdf' invoice.pk %}" method="get" target="_blank"></form>
       <div class="flex flex-col sm:flex-row gap-2">
         <input
           type="search"
           name="q"
+          form="receipts-by-status-form"
           value="{{ query }}"
           placeholder="Buscar por código, cliente o ubicación..."
-          class="input input-bordered w-full sm:max-w-sm"
+          class="input input-bordered w-full sm:flex-1 sm:min-w-0 sm:max-w-sm"
           hx-get="{% url 'invoice_lines' invoice.pk %}"
           hx-trigger="keyup changed delay:400ms, search"
           hx-target="#invoice-lines-wrapper"
@@ -39,7 +41,8 @@
         />
         <select
           name="status"
-          class="select select-bordered w-full sm:w-48"
+          form="receipts-by-status-form"
+          class="select select-bordered w-full sm:w-52 sm:shrink-0"
           hx-get="{% url 'invoice_lines' invoice.pk %}"
           hx-trigger="change"
           hx-target="#invoice-lines-wrapper"
@@ -51,6 +54,10 @@
           <option value="paid" {% if status == "paid" %}selected{% endif %}>Pagadas</option>
           <option value="carried" {% if status == "carried" %}selected{% endif %}>Trasladadas</option>
         </select>
+        <button type="submit" form="receipts-by-status-form" class="btn sm:ml-auto sm:shrink-0 gap-1">
+          {% icon "printer" %}
+          PDF por estado
+        </button>
       </div>
 
       <div id="invoice-lines-wrapper"

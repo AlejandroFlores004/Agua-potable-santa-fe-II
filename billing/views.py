@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
+from reports.services import render_pdf
 from shell.htmx import messages_response
 from shell.pagination import paginate
 
@@ -377,3 +378,18 @@ def invoice_line_print_receipt(request, pk):
     )
     filename = f"recibo_{invoice_line.code}.pdf"
     return _receipts_pdf_response(request, invoice_line.invoice, [invoice_line], filename)
+
+
+@login_required(login_url="login")
+def invoice_receipts_by_status_pdf(request, pk):
+    invoice = get_object_or_404(Invoice.objects.select_related("account"), pk=pk)
+    query, status = _invoice_lines_filters(request)
+    pdf = render_pdf("invoice_receipts_by_status_pdf.html", services.receipts_by_status(invoice, query, status))
+    if pdf is None:
+        messages.error(request, "Ocurrió un error al generar el listado en PDF.")
+        return redirect("invoice_detail", pk=invoice.pk)
+
+    filename = f"recibos_por_estado_{invoice.start_date:%d-%m-%Y}_al_{invoice.end_date:%d-%m-%Y}.pdf"
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="{filename}"'
+    return response

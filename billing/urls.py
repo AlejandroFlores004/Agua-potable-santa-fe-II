@@ -16,6 +16,7 @@ urlpatterns = [
     path('<int:pk>/lines/', views.invoice_lines, name='invoice_lines'),
     path('<int:pk>/print/select/', views.invoice_print_select, name='invoice_print_select'),
     path('<int:pk>/print/selected/', views.invoice_print_selected, name='invoice_print_selected'),
+    path('<int:pk>/print/by-status/', views.invoice_receipts_by_status_pdf, name='invoice_receipts_by_status_pdf'),
     path('<int:pk>/print/horizontal/', views.invoice_print_receipts_landscape, name='invoice_print_receipts_landscape'),
     path('invoice-lines/<int:pk>/toggle-paid/', views.invoice_line_toggle_paid, name='invoice_line_toggle_paid'),
     path('invoice-lines/<int:pk>/late-fee/', views.invoice_line_late_fee, name='invoice_line_late_fee'),
