@@ -1,63 +1,112 @@
 {% load icons %}
 {% with url_name=request.resolver_match.url_name %}
-<!-- ===== MOBILE DOCK (below md) ===== -->
-<nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-base-100 border-t border-base-300 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]">
-  <div class="grid grid-flow-col auto-cols-fr h-16">
+<!-- ===== MOBILE DOCK (below lg) =====
+     Related sections are grouped: "Clientes" (Clientes + Mechas) and
+     "Cobros" (Recibos + Cuotas) open a bottom sheet to pick the section. -->
+<nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-base-100/95 backdrop-blur border-t border-base-300 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] pb-[env(safe-area-inset-bottom)]">
+  <div class="grid grid-flow-col auto-cols-fr h-[4.5rem] px-2 sm:px-6">
 
-    {% if perms.customer %}
+    {% if perms.customer and perms.connection %}
+    <button type="button" onclick="dock_people.showModal()"
+            class="group flex flex-col items-center justify-center gap-1 text-xs leading-none {% if url_name == 'customer_home' or url_name == 'mechas' %}text-primary font-semibold{% else %}text-base-content/60 active:text-base-content{% endif %}">
+      <span class="flex items-center justify-center h-8 w-14 rounded-full {% if url_name == 'customer_home' or url_name == 'mechas' %}bg-primary/15{% else %}group-active:bg-base-200{% endif %}">{% icon "users" class="w-5 h-5" %}</span>
+      <span>Clientes</span>
+    </button>
+    {% elif perms.customer %}
     <a href="{% url 'customer_home' %}"
-       class="flex flex-col items-center justify-center gap-1 text-xs transition-colors
-              {% if url_name == 'customer_home' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
-      {% icon "user" class="w-5 h-5" %}
+       class="group flex flex-col items-center justify-center gap-1 text-xs leading-none {% if url_name == 'customer_home' %}text-primary font-semibold{% else %}text-base-content/60 active:text-base-content{% endif %}">
+      <span class="flex items-center justify-center h-8 w-14 rounded-full {% if url_name == 'customer_home' %}bg-primary/15{% else %}group-active:bg-base-200{% endif %}">{% icon "user" class="w-5 h-5" %}</span>
       <span>Clientes</span>
     </a>
-    {% endif %}
-
-    {% if perms.connection %}
+    {% elif perms.connection %}
     <a href="{% url 'mechas' %}"
-       class="flex flex-col items-center justify-center gap-1 text-xs transition-colors
-              {% if url_name == 'mechas' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
-      {% icon "wrench" class="w-5 h-5" %}
+       class="group flex flex-col items-center justify-center gap-1 text-xs leading-none {% if url_name == 'mechas' %}text-primary font-semibold{% else %}text-base-content/60 active:text-base-content{% endif %}">
+      <span class="flex items-center justify-center h-8 w-14 rounded-full {% if url_name == 'mechas' %}bg-primary/15{% else %}group-active:bg-base-200{% endif %}">{% icon "wrench" class="w-5 h-5" %}</span>
       <span>Mechas</span>
     </a>
     {% endif %}
 
     {% if perms.billing %}
-    <a href="{% url 'billing_home' %}"
-       class="flex flex-col items-center justify-center gap-1 text-xs transition-colors
-              {% if url_name == 'billing_home' or url_name == 'invoice_detail' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
-      {% icon "file-text" class="w-5 h-5" %}
-      <span>Recibos</span>
-    </a>
-    {% endif %}
-
-    {% if perms.billing %}
-    <a href="{% url 'fee_home' %}"
-       class="flex flex-col items-center justify-center gap-1 text-xs transition-colors
-              {% if url_name == 'fee_home' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
-      {% icon "tag" class="w-5 h-5" %}
-      <span>Cuotas</span>
-    </a>
+    <button type="button" onclick="dock_billing.showModal()"
+            class="group flex flex-col items-center justify-center gap-1 text-xs leading-none {% if url_name == 'billing_home' or url_name == 'invoice_detail' or url_name == 'fee_home' %}text-primary font-semibold{% else %}text-base-content/60 active:text-base-content{% endif %}">
+      <span class="flex items-center justify-center h-8 w-14 rounded-full {% if url_name == 'billing_home' or url_name == 'invoice_detail' or url_name == 'fee_home' %}bg-primary/15{% else %}group-active:bg-base-200{% endif %}">{% icon "file-text" class="w-5 h-5" %}</span>
+      <span>Cobros</span>
+    </button>
     {% endif %}
 
     {% if perms.expense %}
     <a href="{% url 'expense_home' %}"
-       class="flex flex-col items-center justify-center gap-1 text-xs transition-colors
-              {% if url_name == 'expense_home' or url_name == 'recurring_home' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
-      {% icon "wallet" class="w-5 h-5" %}
+       class="group flex flex-col items-center justify-center gap-1 text-xs leading-none {% if url_name == 'expense_home' or url_name == 'recurring_home' %}text-primary font-semibold{% else %}text-base-content/60 active:text-base-content{% endif %}">
+      <span class="flex items-center justify-center h-8 w-14 rounded-full {% if url_name == 'expense_home' or url_name == 'recurring_home' %}bg-primary/15{% else %}group-active:bg-base-200{% endif %}">{% icon "wallet" class="w-5 h-5" %}</span>
       <span>Gastos</span>
     </a>
     {% endif %}
 
     {% if perms.customer or perms.connection or perms.billing %}
     <a href="{% url 'reports_home' %}"
-       class="flex flex-col items-center justify-center gap-1 text-xs transition-colors
-              {% if url_name == 'reports_home' %}text-primary font-semibold{% else %}text-gray-500 active:text-base-content{% endif %}">
-      {% icon "printer" class="w-5 h-5" %}
+       class="group flex flex-col items-center justify-center gap-1 text-xs leading-none {% if url_name == 'reports_home' %}text-primary font-semibold{% else %}text-base-content/60 active:text-base-content{% endif %}">
+      <span class="flex items-center justify-center h-8 w-14 rounded-full {% if url_name == 'reports_home' %}bg-primary/15{% else %}group-active:bg-base-200{% endif %}">{% icon "printer" class="w-5 h-5" %}</span>
       <span>Reportes</span>
     </a>
     {% endif %}
 
   </div>
 </nav>
+
+<!-- ===== DOCK SHEETS ===== -->
+{% if perms.customer and perms.connection %}
+<dialog id="dock_people" class="modal modal-bottom lg:hidden">
+  <div class="modal-box pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+    <div class="mx-auto mb-4 h-1.5 w-10 rounded-full bg-base-300"></div>
+    <h3 class="text-sm font-semibold uppercase tracking-wide text-base-content/50 mb-3">Clientes</h3>
+    <div class="flex flex-col gap-2">
+      <a href="{% url 'customer_home' %}"
+         class="flex items-center gap-4 rounded-box p-3 {% if url_name == 'customer_home' %}bg-primary/10 text-primary{% else %}active:bg-base-200{% endif %}">
+        <span class="flex items-center justify-center w-11 h-11 rounded-full bg-primary/15 text-primary">{% icon "user" class="w-5 h-5" %}</span>
+        <span class="flex flex-col">
+          <span class="font-semibold">Clientes</span>
+          <span class="text-sm text-base-content/60">Registro de abonados</span>
+        </span>
+      </a>
+      <a href="{% url 'mechas' %}"
+         class="flex items-center gap-4 rounded-box p-3 {% if url_name == 'mechas' %}bg-primary/10 text-primary{% else %}active:bg-base-200{% endif %}">
+        <span class="flex items-center justify-center w-11 h-11 rounded-full bg-primary/15 text-primary">{% icon "wrench" class="w-5 h-5" %}</span>
+        <span class="flex flex-col">
+          <span class="font-semibold">Mechas</span>
+          <span class="text-sm text-base-content/60">Conexiones de agua</span>
+        </span>
+      </a>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>Cerrar</button></form>
+</dialog>
+{% endif %}
+
+{% if perms.billing %}
+<dialog id="dock_billing" class="modal modal-bottom lg:hidden">
+  <div class="modal-box pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+    <div class="mx-auto mb-4 h-1.5 w-10 rounded-full bg-base-300"></div>
+    <h3 class="text-sm font-semibold uppercase tracking-wide text-base-content/50 mb-3">Cobros</h3>
+    <div class="flex flex-col gap-2">
+      <a href="{% url 'billing_home' %}"
+         class="flex items-center gap-4 rounded-box p-3 {% if url_name == 'billing_home' or url_name == 'invoice_detail' %}bg-primary/10 text-primary{% else %}active:bg-base-200{% endif %}">
+        <span class="flex items-center justify-center w-11 h-11 rounded-full bg-primary/15 text-primary">{% icon "file-text" class="w-5 h-5" %}</span>
+        <span class="flex flex-col">
+          <span class="font-semibold">Recibos</span>
+          <span class="text-sm text-base-content/60">Facturación mensual y pagos</span>
+        </span>
+      </a>
+      <a href="{% url 'fee_home' %}"
+         class="flex items-center gap-4 rounded-box p-3 {% if url_name == 'fee_home' %}bg-primary/10 text-primary{% else %}active:bg-base-200{% endif %}">
+        <span class="flex items-center justify-center w-11 h-11 rounded-full bg-primary/15 text-primary">{% icon "tag" class="w-5 h-5" %}</span>
+        <span class="flex flex-col">
+          <span class="font-semibold">Cuotas</span>
+          <span class="text-sm text-base-content/60">Tarifas y moras</span>
+        </span>
+      </a>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>Cerrar</button></form>
+</dialog>
+{% endif %}
 {% endwith %}

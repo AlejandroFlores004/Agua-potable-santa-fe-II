@@ -1,3 +1,4 @@
+{% load money %}
 {% if fees %}
 <div class="hidden lg:block overflow-x-auto">
 <table class="table">
@@ -14,7 +15,7 @@
     {% for fee in fees %}
     <tr>
       <td class="font-semibold">{{ fee.name }}</td>
-      <td>${{ fee.amount }}</td>
+      <td>{{ fee.amount|money }}</td>
       <td>
         {% if fee.isActive %}<span class="badge badge-success badge-outline badge-sm">Activa</span>{% else %}<span class="badge badge-ghost badge-sm">Inactiva</span>{% endif %}
       </td>
@@ -50,7 +51,7 @@
       <div class="text-xs text-gray-500">{{ fee.created_at|date:"d/m/Y" }} por {{ fee.created_by }}</div>
     </div>
     <div class="flex items-center gap-2 shrink-0">
-      <span class="text-lg font-bold">${{ fee.amount }}</span>
+      <span class="text-lg font-bold">{{ fee.amount|money }}</span>
       <button
         class="btn btn-ghost btn-sm {% if fee.isActive %}text-error{% else %}text-success{% endif %}"
         hx-post="{% url 'fee_toggle' fee.pk %}"

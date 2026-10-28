@@ -1,4 +1,5 @@
 {% extends "reports/pdf/_base.html" %}
+{% load money %}
 
 {% block title %}Listado de mechas{% endblock %}
 {% block heading %}LISTADO DE MECHAS{% endblock %}
@@ -27,7 +28,7 @@
     <tr>
       <td>{{ line.code }}</td>
       <td>{{ line.customer.firstName|upper }} {{ line.customer.lastName|upper }}</td>
-      <td>{% if line.fee %}{{ line.fee.name }} (${{ line.fee.amount }}){% else %}<span class="muted">Sin cuota</span>{% endif %}</td>
+      <td>{% if line.fee %}{{ line.fee.name }} ({{ line.fee.amount|money }}){% else %}<span class="muted">Sin cuota</span>{% endif %}</td>
       <td>{% if line.isActive %}Activa{% else %}<span class="muted">Inactiva</span>{% endif %}</td>
       <td class="observation">{{ line.description|default:""|linebreaksbr }}</td>
     </tr>
@@ -35,7 +36,7 @@
     {% endfor %}
     <tr class="total">
       <td colspan="3">Total: {{ lines|length }} mecha{{ lines|length|pluralize }}</td>
-      <td colspan="2" class="amount">Cuota mensual de las activas: ${{ monthly_total|floatformat:2 }}</td>
+      <td colspan="2" class="amount">Cuota mensual de las activas: {{ monthly_total|money }}</td>
     </tr>
   </tbody>
 </table>

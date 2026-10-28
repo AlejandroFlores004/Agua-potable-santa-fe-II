@@ -1,3 +1,4 @@
+{% load money %}
 <div class="flex flex-col gap-4 sm:gap-6">
   <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
     <div>
@@ -84,8 +85,8 @@
     </div>
     <div class="stat px-4 sm:px-6">
       <div class="stat-title whitespace-normal">Recaudado</div>
-      <div class="stat-value text-2xl sm:text-3xl">${{ collected_amount }}</div>
-      <div class="stat-desc whitespace-normal">de ${{ expected_amount }} esperados</div>
+      <div class="stat-value text-2xl sm:text-3xl">{{ collected_amount|money }}</div>
+      <div class="stat-desc whitespace-normal">de {{ expected_amount|money }} esperados</div>
     </div>
   </div>
 

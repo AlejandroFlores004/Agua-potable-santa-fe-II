@@ -1,3 +1,4 @@
+{% load money %}
 {% if late_fees %}
 <div class="flex flex-col divide-y divide-base-300 -mx-2">
   {% for late_fee in late_fees %}
@@ -10,13 +11,13 @@
       <div class="text-xs text-gray-500">{{ late_fee.created_at|date:"d/m/Y" }} por {{ late_fee.created_by }}</div>
     </div>
     <div class="flex items-center gap-2 shrink-0">
-      <span class="text-lg font-bold">${{ late_fee.amount }}</span>
+      <span class="text-lg font-bold">{{ late_fee.amount|money }}</span>
       {% if not late_fee.isDefault %}
       <button
         class="btn btn-ghost btn-sm text-primary"
         hx-post="{% url 'late_fee_make_default' late_fee.pk %}"
         hx-swap="none"
-        hx-confirm="¿Usar «{{ late_fee.name }}» (${{ late_fee.amount }}) como mora por defecto? Se cobrará en los recibos atrasados que se generen de ahora en adelante."
+        hx-confirm="¿Usar «{{ late_fee.name }}» ({{ late_fee.amount|money }}) como mora por defecto? Se cobrará en los recibos atrasados que se generen de ahora en adelante."
       >
         Usar por defecto
       </button>

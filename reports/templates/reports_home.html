@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load icons %}
+{% load money %}
 
 {% block title %}Reportes{% endblock %}
 
@@ -7,7 +8,7 @@
 <div class="flex flex-col gap-6">
   <div>
     <h1 class="text-2xl font-bold">Reportes</h1>
-    <p class="text-sm text-gray-500">Genera listados en PDF para imprimir. Se abren en una pestaña nueva.</p>
+    <p class="text-sm text-gray-500">Genera listados en PDF para imprimir (se abren en una pestaña nueva) o descárgalos en Excel.</p>
   </div>
 
   {% if not can_customers and not can_lines and not can_billing %}
@@ -102,7 +103,7 @@
               <select name="fee" class="select select-bordered select-sm w-full">
                 <option value="">Todas</option>
                 {% for fee in fees %}
-                <option value="{{ fee.pk }}">{{ fee.name }} (${{ fee.amount }}){% if not fee.isActive %} · inactiva{% endif %}</option>
+                <option value="{{ fee.pk }}">{{ fee.name }} ({{ fee.amount|money }}){% if not fee.isActive %} · inactiva{% endif %}</option>
                 {% endfor %}
               </select>
             </label>
@@ -130,6 +131,39 @@
           </label>
           <div class="card-actions justify-end">
             <button type="submit" class="btn btn-primary btn-sm gap-2">{% icon "printer" %} Imprimir</button>
+          </div>
+        </div>
+      </form>
+
+      <form class="card bg-base-100 shadow-sm md:col-span-2 xl:col-span-2" method="get" action="{% url 'report_invoices_excel' %}">
+        <div class="card-body gap-3 p-5">
+          <h3 class="card-title text-base">Facturas en Excel</h3>
+          <p class="text-sm text-gray-500">
+            Descarga un archivo .xlsx con el resumen de cada factura y el detalle de todos sus recibos
+            (cliente, mecha, cuota, saldo anterior, mora, total y estado).
+          </p>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <label class="form-control w-full">
+              <span class="label-text text-xs mb-1">Factura</span>
+              <select name="invoice" class="select select-bordered select-sm w-full">
+                <option value="">Todas</option>
+                {% for invoice in invoices %}
+                <option value="{{ invoice.pk }}">{{ invoice.title }} · {{ invoice.get_status_display }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label class="form-control w-full">
+              <span class="label-text text-xs mb-1">Estado</span>
+              <select name="status" class="select select-bordered select-sm w-full">
+                <option value="">Todos</option>
+                {% for value, label in invoice_statuses %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </label>
+          </div>
+          <div class="card-actions justify-end">
+            <button type="submit" class="btn btn-success btn-sm gap-2">{% icon "download" %} Descargar Excel</button>
           </div>
         </div>
       </form>

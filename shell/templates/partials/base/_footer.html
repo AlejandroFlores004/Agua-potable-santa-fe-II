@@ -1,4 +1,8 @@
 <!-- ===== FOOTER (md and up) ===== -->
 <footer class="hidden lg:flex footer footer-center bg-base-100 border-t border-base-300 p-4 text-sm text-gray-500">
-  <p>© {% now "Y" %} Agua Potable Santa Fe</p>
+  <p class="max-w-3xl text-xs">
+    Sistema de control interno y apoyo a la gestión contable. Los datos, avisos de cobro y reportes son
+    estrictamente informativos y no sustituyen la contabilidad formal ni la facturación fiscal.
+  </p>
+  <p>© {% now "Y" %} Agua Potable Santa Fe · <a href="{% url 'terms' %}" class="link link-hover">Términos y condiciones</a></p>
 </footer>

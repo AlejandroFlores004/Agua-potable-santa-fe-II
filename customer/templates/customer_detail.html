@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load icons money %}
+
+{% block title %}{{ customer }}{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-4">
+    <a href="{% url 'customer_home' %}" class="btn btn-ghost btn-sm gap-1 self-start -ml-2">
+      {% icon "chevron-left" %}
+      Clientes
+    </a>
+
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div class="min-w-0">
+        <h1 class="text-2xl font-bold break-words">{{ customer.firstName }} {{ customer.lastName }}</h1>
+        <div class="text-sm text-gray-500 flex flex-wrap gap-x-4 gap-y-1 mt-1">
+          <span>DUI {{ customer.dui|default:"—" }}</span>
+          {% if customer.number %}<a href="tel:{{ customer.number }}" class="link link-hover">{{ customer.number }}</a>{% endif %}
+          {% if customer.email %}<span class="break-all">{{ customer.email }}</span>{% endif %}
+        </div>
+        <div class="text-xs text-gray-500 mt-1">Creado {{ customer.created_at|date:"d/m/Y" }} por {{ customer.created_by }}</div>
+      </div>
+      <a href="{% url 'report_customer_statement' %}?customer={{ customer.pk }}" target="_blank" class="btn gap-1 shrink-0">
+        {% icon "printer" %}
+        Estado de cuenta
+      </a>
+    </div>
+  </div>
+
+  <div class="stats stats-vertical sm:stats-horizontal shadow-sm sm:shadow-xl bg-base-100">
+    <div class="stat">
+      <div class="stat-title">Saldo pendiente</div>
+      <div class="stat-value text-2xl {% if pending_total %}text-warning{% endif %}">{{ pending_total|money }}</div>
+      <div class="stat-desc">Recibos sin pagar ni trasladar</div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Vencido</div>
+      <div class="stat-value text-2xl {% if overdue_total %}text-error{% endif %}">{{ overdue_total|money }}</div>
+      <div class="stat-desc">De facturas ya cerradas</div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Pagado</div>
+      <div class="stat-value text-2xl text-success">{{ paid_total|money }}</div>
+      <div class="stat-desc">{{ receipts_count }} recibo{{ receipts_count|pluralize }} en total</div>
+    </div>
+  </div>
+
+  {% for line in lines %}
+  <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+    <div class="card-body gap-4 p-4 sm:p-8">
+      <div class="flex flex-wrap items-center gap-2">
+        <h2 class="card-title">{{ line.code|default:"pendiente" }}</h2>
+        {% if line.isActive %}
+        <span class="badge badge-success badge-sm">Activa</span>
+        {% else %}
+        <span class="badge badge-ghost badge-sm">Inactiva</span>
+        {% endif %}
+        <span class="text-sm text-gray-500">
+          {{ line.location|default:"Sin ubicación" }}
+          · {% if line.fee %}{{ line.fee.name }} {{ line.fee.amount|money }}{% else %}Sin cuota{% endif %}
+        </span>
+      </div>
+      {% if line.description %}
+      <p class="text-sm text-gray-500 -mt-2">{{ line.description }}</p>
+      {% endif %}
+
+      {% if line.receipts %}
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Factura</th>
+              <th>Recibo</th>
+              <th>Monto</th>
+              <th>Estado</th>
+              <th class="text-right"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for receipt in line.receipts %}
+            <tr>
+              <td>
+                <a href="{% url 'invoice_detail' receipt.invoice.pk %}" class="link link-hover whitespace-nowrap">
+                  {{ receipt.invoice.start_date|date:"d/m/Y" }} – {{ receipt.invoice.end_date|date:"d/m/Y" }}
+                </a>
+                <div class="text-xs text-gray-500">Vence {{ receipt.invoice.due_date|date:"d/m/Y" }}</div>
+              </td>
+              <td class="text-sm">{{ receipt.code|default:"pendiente" }}</td>
+              <td>
+                <div class="font-semibold">{{ receipt.total|money }}</div>
+                <div class="text-xs text-gray-500">{{ receipt.fee.name|default:"Cuota" }} {{ receipt.amount|money }}</div>
+                {% if receipt.previous_balance %}
+                <div class="text-xs text-warning">Saldo anterior {{ receipt.previous_balance|money }}</div>
+                {% endif %}
+                {% if receipt.late_fee_amount %}
+                <div class="text-xs text-error">Mora {{ receipt.late_fee_amount|money }}</div>
+                {% endif %}
+              </td>
+              <td>
+                {% if receipt.isPaid %}
+                <span class="badge badge-success">Pagado</span>
+                {% elif receipt.is_carried %}
+                <span class="badge badge-ghost">Trasladado</span>
+                <div class="text-xs text-gray-500 mt-1">al recibo {{ receipt.carried_to.code }}</div>
+                {% elif receipt.invoice.is_closed %}
+                <span class="badge badge-error">Vencido</span>
+                {% else %}
+                <span class="badge badge-warning badge-outline">Pendiente</span>
+                {% endif %}
+              </td>
+              <td class="text-right">
+                <a href="{% url 'invoice_line_print_receipt' receipt.pk %}" target="_blank" class="btn btn-ghost btn-sm">
+                  Recibo
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-sm text-gray-400">Esta línea todavía no tiene recibos.</div>
+      {% endif %}
+    </div>
+  </div>
+  {% empty %}
+  <div class="card bg-base-100 shadow-sm sm:shadow-xl">
+    <div class="card-body text-center text-gray-500">Este cliente no tiene líneas registradas.</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

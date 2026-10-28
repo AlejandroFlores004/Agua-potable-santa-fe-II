@@ -1,4 +1,5 @@
 {% extends "reports/pdf/_base.html" %}
+{% load money %}
 
 {% block title %}Estado de cuenta - {{ customer }}{% endblock %}
 {% block heading %}ESTADO DE CUENTA{% endblock %}
@@ -25,11 +26,11 @@
     </td>
     <td width="33%">
       <div class="summary-label">SALDO PENDIENTE</div>
-      <div class="summary-value">${{ pending_total|floatformat:2 }}</div>
+      <div class="summary-value">{{ pending_total|money }}</div>
     </td>
     <td width="34%">
       <div class="summary-label">DEL CUAL VENCIDO</div>
-      <div class="summary-value">${{ overdue_total|floatformat:2 }}</div>
+      <div class="summary-value">{{ overdue_total|money }}</div>
     </td>
   </tr>
 </table>
@@ -51,7 +52,7 @@
     <tr>
       <td>{{ line.code }}</td>
       <td>{{ line.location|default:"Sin ubicación" }}</td>
-      <td>{% if line.fee %}{{ line.fee.name }} (${{ line.fee.amount }}){% else %}<span class="muted">Sin cuota</span>{% endif %}</td>
+      <td>{% if line.fee %}{{ line.fee.name }} ({{ line.fee.amount|money }}){% else %}<span class="muted">Sin cuota</span>{% endif %}</td>
       <td>{% if line.isActive %}Activa{% else %}<span class="muted">Inactiva</span>{% endif %}</td>
       <td class="observation">{{ line.description|default:""|linebreaksbr }}</td>
     </tr>
@@ -81,10 +82,10 @@
     <tr>
       <td>{{ receipt.invoice.start_date|date:"d/m/Y" }} al {{ receipt.invoice.end_date|date:"d/m/Y" }}</td>
       <td>{{ receipt.line.code }}</td>
-      <td class="amount">${{ receipt.amount }}</td>
-      <td class="amount">{% if receipt.previous_balance %}${{ receipt.previous_balance }}{% else %}—{% endif %}</td>
-      <td class="amount">{% if receipt.late_fee_amount %}${{ receipt.late_fee_amount }}{% else %}—{% endif %}</td>
-      <td class="amount"><strong>${{ receipt.total }}</strong></td>
+      <td class="amount">{{ receipt.amount|money }}</td>
+      <td class="amount">{% if receipt.previous_balance %}{{ receipt.previous_balance|money }}{% else %}—{% endif %}</td>
+      <td class="amount">{% if receipt.late_fee_amount %}{{ receipt.late_fee_amount|money }}{% else %}—{% endif %}</td>
+      <td class="amount"><strong>{{ receipt.total|money }}</strong></td>
       <td>
         <span class="status-{{ receipt.status_label|lower }}">{{ receipt.status_label }}</span>
         {% if receipt.is_carried %}<span class="muted"> al {{ receipt.carried_to.code }}</span>{% endif %}

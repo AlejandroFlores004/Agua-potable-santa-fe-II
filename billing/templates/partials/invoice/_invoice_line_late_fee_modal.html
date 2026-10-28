@@ -1,3 +1,4 @@
+{% load money %}
 <div class="modal modal-open modal-bottom sm:modal-middle" onclick="document.getElementById('modal-container').innerHTML=''">
   <div class="modal-box w-full max-w-none sm:max-w-md relative" onclick="event.stopPropagation()">
     <button
@@ -11,9 +12,9 @@
     <h3 class="font-bold text-lg mb-1">Mora del recibo {{ invoice_line.code }}</h3>
     <p class="text-sm text-gray-500 mb-4">
       Línea {{ invoice_line.line.code }}
-      · Cuota ${{ invoice_line.amount }}
-      {% if invoice_line.previous_balance %}· Saldo anterior ${{ invoice_line.previous_balance }}{% endif %}
-      · Mora actual ${{ invoice_line.late_fee_amount }}
+      · Cuota {{ invoice_line.amount|money }}
+      {% if invoice_line.previous_balance %}· Saldo anterior {{ invoice_line.previous_balance|money }}{% endif %}
+      · Mora actual {{ invoice_line.late_fee_amount|money }}
     </p>
 
     <form

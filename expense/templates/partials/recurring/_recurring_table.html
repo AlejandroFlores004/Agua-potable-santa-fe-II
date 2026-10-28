@@ -1,3 +1,4 @@
+{% load money %}
 <!-- ===== Resumen ===== -->
 <div class="grid grid-cols-2 lg:grid-cols-4 rounded-box border border-base-300 overflow-hidden mb-2">
   <div class="stat px-4 sm:px-6 border-base-300 border-r border-b lg:border-b-0">
@@ -7,8 +8,8 @@
   </div>
   <div class="stat px-4 sm:px-6 border-base-300 border-b lg:border-b-0 lg:border-r">
     <div class="stat-title whitespace-normal">Costo mensual estimado</div>
-    <div class="stat-value text-2xl sm:text-3xl text-primary">${{ summary.monthly_estimate|floatformat:2 }}</div>
-    <div class="stat-desc whitespace-normal">≈ ${{ summary.annual_estimate|floatformat:2 }} al año</div>
+    <div class="stat-value text-2xl sm:text-3xl text-primary">{{ summary.monthly_estimate|money }}</div>
+    <div class="stat-desc whitespace-normal">≈ {{ summary.annual_estimate|money }} al año</div>
   </div>
   <div class="stat px-4 sm:px-6 border-base-300 border-r">
     <div class="stat-title whitespace-normal">Vencen este mes</div>
@@ -45,7 +46,7 @@
       <td>{% include "partials/recurring/_recurring_kind_badge.html" %}</td>
       <td>{{ plan.get_frequency_display }}</td>
       <td class="text-right whitespace-nowrap">
-        <span class="font-semibold">${{ plan.amount|floatformat:2 }}</span>
+        <span class="font-semibold">{{ plan.amount|money }}</span>
         {% if plan.kind == "variable" %}<div class="text-xs text-gray-500">estimado</div>{% endif %}
       </td>
       <td>{% include "partials/recurring/_recurring_progress.html" %}</td>
@@ -69,7 +70,7 @@
         <div class="text-sm text-gray-500">{{ plan.get_frequency_display }}</div>
       </div>
       <div class="text-right shrink-0">
-        <div class="font-semibold">${{ plan.amount|floatformat:2 }}</div>
+        <div class="font-semibold">{{ plan.amount|money }}</div>
         {% if plan.kind == "variable" %}<div class="text-xs text-gray-500">estimado</div>{% endif %}
       </div>
     </div>

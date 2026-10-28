@@ -6,13 +6,13 @@
 <style>
   @page {
     size: letter {% block orientation %}portrait{% endblock %};
-    margin: 1.3cm 1.2cm 1.8cm 1.2cm;
+    margin: 1.3cm 1.2cm 2.2cm 1.2cm;
     @frame footer {
       -pdf-frame-content: footer;
       bottom: 0.7cm;
       margin-left: 1.2cm;
       margin-right: 1.2cm;
-      height: 0.6cm;
+      height: 1cm;
     }
   }
   body {
@@ -146,6 +146,9 @@
 
   <div id="footer">
     <table width="100%">
+      <tr>
+        <td colspan="2" style="text-align: center; font-style: italic;">Documento borrador para control interno. Cifras sujetas a conciliación bancaria y validación por un contador colegiado.</td>
+      </tr>
       <tr>
         <td>{% block footer_title %}{% endblock %}</td>
         <td style="text-align: right;">Página <pdf:pagenumber> de <pdf:pagecount></td>

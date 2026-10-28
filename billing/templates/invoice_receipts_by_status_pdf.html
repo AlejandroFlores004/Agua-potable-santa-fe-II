@@ -1,4 +1,5 @@
 {% extends "reports/pdf/_base.html" %}
+{% load money %}
 
 {% block title %}Recibos por estado{% endblock %}
 {% block heading %}RECIBOS POR ESTADO{% endblock %}
@@ -16,7 +17,7 @@
     <td>
       <div class="summary-label">{{ group.label|upper }}</div>
       <div class="summary-value">{{ group.receipts|length }}</div>
-      <div class="summary-label">${{ group.total|floatformat:2 }}</div>
+      <div class="summary-label">{{ group.total|money }}</div>
     </td>
     {% endfor %}
   </tr>
@@ -50,12 +51,12 @@
         {{ receipt.code|default:"—" }}
         {% if receipt.is_carried %}<div class="muted">al recibo {{ receipt.carried_to.code }}</div>{% endif %}
       </td>
-      <td class="amount">${{ receipt.total }}</td>
+      <td class="amount">{{ receipt.total|money }}</td>
     </tr>
     {% endfor %}
     <tr class="total">
       <td colspan="6">Total {{ group.label|lower }}</td>
-      <td class="amount">${{ group.total|floatformat:2 }}</td>
+      <td class="amount">{{ group.total|money }}</td>
     </tr>
   </tbody>
 </table>

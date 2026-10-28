@@ -1,7 +1,8 @@
+{% load money %}
 {% if plan.total_payments %}
 <div class="text-sm whitespace-nowrap">{{ plan.payments_count }} de {{ plan.total_payments }}</div>
 <progress class="progress progress-secondary w-24 h-2" value="{{ plan.payments_count }}" max="{{ plan.total_payments }}"></progress>
 {% else %}
 <div class="text-sm whitespace-nowrap">{{ plan.payments_count }} pago{{ plan.payments_count|pluralize }}</div>
 {% endif %}
-<div class="text-xs text-gray-500 whitespace-nowrap">${{ plan.paid_amount|default:0|floatformat:2 }} pagado</div>
+<div class="text-xs text-gray-500 whitespace-nowrap">{{ plan.paid_amount|default:0|money }} pagado</div>

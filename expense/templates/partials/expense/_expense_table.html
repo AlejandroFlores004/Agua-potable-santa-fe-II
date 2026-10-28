@@ -1,18 +1,19 @@
+{% load money %}
 <!-- ===== Resumen del periodo filtrado ===== -->
 <div class="grid grid-cols-1 sm:grid-cols-3 rounded-box border border-base-300 overflow-hidden mb-2">
   <div class="stat px-4 sm:px-6 border-base-300 border-b sm:border-b-0 sm:border-r">
     <div class="stat-title whitespace-normal">Total {% if month %}del mes{% else %}gastado{% endif %}</div>
-    <div class="stat-value text-2xl sm:text-3xl text-error">${{ summary.total|floatformat:2 }}</div>
+    <div class="stat-value text-2xl sm:text-3xl text-error">{{ summary.total|money }}</div>
     <div class="stat-desc whitespace-normal">{{ summary.count }} gasto{{ summary.count|pluralize }}</div>
   </div>
   <div class="stat px-4 sm:px-6 border-base-300 border-b sm:border-b-0 sm:border-r">
     <div class="stat-title whitespace-normal">Pagos recurrentes</div>
-    <div class="stat-value text-2xl sm:text-3xl">${{ summary.recurring_total|floatformat:2 }}</div>
+    <div class="stat-value text-2xl sm:text-3xl">{{ summary.recurring_total|money }}</div>
     <div class="stat-desc whitespace-normal">{{ summary.recurring_count }} pago{{ summary.recurring_count|pluralize }}</div>
   </div>
   <div class="stat px-4 sm:px-6">
     <div class="stat-title whitespace-normal">Otros gastos</div>
-    <div class="stat-value text-2xl sm:text-3xl">${{ summary.other_total|floatformat:2 }}</div>
+    <div class="stat-value text-2xl sm:text-3xl">{{ summary.other_total|money }}</div>
     <div class="stat-desc whitespace-normal">{{ summary.other_count }} gasto{{ summary.other_count|pluralize }}</div>
   </div>
 </div>
@@ -37,7 +38,7 @@
         <div class="text-xs text-gray-500">Registrado por {{ expense.created_by }}</div>
         {% if expense.description %}<div class="text-xs text-gray-500 max-w-xs truncate">{{ expense.description }}</div>{% endif %}
       </td>
-      <td class="text-right font-semibold whitespace-nowrap">${{ expense.amount|floatformat:2 }}</td>
+      <td class="text-right font-semibold whitespace-nowrap">{{ expense.amount|money }}</td>
       <td class="text-right">
         <div class="flex justify-end gap-2">
           <button
@@ -52,7 +53,7 @@
             class="btn btn-ghost btn-sm text-error"
             hx-post="{% url 'expense_delete' expense.pk %}"
             hx-swap="none"
-            hx-confirm="¿Eliminar el gasto «{{ expense.concept }}» de ${{ expense.amount|floatformat:2 }}?{% if expense.recurring %} El pago dejará de contar para su gasto recurrente.{% endif %}"
+            hx-confirm="¿Eliminar el gasto «{{ expense.concept }}» de {{ expense.amount|money }}?{% if expense.recurring %} El pago dejará de contar para su gasto recurrente.{% endif %}"
           >
             Eliminar
           </button>
@@ -73,7 +74,7 @@
         <div class="font-medium break-words">{{ expense.concept }}</div>
       </div>
       <div class="text-right shrink-0">
-        <div class="font-semibold">${{ expense.amount|floatformat:2 }}</div>
+        <div class="font-semibold">{{ expense.amount|money }}</div>
         <div class="text-xs text-gray-500">{{ expense.date|date:"d/m/Y" }}</div>
       </div>
     </div>
@@ -95,7 +96,7 @@
           class="btn btn-ghost btn-sm text-error"
           hx-post="{% url 'expense_delete' expense.pk %}"
           hx-swap="none"
-          hx-confirm="¿Eliminar el gasto «{{ expense.concept }}» de ${{ expense.amount|floatformat:2 }}?"
+          hx-confirm="¿Eliminar el gasto «{{ expense.concept }}» de {{ expense.amount|money }}?"
         >
           Eliminar
         </button>

@@ -1,3 +1,4 @@
+{% load money %}
 {% if lines %}
 <div class="hidden lg:block overflow-x-auto">
 <table class="table">
@@ -22,7 +23,7 @@
       <td>{{ line.customer }}</td>
       <td>{{ line.location|default:"—" }}</td>
       <td>
-        {% if line.fee %}{{ line.fee.name }} <span class="text-gray-500">${{ line.fee.amount }}</span>{% else %}<span class="badge badge-warning badge-outline badge-sm">Sin cuota</span>{% endif %}
+        {% if line.fee %}{{ line.fee.name }} <span class="text-gray-500">{{ line.fee.amount|money }}</span>{% else %}<span class="badge badge-warning badge-outline badge-sm">Sin cuota</span>{% endif %}
       </td>
       <td><div class="max-w-xs truncate" title="{{ line.description }}">{{ line.description|default:"—" }}</div></td>
       <td>
@@ -64,7 +65,7 @@
         <div class="font-medium mt-1 break-words">{{ line.customer }}</div>
         <div class="text-sm text-gray-500">{{ line.location|default:"Sin ubicación" }}</div>
         <div class="text-sm">
-          {% if line.fee %}{{ line.fee.name }} · ${{ line.fee.amount }}{% else %}<span class="badge badge-warning badge-outline badge-sm">Sin cuota</span>{% endif %}
+          {% if line.fee %}{{ line.fee.name }} · {{ line.fee.amount|money }}{% else %}<span class="badge badge-warning badge-outline badge-sm">Sin cuota</span>{% endif %}
         </div>
       </div>
       <div class="flex gap-1 shrink-0">

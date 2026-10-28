@@ -1,4 +1,5 @@
 {% extends "reports/pdf/_base.html" %}
+{% load money %}
 
 {% block title %}Clientes con saldo pendiente{% endblock %}
 {% block heading %}{% if only_overdue %}CLIENTES CON RECIBOS VENCIDOS{% else %}CLIENTES CON SALDO PENDIENTE{% endif %}{% endblock %}
@@ -18,7 +19,7 @@
     </td>
     <td width="34%">
       <div class="summary-label">TOTAL ADEUDADO</div>
-      <div class="summary-value">${{ grand_total|floatformat:2 }}</div>
+      <div class="summary-value">{{ grand_total|money }}</div>
     </td>
   </tr>
 </table>
@@ -42,7 +43,7 @@
         {{ debtor.customer.firstName|upper }} {{ debtor.customer.lastName|upper }}
         &nbsp;·&nbsp; Tel.: {{ debtor.customer.number|default:"—" }}
       </td>
-      <td class="amount">${{ debtor.total|floatformat:2 }}</td>
+      <td class="amount">{{ debtor.total|money }}</td>
       <td></td>
     </tr>
     {% for receipt in debtor.receipts %}
@@ -50,9 +51,9 @@
       <td>{{ receipt.line.code }}</td>
       <td>{{ receipt.line.location|default:"Sin ubicación" }}</td>
       <td>{{ receipt.invoice.start_date|date:"d/m/Y" }} al {{ receipt.invoice.end_date|date:"d/m/Y" }}</td>
-      <td class="amount">{% if receipt.previous_balance %}${{ receipt.previous_balance }}{% else %}—{% endif %}</td>
-      <td class="amount">{% if receipt.late_fee_amount %}${{ receipt.late_fee_amount }}{% else %}—{% endif %}</td>
-      <td class="amount">${{ receipt.total }}</td>
+      <td class="amount">{% if receipt.previous_balance %}{{ receipt.previous_balance|money }}{% else %}—{% endif %}</td>
+      <td class="amount">{% if receipt.late_fee_amount %}{{ receipt.late_fee_amount|money }}{% else %}—{% endif %}</td>
+      <td class="amount">{{ receipt.total|money }}</td>
       <td><span class="status-{{ receipt.status_label|lower }}">{{ receipt.status_label }}</span></td>
     </tr>
     {% endfor %}

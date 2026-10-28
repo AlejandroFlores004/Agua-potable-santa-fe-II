@@ -1,6 +1,7 @@
 from django import forms
 
 from connection.models import Line
+from shell.templatetags.money import format_money
 
 from .models import Account, Fee, Invoice, InvoiceLine, LateFee
 
@@ -60,7 +61,7 @@ class InvoiceLineLateFeeForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["late_fee"].label_from_instance = (
-            lambda late_fee: f"{late_fee.name} ${late_fee.amount}" + (" (por defecto)" if late_fee.isDefault else "")
+            lambda late_fee: f"{late_fee.name} {format_money(late_fee.amount)}" + (" (por defecto)" if late_fee.isDefault else "")
         )
 
 
@@ -113,7 +114,7 @@ class InvoiceLineAssignForm(forms.Form):
         label = f"{line.code} — {line.customer.firstName} {line.customer.lastName}"
         if line.location:
             label += f" ({line.location})"
-        label += f" · {line.fee.name} ${line.fee.amount}"
+        label += f" · {line.fee.name} {format_money(line.fee.amount)}"
         if not line.isActive:
             label += " [inactiva]"
         return label

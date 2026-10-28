@@ -1,6 +1,10 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Q
+from decimal import Decimal
+
+from django.db.models import Prefetch, Q
+
+from billing.models import InvoiceLine
 
 from .models import Customer
 
@@ -20,6 +24,31 @@ def search_customers(query=""):
             | Q(number__icontains=query)
         )
     return customers
+
+
+def customer_history(customer):
+    """Mechas del cliente con todos sus recibos, del más reciente al más antiguo."""
+    receipts = InvoiceLine.objects.select_related("invoice", "fee", "late_fee", "carried_to").order_by(
+        "-invoice__start_date", "-created_at"
+    )
+    lines = list(
+        customer.lines.select_related("location", "fee")
+        .prefetch_related(Prefetch("invoiceline_set", queryset=receipts, to_attr="receipts"))
+        .order_by("-isActive", "code")
+    )
+
+    # Un recibo trasladado ya está sumado en el saldo anterior del que lo absorbió,
+    # así que la deuda real son los impagos sin trasladar.
+    all_receipts = [receipt for line in lines for receipt in line.receipts]
+    pending = [r for r in all_receipts if not r.isPaid and not r.is_carried]
+    return {
+        "customer": customer,
+        "lines": lines,
+        "receipts_count": len(all_receipts),
+        "pending_total": sum((r.total for r in pending), Decimal("0")),
+        "overdue_total": sum((r.total for r in pending if r.invoice.is_closed), Decimal("0")),
+        "paid_total": sum((r.total for r in all_receipts if r.isPaid), Decimal("0")),
+    }
 
 
 def save_customer(form, line_formset, user):

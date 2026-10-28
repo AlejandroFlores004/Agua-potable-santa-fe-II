@@ -23,6 +23,12 @@ def customer_home(request):
 
 
 @login_required(login_url="login")
+def customer_detail(request, pk):
+    customer = get_object_or_404(Customer.objects.select_related("created_by"), pk=pk)
+    return render(request, "customer_detail.html", services.customer_history(customer))
+
+
+@login_required(login_url="login")
 def customer_form(request, pk=None):
     customer = get_object_or_404(Customer, pk=pk) if pk else Customer()
     is_new = customer.pk is None

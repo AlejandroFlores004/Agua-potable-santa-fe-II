@@ -1,3 +1,4 @@
+{% load money %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -132,6 +133,13 @@
     padding: 3px 4px;
     margin-top: 3px;
   }
+  .draft-notice {
+    font-size: 5.5pt;
+    font-style: italic;
+    color: #777777;
+    text-align: center;
+    margin-top: 2px;
+  }
   .legal-title {
     font-weight: bold;
     color: #1a1a1a;
@@ -219,25 +227,25 @@
       <tr>
         <td>Cuota fija por servicio de agua potable</td>
         <td class="number">0</td>
-        <td class="amount">${{ invoice_line.amount }}</td>
+        <td class="amount">{{ invoice_line.amount|money }}</td>
       </tr>
       {% if invoice_line.previous_balance %}
       <tr>
         <td>Saldo anterior pendiente</td>
         <td class="number">—</td>
-        <td class="amount">${{ invoice_line.previous_balance }}</td>
+        <td class="amount">{{ invoice_line.previous_balance|money }}</td>
       </tr>
       {% endif %}
       {% if invoice_line.late_fee_amount %}
       <tr>
         <td>Mora por pago atrasado</td>
         <td class="number">—</td>
-        <td class="amount">${{ invoice_line.late_fee_amount }}</td>
+        <td class="amount">{{ invoice_line.late_fee_amount|money }}</td>
       </tr>
       {% endif %}
       <tr>
         <td class="total-label" colspan="2">TOTAL A PAGAR:</td>
-        <td class="total-value">${{ invoice_line.total }}</td>
+        <td class="total-value">{{ invoice_line.total|money }}</td>
       </tr>
     </table>
 
@@ -252,6 +260,7 @@
   ni constituye prueba de pago cancelado sin la correspondiente certificación o sello de
   depósito de la institución financiera receptora.
 </div>
+<div class="draft-notice">Documento borrador para control interno. Cifras sujetas a conciliación bancaria y validación por un contador colegiado.</div>
 
     {# ===== Línea de corte ===== #}
     <table class="cut">
@@ -280,7 +289,7 @@
       </tr>
       <tr>
         <td class="left"><span class="label">N° Cuenta a Depositar:</span> {{ invoice.account.number }}</td>
-        <td class="right"><span class="label">MONTO A DEPOSITAR:</span> <span class="highlight">${{ invoice_line.total }}</span></td>
+        <td class="right"><span class="label">MONTO A DEPOSITAR:</span> <span class="highlight">{{ invoice_line.total|money }}</span></td>
       </tr>
     </table>
 

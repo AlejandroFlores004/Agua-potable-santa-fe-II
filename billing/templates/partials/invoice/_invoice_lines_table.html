@@ -1,3 +1,4 @@
+{% load money %}
 {% if invoice_lines %}
 <div class="hidden lg:block overflow-x-auto">
 <table class="table">
@@ -25,13 +26,13 @@
       <td>{{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</td>
       <td>{{ invoice_line.line.location|default:"—" }}</td>
       <td>
-        <div class="font-semibold">${{ invoice_line.total }}</div>
-        <div class="text-xs text-gray-500">{{ invoice_line.fee.name|default:"Cuota" }} ${{ invoice_line.amount }}</div>
+        <div class="font-semibold">{{ invoice_line.total|money }}</div>
+        <div class="text-xs text-gray-500">{{ invoice_line.fee.name|default:"Cuota" }} {{ invoice_line.amount|money }}</div>
         {% if invoice_line.previous_balance %}
-        <div class="text-xs text-warning">Saldo anterior ${{ invoice_line.previous_balance }}</div>
+        <div class="text-xs text-warning">Saldo anterior {{ invoice_line.previous_balance|money }}</div>
         {% endif %}
         {% if invoice_line.late_fee_amount %}
-        <div class="text-xs text-error">Mora ${{ invoice_line.late_fee_amount }}</div>
+        <div class="text-xs text-error">Mora {{ invoice_line.late_fee_amount|money }}</div>
         {% endif %}
       </td>
       <td>
@@ -104,13 +105,13 @@
         </div>
         <div class="font-medium mt-1 break-words">{{ invoice_line.line.customer.firstName }} {{ invoice_line.line.customer.lastName }}</div>
         <div class="text-xs text-gray-500">
-          {{ invoice_line.line.location|default:"Sin ubicación" }} · <strong class="text-base-content">${{ invoice_line.total }}</strong> · Recibo {{ invoice_line.code|default:"pendiente" }}
+          {{ invoice_line.line.location|default:"Sin ubicación" }} · <strong class="text-base-content">{{ invoice_line.total|money }}</strong> · Recibo {{ invoice_line.code|default:"pendiente" }}
         </div>
         {% if invoice_line.previous_balance or invoice_line.late_fee_amount %}
         <div class="text-xs text-gray-500">
-          Cuota ${{ invoice_line.amount }}
-          {% if invoice_line.previous_balance %}· <span class="text-warning">Saldo anterior ${{ invoice_line.previous_balance }}</span>{% endif %}
-          {% if invoice_line.late_fee_amount %}· <span class="text-error">Mora ${{ invoice_line.late_fee_amount }}</span>{% endif %}
+          Cuota {{ invoice_line.amount|money }}
+          {% if invoice_line.previous_balance %}· <span class="text-warning">Saldo anterior {{ invoice_line.previous_balance|money }}</span>{% endif %}
+          {% if invoice_line.late_fee_amount %}· <span class="text-error">Mora {{ invoice_line.late_fee_amount|money }}</span>{% endif %}
         </div>
         {% endif %}
       </div>

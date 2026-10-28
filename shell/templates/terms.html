@@ -1,0 +1,138 @@
+{% load tailwind_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Términos y condiciones · Agua Potable Santa Fe</title>
+  {% tailwind_css %}
+  <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+</head>
+<body class="min-h-screen bg-base-200 p-4 sm:p-8">
+
+  <div class="card w-full max-w-3xl mx-auto shadow-xl bg-base-100">
+    <div class="card-body gap-6 text-sm leading-relaxed">
+
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <img src="{% static 'logo.svg' %}" alt="Agua Potable Santa Fe II" class="w-48">
+        <a href="{% if request.user.is_authenticated %}{% url 'home' %}{% else %}{% url 'login' %}{% endif %}" class="btn btn-ghost btn-sm">
+          {% if request.user.is_authenticated %}Volver al inicio{% else %}Volver al inicio de sesión{% endif %}
+        </a>
+      </div>
+
+      <section role="note" class="alert alert-info items-start">
+        <div>
+          <h2 class="font-bold">Aviso de Carácter Informativo y Administrativo</h2>
+          <p class="mt-1">
+            Esta aplicación web/móvil es un sistema de control interno y apoyo a la gestión contable del proyecto.
+            Los datos, cálculos, avisos de cobro y reportes generados son estrictamente informativos y de uso
+            administrativo interno. La plataforma no constituye un sistema de facturación fiscal ni reemplaza la
+            contabilidad formal. Todos los estados financieros, balances e ingresos reportados por este sistema
+            deberán ser revisados, auditados y validados posteriormente por un Contador Público o Auditor autorizado
+            conforme a las leyes vigentes de El Salvador.
+          </p>
+        </div>
+      </section>
+
+      <header>
+        <h1 class="text-2xl font-bold">Términos y Condiciones de Uso de la Aplicación</h1>
+        <p class="text-gray-500">Última actualización: Octubre de 2026</p>
+      </header>
+
+      <section>
+        <h2 class="text-lg font-semibold mb-2">1. Aceptación de los términos</h2>
+        <p>
+          Al acceder, registrarse o utilizar esta aplicación móvil y/o web (en adelante, "la Aplicación"), el usuario
+          (administrador, operador o junta de agua) acepta cumplir y quedar vinculado por los presentes Términos y
+          Condiciones. Si no está de acuerdo con alguna de las disposiciones aquí establecidas, deberá abstenerse de
+          utilizar la plataforma.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold mb-2">2. Naturaleza y propósito de la Aplicación</h2>
+        <p>
+          La Aplicación es un software de control interno, apoyo contable y gestión administrativa diseñado para la
+          organización de lecturas, emisión de avisos de cobro y registro de estados de cuenta de proyectos o
+          sistemas comunitarios de agua potable.
+        </p>
+        <h3 class="font-semibold mt-3 mb-1">De la validez fiscal y contable:</h3>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>
+            La Aplicación no es un sistema de facturación electrónica (DTE) ni emite comprobantes con validez
+            tributaria ante el Ministerio de Hacienda de El Salvador.
+          </li>
+          <li>
+            Todos los reportes, estados de cuenta, balances e informes generados por la Aplicación tienen un carácter
+            estrictamente informativo y preliminar (borrador de trabajo).
+          </li>
+          <li>
+            Toda la información financiera generada por la plataforma deberá ser revisada, auditada y validada
+            posteriormente por un Contador Público autorizable o Auditor conforme a la legislación fiscal vigente.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold mb-2">3. Avisos de cobro y lugar de pago</h2>
+        <p>
+          Los documentos impresos o digitales generados a través de la Aplicación corresponden únicamente a Avisos de
+          Cobro / Órdenes de Depósito Informativas en virtud de contratos o acuerdos de prestación de servicios.
+        </p>
+        <ul class="list-disc pl-5 space-y-1 mt-2">
+          <li>
+            <strong>Canal exclusivo de pago:</strong> Salvo que la administración del proyecto disponga expresamente
+            lo contrario por escrito, el pago de los avisos de cobro únicamente debe ser efectuado en la Caja de
+            Crédito de San Sebastián.
+          </li>
+          <li>
+            La Aplicación no procesa transacciones bancarias directas ni se responsabiliza por pagos realizados fuera
+            de la institución financiera autorizada.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold mb-2">4. Limitación de responsabilidad</h2>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>
+            <strong>Responsabilidad del Desarrollador / Proveedor:</strong> El desarrollador y los administradores del
+            software quedan expresamente liberados de cualquier responsabilidad legal, penal, administrativa o
+            tributaria derivada de auditorías fiscales, reclamos de usuarios finales o inconsistencias en la
+            contabilidad del proyecto de agua.
+          </li>
+          <li>
+            <strong>Exactitud de los datos:</strong> La precisión de la información almacenada (nombres, DUIs,
+            consumos en M³, ubicaciones y montos) es responsabilidad exclusiva de los operadores o administradores del
+            sistema que ingresan dichos datos.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold mb-2">5. Privacidad y manejo de datos</h2>
+        <p>
+          La Aplicación almacena la información mínima necesaria para la identificación de las líneas de servicio y
+          el seguimiento de pagos (nombres, números de DUI, direcciones/caseríos y registros de consumo).
+        </p>
+        <p class="mt-2">
+          Esta información es de uso exclusivo de la administración del proyecto y no será comercializada ni
+          compartida con terceros ajenos a la operación contable del sistema.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold mb-2">6. Modificaciones a los términos</h2>
+        <p>
+          Nos reservamos el derecho de modificar o actualizar los presentes Términos y Condiciones en cualquier
+          momento. El uso continuado de la Aplicación tras la publicación de los cambios constituirá la aceptación
+          implícita de los mismos.
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+</body>
+</html>

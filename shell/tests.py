@@ -108,3 +108,15 @@ class DashboardTests(TestCase):
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Todavía no hay facturas registradas.")
+
+
+class TermsTests(TestCase):
+    def test_terms_page_is_public(self):
+        response = self.client.get(reverse("terms"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Términos y Condiciones de Uso")
+        self.assertContains(response, "Aviso de Carácter Informativo y Administrativo")
+
+    def test_login_page_links_to_terms(self):
+        response = self.client.get(reverse("login"))
+        self.assertContains(response, reverse("terms"))

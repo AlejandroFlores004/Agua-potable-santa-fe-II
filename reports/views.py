@@ -105,3 +105,18 @@ def lines_pdf(request):
 def debtors_pdf(request):
     context = services.debtors_report(only_overdue=request.GET.get("overdue") == "1")
     return _pdf_response(request, "reports/pdf/debtors.html", context, f"morosos_{_today()}.pdf")
+
+
+@login_required(login_url="login")
+@module_required("billing")
+def invoices_excel(request):
+    invoice_id = request.GET.get("invoice", "")
+    workbook = services.invoices_excel(
+        invoice_id=invoice_id if invoice_id.isdigit() else "",
+        status=request.GET.get("status", ""),
+    )
+    response = HttpResponse(
+        workbook, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = f'attachment; filename="facturas_{_today()}.xlsx"'
+    return response

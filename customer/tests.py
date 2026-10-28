@@ -144,3 +144,63 @@ class CustomerValidationTests(TestCase):
             with self.subTest(number=number):
                 self._create(number=number, firstName=f"Ana{index}")
         self.assertEqual(Customer.objects.count(), 2)
+
+
+class CustomerDetailTests(TestCase):
+    def setUp(self):
+        from datetime import date
+
+        from billing.models import Account, Fee, Invoice, InvoiceLine
+
+        self.user = User.objects.create_superuser("admin", password="pass")
+        self.client.force_login(self.user)
+        self.customer = Customer.objects.create(firstName="Ana", lastName="Pérez", created_by=self.user)
+        fee = Fee.objects.create(name="Básica", amount=5, created_by=self.user)
+        self.line = Line.objects.create(customer=self.customer, fee=fee, created_by=self.user)
+        Line.objects.create(customer=self.customer, created_by=self.user)
+        account = Account.objects.create(name="Caja", number="1", created_by=self.user)
+
+        def invoice(month, status):
+            return Invoice.objects.create(
+                account=account, start_date=date(2026, month, 1), end_date=date(2026, month, 28),
+                due_date=date(2026, month, 28), status=status, created_by=self.user,
+            )
+
+        self.paid = InvoiceLine.objects.create(
+            invoice=invoice(1, Invoice.Status.CLOSED), line=self.line, isPaid=True, created_by=self.user
+        )
+        self.overdue = InvoiceLine.objects.create(
+            invoice=invoice(2, Invoice.Status.CLOSED), line=self.line, created_by=self.user
+        )
+        self.pending = InvoiceLine.objects.create(
+            invoice=invoice(3, Invoice.Status.OPEN), line=self.line, created_by=self.user
+        )
+
+    def test_detail_shows_lines_and_receipts(self):
+        response = self.client.get(reverse("customer_detail", args=[self.customer.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "customer_detail.html")
+        lines = response.context["lines"]
+        self.assertEqual(len(lines), 2)
+        line = next(l for l in lines if l.pk == self.line.pk)
+        self.assertEqual([r.pk for r in line.receipts], [self.pending.pk, self.overdue.pk, self.paid.pk])
+        self.assertContains(response, self.paid.code)
+        self.assertContains(response, "Esta línea todavía no tiene recibos.")
+
+    def test_totals_ignore_carried_receipts(self):
+        context = self.client.get(reverse("customer_detail", args=[self.customer.pk])).context
+        self.overdue.refresh_from_db()
+        self.assertEqual(self.overdue.carried_to, self.pending)
+        # El vencido se trasladó al pendiente (5 + 5 de saldo anterior + mora si hay).
+        self.assertEqual(context["pending_total"], self.pending.total)
+        self.assertEqual(context["overdue_total"], 0)
+        self.assertEqual(context["paid_total"], self.paid.total)
+        self.assertEqual(context["receipts_count"], 3)
+
+    def test_unknown_customer_is_404(self):
+        response = self.client.get(reverse("customer_detail", args=[9999]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_table_links_to_detail(self):
+        response = self.client.get(reverse("customer_home"))
+        self.assertContains(response, reverse("customer_detail", args=[self.customer.pk]))
